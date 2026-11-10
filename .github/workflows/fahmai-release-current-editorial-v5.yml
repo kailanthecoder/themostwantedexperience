@@ -1,0 +1,148 @@
+name: Publish minimal Current audit and editorial typography
+on:
+  push:
+    paths: ['.github/workflows/fahmai-release-current-editorial-v5.yml']
+permissions:
+  contents: write
+jobs:
+  update-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Capture latest homepages as lightweight embedded screenshot evidence
+        run: |
+          python -m pip install playwright pillow pypdf -q
+          python -m playwright install chromium >/dev/null 2>&1
+          python - <<'PY'
+          import asyncio,re,io
+          from pathlib import Path
+          from PIL import Image
+          from playwright.async_api import async_playwright
+          sites=[
+            ('fmh','https://fahmaiholdings.com/'),
+            ('bull','https://www.whiskybull.com/'),
+            ('cask','https://www.platinumcask.com/')]
+          async def main():
+            async with async_playwright() as p:
+              browser=await p.chromium.launch()
+              for key,url in sites:
+                page=await browser.new_page(viewport={'width':1365,'height':860},device_scale_factor=1)
+                response=await page.goto(url,wait_until='domcontentloaded',timeout=42000)
+                assert response and response.status<400,f'Cannot capture {key}: {response.status if response else "no response"}'
+                await page.wait_for_timeout(1300)
+                if key=='cask':
+                  btns=(await page.locator('button').all_text_contents())[:18]
+                  print('CASK_BUTTONS',btns)
+                  for term in ('yes','enter site','i am over','i am of legal','continue'):
+                    loc=page.get_by_role('button',name=re.compile(term,re.I))
+                    if await loc.count():
+                      try:
+                        await loc.first.click(timeout=1400)
+                        await page.wait_for_timeout(850)
+                        print('CASK_AGE_GATE_ACCEPTED',term)
+                        break
+                      except Exception as e:
+                        print('CASK_GATE_CLICK_NOTE',term,str(e)[:130])
+                content=(await page.locator('body').inner_text())[:240].replace('\n',' ')
+                raw=await page.screenshot(full_page=False)
+                img=Image.open(io.BytesIO(raw)).convert('RGB')
+                img=img.crop((0,0,1365,690))
+                img=img.resize((960,485),resample=Image.Resampling.LANCZOS)
+                target=Path('/tmp/fahmai_current_capture_'+key+'.webp')
+                img.save(target,'WEBP',quality=80,method=6)
+                print('CAPTURE',key,'status',response.status,'title',await page.title(),'bytes',target.stat().st_size,'body',content)
+                assert target.stat().st_size>6000,'Screenshot suspiciously small'
+                await page.close()
+              await browser.close()
+          asyncio.run(main())
+          PY
+      - name: Rebuild Current as visual-first concise editorial section
+        run: python proposals/fah-mai/install_current_editorial_v5.py
+      - name: Test screenshots, carousel, three brand comparisons, typography, arrows, page bounds and PDF
+        run: |
+          python - <<'PY'
+          import asyncio,base64,io
+          from pathlib import Path
+          from pypdf import PdfReader
+          from PIL import Image
+          from playwright.async_api import async_playwright
+          uri=Path('proposals/fah-mai/index.html').resolve().as_uri()
+          async def measure(page,id):
+            return await page.evaluate("""(id)=>{
+              const root=document.getElementById(id);
+              const g=e=>{if(!e)return null;const r=e.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height,bottom:r.bottom,right:r.right}}
+              const body=root.querySelector('.sheet-body');
+              const footer=root.querySelector('.sheet-footer');
+              const source=root.querySelector('.audit-v5-source');
+              return {sheet:g(root),body:g(body),footer:g(footer),source:g(source),
+                visible:getComputedStyle(root).display!=='none',
+                font:getComputedStyle(body).fontFamily,
+                h1:root.querySelector('h1')?.textContent.trim(),
+                hasThinArrows:/[↗→➜⇢]/.test(root.textContent),
+                cards:[...root.querySelectorAll('.audit-v5-brand,.audit-v5-growth-item')].map(g),
+                galleryImgs:[...root.querySelectorAll('.audit-v5-slide img')].map(e=>({url:e.currentSrc.slice(0,50),loaded:e.complete&&e.naturalWidth>100,naturalWidth:e.naturalWidth}))
+              };
+            }""",id)
+          async def main():
+            async with async_playwright() as p:
+              browser=await p.chromium.launch()
+              for width in (1440,900,390,320):
+                page=await browser.new_page(viewport={'width':width,'height':940},device_scale_factor=1)
+                errors=[]
+                page.on('pageerror',lambda e:errors.append(str(e)))
+                await page.goto(uri,wait_until='domcontentloaded',timeout=75000)
+                await page.wait_for_timeout(230)
+                assert (await page.evaluate('document.querySelectorAll(".sheet").length'))==12
+                assert (await page.evaluate('document.documentElement.scrollWidth'))<=width+2,f'Body horizontal overflow {width}'
+                if width>800:
+                  await page.locator('#tab-current').click()
+                for id in ('current','current-journeys','current-growth'):
+                  d=await measure(page,id)
+                  print('PAGE_GEOMETRY',width,id,d)
+                  assert d['font'].startswith('"Helvetica Neue"'),f'Old font on {id}: {d["font"]}'
+                  assert d['h1'],f'Missing heading: {id}'
+                  assert not d['hasThinArrows'],f'Decorative arrows remain {id}'
+                  assert d['source']['bottom']<=d['footer']['y']-2, f'Content clipped into footer at {width} {id}'
+                  if id=='current':
+                    assert len(d['galleryImgs'])==3 and all(x['loaded'] and x['url'].startswith('data:image/webp;base64,') for x in d['galleryImgs']),f'Missing real carousel screenshots: {d}'
+                  if id=='current-journeys':
+                    assert len(d['cards'])==3,'Missing brand comparisons'
+                    assert d['cards'][-1]['bottom']<d['source']['y'],f'Brand rows overlap source {width}'
+                  if id=='current-growth':
+                    assert len(d['cards'])==3,'Missing growth priorities'
+                if width>800:
+                  await page.locator('#tab-current').click()
+                await page.locator('#current .audit-v5-gallery-nav button[data-audit-slide="1"]').click()
+                await page.wait_for_timeout(450)
+                carousel=await page.evaluate("""() => ({selected:[...document.querySelectorAll('#current [data-audit-slide]')].map(x=>x.getAttribute('aria-pressed')),left:document.querySelector('#current .audit-v5-track').scrollLeft,width:document.querySelector('#current .audit-v5-track').clientWidth})""")
+                print('CAROUSEL',width,carousel)
+                assert carousel['selected']==['false','true','false'] and carousel['left']>carousel['width']*.65,'Carousel navigation failed'
+                await page.locator('#current .audit-v5-gallery-nav button[data-audit-slide="2"]').click()
+                await page.wait_for_timeout(300)
+                assert (await page.locator('#current [data-audit-slide="2"]').get_attribute('aria-pressed'))=='true'
+                if width==1440:
+                  await page.locator('#tab-current').click()
+                  screenshot=await page.locator('#current').screenshot()
+                  image=Image.open(io.BytesIO(screenshot)).convert('RGB')
+                  image.thumbnail((390,550))
+                  b=io.BytesIO();image.save(b,'JPEG',quality=76)
+                  print('CURRENT_PREVIEW_BASE64',base64.b64encode(b.getvalue()).decode('ascii'))
+                  await page.evaluate("window.dispatchEvent(new Event('beforeprint'))")
+                  await page.emulate_media(media='print')
+                  pages=await page.evaluate("""() => [...document.querySelectorAll('.viewport>.sheet')].filter(e=>getComputedStyle(e).display!=='none').length""")
+                  assert pages==12,'PDF missing sheets'
+                  await page.pdf(path='/tmp/current-editorial.pdf',prefer_css_page_size=True,print_background=True)
+                  printed=len(PdfReader('/tmp/current-editorial.pdf').pages)
+                  print('PRINT_PAGE_COUNT',printed)
+                  assert printed==12,f'Unexpected PDF page count {printed}'
+                assert not errors,f'Javascript errors at {width}: {errors}'
+                await page.close()
+              await browser.close()
+          asyncio.run(main())
+          PY
+      - name: Publish unchanged URL with improved Current section
+        run: |
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add proposals/fah-mai/index.html
+          git diff --cached --quiet || (git commit -m "Make Current visual-first and minimal, refine brand audit, typography and arrows" && git push)
