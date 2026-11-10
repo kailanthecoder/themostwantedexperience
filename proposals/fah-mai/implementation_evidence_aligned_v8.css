@@ -1,0 +1,53 @@
+/* Reconcile existing Implementation evidence sheet with the revised GBP terms. */
+#implementation-evidence .launch-proof-v8-visual{
+  display:flex!important;
+  flex-direction:column!important;
+  gap:0!important;
+  width:100%!important;
+  min-height:174px!important;
+  margin:9px 0 10px!important;
+  padding:3px 12px!important;
+  border:1px solid #e9dfe6!important;
+  border-radius:7px!important;
+  background:#faf7f9!important;
+  box-shadow:none!important;
+}
+#implementation-evidence .launch-proof-v8-visual>div{
+  display:grid!important;
+  grid-template-columns:23px minmax(0,1fr)!important;
+  align-items:center!important;
+  column-gap:9px!important;
+  min-height:54px!important;
+  padding:8px 0!important;
+  border-bottom:1px solid #ebe2e8!important;
+}
+#implementation-evidence .launch-proof-v8-visual>div:last-child{border-bottom:0!important}
+#implementation-evidence .launch-proof-v8-visual span{
+  grid-row:1/3!important;
+  align-self:center!important;
+  display:inline-grid!important;place-items:center!important;
+  width:23px!important;height:23px!important;
+  color:#b82c74!important;
+  background:#f4e4ed!important;
+  border-radius:5px!important;
+  font:800 9px/1 Arial,sans-serif!important;
+}
+#implementation-evidence .launch-proof-v8-visual strong{
+  font:800 11px/1.2 "Helvetica Neue",Arial,sans-serif!important;
+  color:#392b36!important;
+}
+#implementation-evidence .launch-proof-v8-visual small{
+  font:550 9.1px/1.26 "Helvetica Neue",Arial,sans-serif!important;
+  color:#84737e!important;
+}
+#implementation-evidence .launch-proof-v8 .launch-proof-card p,
+#implementation-evidence .launch-proof-v8 .launch-proof-terms,
+#implementation-evidence .launch-proof-v8 .launch-proof-takeaway{
+  font-family:"Helvetica Neue",Arial,sans-serif!important;
+}
+@media print{
+  #implementation-evidence .launch-proof-v8-visual{
+    -webkit-print-color-adjust:exact!important;
+    print-color-adjust:exact!important;
+  }
+}
