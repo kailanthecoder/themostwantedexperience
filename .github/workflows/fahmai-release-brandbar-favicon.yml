@@ -1,0 +1,116 @@
+name: Release consistent brand header and FMH favicon
+on:
+  push:
+    paths: ['.github/workflows/fahmai-release-brandbar-favicon.yml']
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Match the desktop A4 header on mobile and install FMH favicon
+        run: python proposals/fah-mai/match_desktop_brandbar_mobile.py
+      - name: Verify desktop/mobile parity and logo favicon
+        run: |
+          python -m pip install playwright pillow -q
+          python -m playwright install chromium >/dev/null 2>&1
+          python - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          import base64,io
+          from bs4 import BeautifulSoup
+          s=Path('proposals/fah-mai/index.html').read_text()
+          soup=BeautifulSoup(s,'html.parser')
+          favicon=soup.find('link',rel='icon')
+          assert favicon and favicon.get('type')=='image/png'
+          png=base64.b64decode(favicon['href'].split(',',1)[1])
+          im=Image.open(io.BytesIO(png))
+          assert im.size==(300,300),f'Invalid FMH favicon: {im.size}'
+          assert png==Path('proposals/fah-mai/brand-assets/fmh_5.png').read_bytes()
+          print('FAVICON exact official FMH brandmark:',im.size,len(png))
+          PY
+          python - <<'PY'
+          import asyncio
+          from pathlib import Path
+          from playwright.async_api import async_playwright
+          selectors=[
+            '.presentation-header',
+            '.presentation-header .presented-to',
+            '.presentation-header .presented-by',
+            '.presentation-header .presented-copy',
+            '.presentation-header .presentation-kicker',
+            '.presentation-header .presented-copy strong',
+            '.presentation-header .presentation-sub',
+            '.presentation-header .client-lockups',
+            '.presentation-header .original-brand.brand-fmh img',
+            '.presentation-header .original-brand.brand-bull img',
+            '.presentation-header .original-brand.brand-pc img',
+            '.presentation-header .presenter-lockups',
+            '.presentation-header .mw-black img',
+            '.presentation-header .signature-logo',
+            '.presentation-hairline'
+          ]
+          async def inspect(page):
+            return await page.evaluate("""sels=>Object.fromEntries(sels.map(sel=>{
+              const e=document.querySelector('#overview '+sel);
+              if(!e)return[sel,{missing:true}];
+              const c=getComputedStyle(e),r=e.getBoundingClientRect();
+              return [sel,{width:c.width,height:c.height,padding:c.padding,gap:c.gap,fontsize:c.fontSize,
+                lineheight:c.lineHeight,border:c.borderRight,letterspacing:c.letterSpacing,
+                grid:c.gridTemplateColumns,rectWidth:r.width,rectHeight:r.height,zoom:c.zoom}];
+            }))""",selectors)
+          async def run():
+            async with async_playwright() as p:
+              browser=await p.chromium.launch()
+              original={}
+              for width in (1200,768,390,320):
+                page=await browser.new_page(viewport={'width':width,'height':860})
+                errors=[]
+                page.on('pageerror',lambda e: errors.append(str(e)))
+                await page.goto(Path('proposals/fah-mai/index.html').resolve().as_uri(),wait_until='domcontentloaded',timeout=60000)
+                await page.wait_for_timeout(120)
+                styles=await inspect(page)
+                if width==1200:original=styles
+                for key in selectors:
+                  a,b=original[key],styles[key]
+                  assert not b.get('missing'),f'{key} missing'
+                  if width<800:
+                    for prop in ('width','height','padding','gap','fontsize','lineheight','letterspacing'):
+                      if prop not in a:continue
+                      if a[prop]!=b[prop]:
+                        def num(v):
+                          try:return float(v.removesuffix('px'))
+                          except:return None
+                        if num(a[prop]) is not None and num(b[prop]) is not None and abs(num(a[prop])-num(b[prop]))<=1:
+                          continue
+                        if prop=='width' and key=='.presentation-hairline':continue
+                        raise AssertionError(f'{width}px: {key}: {prop} mismatch desktop={a[prop]} mobile={b[prop]}')
+                out=await page.evaluate("""() => ({body:document.documentElement.scrollWidth,
+                  viewport:innerWidth,zoom:document.querySelector('.fm-zoom')?.getBoundingClientRect().height??0,
+                  topbar:document.querySelector('.toolbar')?.getBoundingClientRect().height??0})""")
+                assert out['body']<=width+2,f'Overflow at {width}: {out}'
+                assert not errors,'JS errors: '+str(errors)
+                if width<800:
+                  assert out['zoom']>=40,'Mobile zoom missing'
+                  await page.locator('.fm-zoom-range').fill('1.5')
+                  await page.wait_for_timeout(70)
+                  assert await page.locator('.fm-zoom-readout').inner_text()=='1.5×'
+                  await page.locator('#tab-examples').click()
+                  assert await page.locator('#examples').is_visible()
+                  await page.locator('#nav-proposal').click()
+                  assert await page.locator('#overview').is_visible()
+                await page.screenshot(path=f'/tmp/fahmai-fmh-header-{width}.png')
+                print('HEADER VERIFIED',width,out,
+                  'header=',styles['.presentation-header']['width'],styles['.presentation-header']['height'],
+                  'fmh=',styles['.presentation-header .original-brand.brand-fmh img']['width'])
+                await page.close()
+              await browser.close()
+          asyncio.run(run())
+          PY
+      - name: Publish unchanged proposal with responsive header parity
+        run: |
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add proposals/fah-mai/index.html
+          git diff --cached --quiet || (git commit -m "Match FMH header mobile and desktop; add official FMH favicon" && git push)
