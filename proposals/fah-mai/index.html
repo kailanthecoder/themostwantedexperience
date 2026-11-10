@@ -351,6 +351,47 @@ h1,h2,h3,.feature-index,.audit-brand,.small-label,.tag,.phase-status,.tool-brand
  #overview .page-heading h1{font-size:28px!important}
 }
 </style>
+
+<style id="glass-nav-contrast-v10">
+@media screen {
+ .tabs #tab-proposed,
+ .tabs #tab-proposed[aria-selected="false"]{
+  opacity:1!important;filter:none!important;visibility:visible!important;
+  color:#fff!important;-webkit-text-fill-color:#fff!important;
+  background:linear-gradient(110deg,#a6125e 0%,#d82e7e 100%)!important;
+  border:1.5px solid #8e1551!important;
+  font-family:'Poppins','Figtree',Arial,sans-serif!important;
+  font-weight:900!important;font-size:14px!important;
+  text-shadow:0 1px 2px rgba(54,2,31,.08)!important;
+  box-shadow:0 5px 14px rgba(157,23,84,.2),inset 0 1px 0 rgba(255,255,255,.23)!important;
+ }
+ .tabs #tab-proposed[aria-selected="true"]{
+  color:#fff!important;-webkit-text-fill-color:#fff!important;
+  opacity:1!important;
+  background:linear-gradient(115deg,#761144,#b81868)!important;
+  border:2px solid #761144!important;
+  box-shadow:0 5px 18px rgba(117,17,68,.3)!important;
+ }
+}
+@media screen and (max-width:590px){
+ .tabs{width:100%!important;display:flex!important;flex-wrap:wrap!important;
+  justify-content:center!important;align-content:center!important;
+  overflow-x:visible!important;overflow-y:visible!important;
+  gap:7px 6px!important;padding:3px 0!important}
+ .tabs .tab{font-size:12.1px!important;font-weight:800!important;
+  height:41px!important;min-height:41px!important;padding:0 10.5px!important;
+  line-height:1.1!important;flex:0 0 auto!important}
+ .tabs #tab-proposed{font-size:12.7px!important;font-weight:900!important;
+  margin-left:14px!important;padding:0 11px!important}
+ .tabs #tab-proposed:before{left:-10px!important;top:8px!important;height:25px!important}
+ .toolbar-inner{gap:7px 10px!important}
+}
+@media screen and (max-width:365px){
+ .tabs{gap:5px 4px!important}
+ .tabs .tab{font-size:11px!important;padding:0 8px!important;height:39px!important;min-height:39px!important}
+ .tabs #tab-proposed{font-size:11.3px!important;margin-left:9px!important;padding:0 9px!important}
+}
+</style>
 </head><body>
 <div class="toolbar"><div class="toolbar-inner"><div class="tool-brand">FAH MAI <span>×</span> MOST WANTED</div><nav class="tabs" role="tablist" aria-label="Proposal sections"><button class="tab" id="tab-overview" role="tab" aria-controls="overview" aria-selected="true" data-target="overview" tabindex="0">Overview</button><button class="tab" id="tab-current" role="tab" aria-controls="current" aria-selected="false" data-target="current" tabindex="-1">Current</button><button class="tab" id="tab-spec" role="tab" aria-controls="spec" aria-selected="false" data-target="spec" tabindex="-1">Spec</button><button class="tab" id="tab-budget" role="tab" aria-controls="budget" aria-selected="false" data-target="budget" tabindex="-1">Budget</button><button class="tab" id="tab-implementation" role="tab" aria-controls="implementation" aria-selected="false" data-target="implementation" tabindex="-1">Implementation</button><button class="tab tab-proposals" id="tab-proposed" role="tab" aria-controls="proposed" aria-selected="false" data-target="proposed" tabindex="-1">Proposals</button><button class="tab" id="tab-examples" role="tab" aria-controls="examples" aria-selected="false" data-target="examples" tabindex="-1">Examples</button></nav><div class="tool-actions"><span class="status">A4 · 7 TABS</span><button type="button" class="pdf-btn">EXPORT PDF ↗</button></div></div></div>
 <main class="viewport" aria-label="Fah Mai Holdings commercial proposal"><article aria-labelledby="tab-overview" class="sheet is-active" id="overview" role="tabpanel">
