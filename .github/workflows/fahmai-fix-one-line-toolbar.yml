@@ -1,0 +1,88 @@
+name: Publish one-line Fah Mai navigation
+on:
+  push:
+    paths: ['.github/workflows/fahmai-fix-one-line-toolbar.yml']
+permissions:
+  contents: write
+jobs:
+  patch-test-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fix existing header without changing proposal pages
+        run: python proposals/fah-mai/fix_single_row_toolbar.py
+      - name: Browser check desktop and mobile one-row layout
+        run: |
+          python -m pip install playwright -q
+          python -m playwright install chromium >/dev/null 2>&1
+          python - <<'PY'
+          import asyncio
+          from pathlib import Path
+          from playwright.async_api import async_playwright
+          target=Path('proposals/fah-mai/index.html').resolve().as_uri()
+          async def layout(page):
+            return await page.evaluate("""() => {
+              let r=x=>{const e=document.querySelector(x);if(!e)return null;const a=e.getBoundingClientRect();return {x:a.x,y:a.y,w:a.width,h:a.height,right:a.right,midY:(a.top+a.bottom)/2}};
+              const nav=document.querySelector('.proposal-sections');
+              let tabs=[...nav.querySelectorAll('.tab')];
+              return {toolbar:r('.toolbar'),inner:r('.toolbar-inner'),switcher:r('.view-switcher'),firstTab:r('#tab-overview'),lastTab:r('#tab-proposed'),nav:r('.proposal-sections'),pdf:r('.pdf-btn'),
+                navScrollWidth:nav.scrollWidth,navClientWidth:nav.clientWidth,navScrollLeft:nav.scrollLeft,
+                tabs:tabs.map(e=>({id:e.id,selected:e.getAttribute('aria-selected'),y:e.getBoundingClientRect().y,font:getComputedStyle(e).fontSize,shadow:getComputedStyle(e).boxShadow})),
+                visiblePages:[...document.querySelectorAll('.viewport .sheet.is-active')].map(e=>e.id),
+                documentWidth:document.documentElement.scrollWidth,windowWidth:innerWidth}
+            }""")
+          async def check(page,width):
+            errs=[];page.on('pageerror',lambda e:errs.append(str(e)))
+            await page.goto(target,wait_until='domcontentloaded',timeout=60000)
+            await page.wait_for_timeout(250)
+            a=await layout(page)
+            print('SINGLE_LINE_INITIAL',width,a)
+            assert a['toolbar']['h']<74, f'Unexpected tall/wrapped toolbar: {width} {a}'
+            assert a['documentWidth']<=width+2, f'Body overflow at {width}'
+            assert abs(a['switcher']['midY']-a['pdf']['midY'])<7, f'Header is split into two rows at {width}'
+            assert abs(a['nav']['midY']-a['pdf']['midY'])<8, f'Section tabs are not on same row at {width}'
+            assert abs(a['firstTab']['midY']-a['pdf']['midY'])<8, f'First section tab wrapped: {width}'
+            assert all(abs(a['tabs'][0]['y']-t['y'])<2 for t in a['tabs']), f'Section tabs wrapped: {width}'
+            assert len(a['tabs'])==6, f'Six section tabs required: {width}'
+            assert a['nav']['w']>50, f'Not enough viewport for section navigation at {width}'
+            if width>=1200:
+              assert a['navScrollWidth']<=a['navClientWidth']+3,f'Unexpected horizontal scroll on desktop {width}'
+            if width<=390:
+              assert a['navScrollWidth']>a['navClientWidth'],f'Mobile menu should swipe: {width}'
+            await page.locator('#tab-proposed').click()
+            await page.wait_for_timeout(250)
+            b=await layout(page)
+            print('PROPOSED_SELECTED',width,{k:b[k] for k in ('toolbar','nav','navScrollLeft','tabs','visiblePages')})
+            assert b['tabs'][-1]['selected']=='true','Proposed tab cannot activate'
+            assert b['tabs'][-1]['font']==b['tabs'][0]['font'], 'Proposed still has special oversized typography'
+            assert b['tabs'][-1]['shadow']=='none','Proposed still has legacy shadow'
+            assert abs(b['pdf']['midY']-b['nav']['midY'])<8,'Toolbar broke after tab switch'
+            assert 'proposed' in b['visiblePages'],'Proposed sheet did not open'
+            if width<=390:
+              assert b['navScrollLeft']>0,'Selected last section is not scrolled into view'
+            await page.locator('#tab-overview').click()
+            await page.locator('.fm-story-next').click()
+            c=await layout(page)
+            assert (len(c['visiblePages'])==1 if width<=800 else len(c['visiblePages'])==2), 'Storybook page-turn broken'
+            await page.locator('#tab-examples').click()
+            assert await page.locator('#examples').is_visible(), 'Examples switch broken'
+            await page.locator('#nav-proposal').click()
+            assert await page.locator('#overview').is_visible(), 'Proposal switch broken'
+            await page.screenshot(path=f'/tmp/fahmai-one-row-{width}.png')
+            assert not errs, f'Javascript errors: {errs}'
+          async def main():
+            async with async_playwright() as p:
+              browser=await p.chromium.launch()
+              for width in (320,375,390,768,900,1200,1440):
+                page=await browser.new_page(viewport={'width':width,'height':850},device_scale_factor=1)
+                await check(page,width)
+                await page.close()
+              await browser.close()
+          asyncio.run(main())
+          PY
+      - name: Publish fixed header to existing public address
+        run: |
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add proposals/fah-mai/index.html
+          git diff --cached --quiet || (git commit -m "Keep proposal and section controls on one line across desktop and mobile" && git push)
