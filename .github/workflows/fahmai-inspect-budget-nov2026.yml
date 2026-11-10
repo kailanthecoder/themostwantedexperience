@@ -34,5 +34,10 @@ jobs:
             print('CSS_KEY',key)
             for m in [m for m in re.finditer(r'([^{}]{0,150})\{([^{}]{0,550})\}',css) if key in m.group(1)][-13:]:
               print('RULE',m.group(1).strip().replace('\n',' ')[:175],'DEFS',m.group(2).strip().replace('\n',' ')[:490])
+          for term in ('$305','50% of balance','non-refundable','initial payment','50%','USD','Phase 01'):
+            for node in d.select('.viewport>.sheet'):
+              txt=node.get_text(' ',strip=True)
+              if term.lower() in txt.lower():
+                print('CONFLICT',term,node.get('id'),'CONTEXT',txt[max(0,txt.lower().find(term.lower())-120):txt.lower().find(term.lower())+240])
           print('HTML_META',len(html),'EM_DASHES',html.count('—'),'SECTIONS',[x.get('id') for x in d.select('.viewport>.sheet')])
           PY
