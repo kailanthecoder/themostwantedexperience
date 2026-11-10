@@ -1,0 +1,37 @@
+name: Inspect Overview card computed background layers
+on:
+  push:
+    paths: ['.github/workflows/fahmai-inspect-overview-layers.yml']
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Print cleaned background rules and live computed styling
+        run: |
+          python -m pip install playwright -q
+          python -m playwright install chromium >/dev/null 2>&1
+          python - <<'PY'
+          import re,asyncio
+          from pathlib import Path
+          from playwright.async_api import async_playwright
+          html=Path('proposals/fah-mai/index.html').read_text(encoding='utf-8')
+          css=re.sub(r'data:image/[^)\\x22]+','[EMBEDDED_IMAGE]',html)
+          for m in re.finditer(r'([^{}]{0,250})\\{([^{}]{0,1500})\\}',css):
+            selector=m.group(1).strip()
+            if '.vision-card' in selector:
+              print('CSS_RULE',selector[-240:].replace('\n',' '),'=>',m.group(2).strip().replace('\n',' ')[:1200])
+          async def main():
+            async with async_playwright() as p:
+              browser=await p.chromium.launch()
+              pg=await browser.new_page(viewport={'width':1440,'height':900})
+              await pg.goto(Path('proposals/fah-mai/index.html').resolve().as_uri(),wait_until='domcontentloaded')
+              data=await pg.evaluate("""() => [...document.querySelectorAll('#overview .vision-card')].map(e=>{
+                const sample=(pseudo)=>{const s=getComputedStyle(e,pseudo);const b=s.backgroundImage;return {bg:b.startsWith('url(')?b.slice(0,110):b.slice(0,180),backgroundColor:s.backgroundColor,opacity:s.opacity,zIndex:s.zIndex,filter:s.filter,transform:s.transform,content:s.content,position:s.position,bgSize:s.backgroundSize,bgPosition:s.backgroundPosition,pointerEvents:s.pointerEvents}};
+                const r=e.getBoundingClientRect();
+                return {class:e.className,size:[r.width,r.height],normal:sample(''),before:sample('::before'),after:sample('::after')}
+              })""")
+              for x in data: print('CARD_COMPUTED',x)
+              await browser.close()
+          asyncio.run(main())
+          PY
