@@ -1,0 +1,46 @@
+name: Inspect overview icon rows and process cards
+on:
+  push:
+    paths: ['.github/workflows/fahmai-inspect-overview-20261111.yml']
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read overview markup and matching CSS
+        run: |
+          python -m pip install beautifulsoup4 -q
+          python - <<'PY'
+          from pathlib import Path
+          from bs4 import BeautifulSoup
+          import re
+          s=Path('proposals/fah-mai/index.html').read_text()
+          doc=BeautifulSoup(s,'html.parser')
+          for phrase in ['Unbeatable Design','We discuss the vision','discuss the vision','your office','Fast Execution','Right First Time']:
+            matches=doc.find_all(string=re.compile(re.escape(phrase),re.I))
+            print('PHRASE',phrase,'COUNT',len(matches))
+            for el in matches[:4]:
+              parent=el.parent
+              for level in range(4):
+                if not parent:break
+                tag=str(parent)
+                tag=re.sub(r'(src|href)="data:[^"]+"',r'\1="[data-uri-removed]"',tag)
+                print('ANCESTOR',level,parent.name,parent.get('class'),parent.get('id'),'len',len(tag),'html',tag[:2800])
+                parent=parent.parent
+          overview=doc.select_one('#overview')
+          if overview:
+            for el in overview.find_all(['h1','h2','h3','h4']):
+              print('HEAD',el.get_text(' ',strip=True)[:130],el.get('class'),el.parent.get('class'))
+          css='\n'.join(x.get_text() for x in doc.find_all('style'))
+          for tok in ['benefit','pill','vision','phase','process','step','feature','icon','unbeatable']:
+            selectors=set()
+            for m in re.finditer(r'([^{}]{0,170})\{([^{}]{0,380})\}',css):
+              sel=m.group(1).strip();body=m.group(2).strip()
+              if tok in sel.lower() and ('overview' in sel.lower() or tok not in ('step','icon')):
+                selectors.add((sel[-170:],body[:300]))
+            print('CSS_TOKEN',tok,'COUNT',len(selectors))
+            for selector,body in list(selectors)[-28:]:
+              print('CSS_RULE',selector.replace('\n',' '),'::',body.replace('\n',' '))
+          PY
