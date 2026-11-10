@@ -1,0 +1,171 @@
+{
+  "fmh": [
+    {
+      "file": "proposals/fah-mai/brand-assets/fmh_0.png",
+      "url": "https://fahmaiholdings.com/wp-content/uploads/2025/04/Cask-world-Logo-1.png",
+      "dimension": "(500, 500)",
+      "why": " ['attachment-full', 'size-full', 'wp-image-4752']  https://fahmaiholdings.com/wp-content/uploa p:['elementor-content-item', 'elementor-cta__content-item', 'elemen",
+      "score": 82
+    },
+    {
+      "file": "proposals/fah-mai/brand-assets/fmh_1.png",
+      "url": "https://fahmaiholdings.com/wp-content/uploads/2025/04/Cask-world-Logo-2.png",
+      "dimension": "(500, 500)",
+      "why": " ['attachment-full', 'size-full', 'wp-image-4966']  https://fahmaiholdings.com/wp-content/uploa p:['elementor-content-item', 'elementor-cta__content-item', 'elemen",
+      "score": 82
+    },
+    {
+      "file": "proposals/fah-mai/brand-assets/fmh_2.png",
+      "url": "https://fahmaiholdings.com/wp-content/uploads/2025/04/FMH-Logo-Gold.png",
+      "dimension": "(500, 500)",
+      "why": " ['attachment-full', 'size-full', 'wp-image-4026']  https://fahmaiholdings.com/wp-content/uploa p:['elementor-content-item', 'elementor-cta__content-item', 'elemen",
+      "score": 82
+    },
+    {
+      "file": "proposals/fah-mai/brand-assets/fmh_3.png",
+      "url": "https://fahmaiholdings.com/wp-content/uploads/2025/02/Untitled-design-2.png",
+      "dimension": "(500, 500)",
+      "why": " ['attachment-full', 'size-full', 'wp-image-18']  https://fahmaiholdings.com/wp-content/uploads p:[]  ['elementor-widget-container']  ['elementor-element', 'elemen",
+      "score": 52
+    },
+    {
+      "file": "proposals/fah-mai/brand-assets/fmh_4.png",
+      "url": "https://fahmaiholdings.com/wp-content/uploads/2025/02/Untitled-1-1_0004_FMH_Brandmark_Full-Colour-150x150.png",
+      "dimension": "(150, 150)",
+      "why": "favicon",
+      "score": 5
+    },
+    {
+      "file": "proposals/fah-mai/brand-assets/fmh_5.png",
+      "url": "https://fahmaiholdings.com/wp-content/uploads/2025/02/Untitled-1-1_0004_FMH_Brandmark_Full-Colour-300x300.png",
+      "dimension": "(300, 300)",
+      "why": "favicon",
+      "score": 5
+    }
+  ],
+  "whiskybull": [
+    {
+      "file": "proposals/fah-mai/brand-assets/whiskybull_0.png",
+      "url": "https://www.whiskybull.com/sites/whiskybull/images/logo.png?v=2",
+      "dimension": "(300, 335)",
+      "why": "Whisky Bull   /sites/whiskybull/images/logo.png?v=2   p:['logo']  ['wrapper']  [] header ['siteWrapper'] ",
+      "score": 122
+    },
+    {
+      "file": "proposals/fah-mai/brand-assets/whiskybull_1.png",
+      "url": "https://www.whiskybull.com/sites/whiskybull/images/logo.png",
+      "dimension": "(300, 335)",
+      "why": "Whisky Bull   /sites/whiskybull/images/logo.png   p:['footerLogo']  ['wrapper']  ['footerMeta']  ['footerWrap'] ",
+      "score": 122
+    },
+    {
+      "file": "proposals/fah-mai/brand-assets/whiskybull_9.png",
+      "url": "https://www.whiskybull.com/sites/whiskybull/images/apple-touch-icon.png",
+      "dimension": "(5500, 5500)",
+      "why": "favicon",
+      "score": 5
+    }
+  ],
+  "platinum": [
+    {
+      "file": "proposals/fah-mai/brand-assets/platinum_0.svg",
+      "url": "https://www.platinumcask.com/assets/logo-patinum-cask-8069b7743d34f64c2a79373c106e828e07bbb8c255898708b2ec125f4315e701.svg",
+      "dimension": "svg",
+      "why": "Platinum Cask   /assets/logo-patinum-cask-8069b7743d34f64c2a79373c106e828e07bbb8c255898708b2ec1 p:['navbar-item']  ['navbar-brand']  ['navbar', 'is-fixed-top', 'ma",
+      "score": 122
+    },
+    {
+      "file": "proposals/fah-mai/brand-assets/platinum_1.png",
+      "url": "https://www.platinumcask.com/assets/icon_press-and-journal-99cf43910144f00098fb18287c4efea46fb935c3c1f734cb9b443e79c16e6f36.png",
+      "dimension": "(200, 50)",
+      "why": "Press and Journal   /assets/icon_press-and-journal-99cf43910144f00098fb18287c4efea46fb935c3c1f7 p:['logos-track']  ['logos']  []  ['section', 'section-stats'] ",
+      "score": 40
+    },
+    {
+      "file": "proposals/fah-mai/brand-assets/platinum_2.png",
+      "url": "https://www.platinumcask.com/assets/icon_food_and_wine-e32b38129fc092f52bc034ee60b6bc70c1832331cd732eb292e857a66f3ce38d.png",
+      "dimension": "(200, 50)",
+      "why": "Food & Wine   /assets/icon_food_and_wine-e32b38129fc092f52bc034ee60b6bc70c1832331cd732eb292e857 p:['logos-track']  ['logos']  []  ['section', 'section-stats'] ",
+      "score": 40
+    },
+    {
+      "file": "proposals/fah-mai/brand-assets/platinum_3.png",
+      "url": "https://www.platinumcask.com/assets/icon_the_sunday_times-d6ce5dc88de9d743ca79d90b819a134e8a0b4cefd2bdbad218b2b5ba9810185a.png",
+      "dimension": "(200, 50)",
+      "why": "The Sunday Times   /assets/icon_the_sunday_times-d6ce5dc88de9d743ca79d90b819a134e8a0b4cefd2bdba p:['logos-track']  ['logos']  []  ['section', 'section-stats'] ",
+      "score": 40
+    },
+    {
+      "file": "proposals/fah-mai/brand-assets/platinum_4.png",
+      "url": "https://www.platinumcask.com/assets/icon_bloomberg-51c72ebc8686b3e9ece77be49e88927ac39c3fc27fefe0a16007a81edcdd95c3.png",
+      "dimension": "(200, 50)",
+      "why": "Bloomberg   /assets/icon_bloomberg-51c72ebc8686b3e9ece77be49e88927ac39c3fc27fefe0a16007a81edcdd p:['logos-track']  ['logos']  []  ['section', 'section-stats'] ",
+      "score": 40
+    },
+    {
+      "file": "proposals/fah-mai/brand-assets/platinum_5.png",
+      "url": "https://www.platinumcask.com/assets/icon_evening_express-d59eb66a1d7999feee7a3dbf24a10ac9633dd61f54cef5d4323e5763ce5e5bd5.png",
+      "dimension": "(200, 50)",
+      "why": "Evening Express   /assets/icon_evening_express-d59eb66a1d7999feee7a3dbf24a10ac9633dd61f54cef5d4 p:['logos-track']  ['logos']  []  ['section', 'section-stats'] ",
+      "score": 40
+    },
+    {
+      "file": "proposals/fah-mai/brand-assets/platinum_6.png",
+      "url": "https://www.platinumcask.com/assets/icon_independent-f5d254464d02bb1b32fefcc38107102fcdf42c08697399bf7a8963aa4568ed4e.png",
+      "dimension": "(200, 50)",
+      "why": "Independent   /assets/icon_independent-f5d254464d02bb1b32fefcc38107102fcdf42c08697399bf7a8963aa p:['logos-track']  ['logos']  []  ['section', 'section-stats'] ",
+      "score": 40
+    },
+    {
+      "file": "proposals/fah-mai/brand-assets/platinum_7.png",
+      "url": "https://www.platinumcask.com/assets/icon_clandestine-0ad51d0a8c2551ad79f838b69eb0aa9985e3f3640ea851c46c5d32e656b7341a.png",
+      "dimension": "(200, 50)",
+      "why": "Clandestine   /assets/icon_clandestine-0ad51d0a8c2551ad79f838b69eb0aa9985e3f3640ea851c46c5d32e6 p:['logos-track']  ['logos']  []  ['section', 'section-stats'] ",
+      "score": 40
+    }
+  ],
+  "mostwanted": [
+    {
+      "file": "proposals/fah-mai/brand-assets/mostwanted_0.webp",
+      "url": "https://usemostwanted.com/assets/logo-white-optimized.webp",
+      "dimension": "(600, 548)",
+      "why": "Most Wanted   assets/logo-white-optimized.webp   p:['brand']  ['site-header', 'wrap']  []  [] ",
+      "score": 122
+    },
+    {
+      "file": "proposals/fah-mai/brand-assets/mostwanted_1.webp",
+      "url": "https://usemostwanted.com/assets/chrome-logo-v3-optimized.webp",
+      "dimension": "(1000, 1000)",
+      "why": "   assets/chrome-logo-v3-optimized.webp   p:['hero-art']  ['hero-mark-stack']  ['hero-visual']  ['wrap', 'her",
+      "score": 70
+    },
+    {
+      "file": "proposals/fah-mai/brand-assets/mostwanted_2.png",
+      "url": "https://usemostwanted.com/assets/journey/zoom-official.png",
+      "dimension": "(1426, 321)",
+      "why": "Zoom ['journey-zoom-logo']  assets/journey/zoom-official.png   p:['journey-stage-line']  ['journey-phase-copy']  ['journey-phase']",
+      "score": 70
+    },
+    {
+      "file": "proposals/fah-mai/brand-assets/mostwanted_3.svg",
+      "url": "https://usemostwanted.com/assets/nav-website-v5.svg",
+      "dimension": "svg",
+      "why": " ['nav-icon-art']  assets/nav-website-v5.svg   p:['nav-object', 'nav-web']  []  [] main-nav ['site-header', 'wrap'",
+      "score": 40
+    },
+    {
+      "file": "proposals/fah-mai/brand-assets/mostwanted_4.svg",
+      "url": "https://usemostwanted.com/assets/nav-reviews-v5.svg",
+      "dimension": "svg",
+      "why": " ['nav-icon-art']  assets/nav-reviews-v5.svg   p:['nav-object', 'nav-reviews']  []  [] main-nav ['site-header', 'w",
+      "score": 40
+    },
+    {
+      "file": "proposals/fah-mai/brand-assets/mostwanted_5.webp",
+      "url": "https://usemostwanted.com/assets/chrome-logo-sheen-mask-v3-420-q50.webp",
+      "dimension": "(420, 420)",
+      "why": "CSS logo",
+      "score": 30
+    }
+  ]
+}
