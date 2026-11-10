@@ -1,0 +1,128 @@
+name: Release clearer proposal chapter boundaries
+on:
+  push:
+    paths: ['.github/workflows/fahmai-release-chapters-v14.yml']
+permissions:
+  contents: write
+jobs:
+  verify-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add coherent chapter signposts without altering page content
+        run: python proposals/fah-mai/install_chapter_boundaries_v14.py
+      - name: Verify all sections, mobile scroll highlighting, A4 bounds and PDF
+        run: |
+          python -m pip install playwright pypdf pillow -q
+          python -m playwright install chromium >/dev/null 2>&1
+          python - <<'PY'
+          from pathlib import Path
+          import asyncio,io,base64
+          from PIL import Image
+          from pypdf import PdfReader
+          from playwright.async_api import async_playwright
+          uri=Path('proposals/fah-mai/index.html').resolve().as_uri()
+          chapters={'overview':('01','Overview','1 of 1'),'current':('02','Current','1 of 3'),'current-journeys':('02','Current','2 of 3'),'current-growth':('02','Current','3 of 3'),'spec':('03','Spec','1 of 2'),'spec-delivery':('03','Spec','2 of 2'),'budget':('04','Budget','1 of 1'),'implementation':('05','Implementation','1 of 2'),'implementation-evidence':('05','Implementation','2 of 2'),'proposed':('06','Proposed','1 of 1'),'examples':('07','Examples','1 of 2'),'examples-client':('07','Examples','2 of 2')}
+          async def evaluate(page):
+            return await page.evaluate("""()=>{
+              const rect=e=>{if(!e)return null;const r=e.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height,bottom:r.bottom,right:r.right}};
+              const sheets=[...document.querySelectorAll('.viewport>.sheet')];
+              return {
+                pages:sheets.map(x=>({id:x.id,chapter:x.dataset.chapter,chapterStart:x.dataset.chapterStart,active:x.classList.contains('is-active'),badge:[...x.querySelector('.chapter-banner').children].map(y=>y.textContent.trim()),badgeRect:rect(x.querySelector('.chapter-banner')),bodyRect:rect(x.querySelector('.sheet-body')),footerLabel:x.querySelector('.chapter-footer-label')?.textContent.trim(),footerVisible:getComputedStyle(x.querySelector('.chapter-footer-label')).display!='none'})),
+                dividers:[...document.querySelectorAll('.viewport>.chapter-divider')].map(e=>({chapter:e.dataset.chapterDivider,display:getComputedStyle(e).display,rect:rect(e)})),
+                mode:document.querySelector('.viewport').dataset.readingMode,
+                current:document.body.dataset.currentChapter,
+                nav:[...document.querySelectorAll('.toolbar nav.proposal-sections button[data-target]')].map(x=>({chapter:x.dataset.target,active:x.getAttribute('aria-selected'),current:x.dataset.chapterCurrent,background:getComputedStyle(x).backgroundColor,color:getComputedStyle(x).color})),
+                docOverflow:document.documentElement.scrollWidth>innerWidth+2,
+                width:innerWidth
+              };
+            }""")
+          async def check(browser,width):
+            page=await browser.new_page(viewport={'width':width,'height':940},device_scale_factor=1)
+            errors=[]
+            page.on('pageerror',lambda e:errors.append(str(e)))
+            await page.goto(uri,wait_until='domcontentloaded',timeout=85000)
+            await page.wait_for_timeout(220)
+            out=await evaluate(page)
+            print('START',width,'mode',out['mode'],'current',out['current'],'nav',out['nav'])
+            assert len(out['pages'])==12 and len(out['dividers'])==6,f'Missing page or section markers: {width}'
+            assert not out['docOverflow'],f'Horizontal overflow at {width}'
+            assert not await page.evaluate("document.body.textContent.includes('—')")
+            for sheet in out['pages']:
+              num,title,pagination=chapters[sheet['id']]
+              assert sheet['badge']==[num,title,pagination],f'Incorrect section marker: {sheet}'
+              assert sheet['chapter']==sheet['id'] or sheet['chapter'] in ('current','spec','implementation','examples')
+              assert sheet['footerVisible'] and title in sheet['footerLabel'],f'Missing footer chapter: {sheet["id"]}'
+              if sheet['bodyRect']['h']>0:
+                assert sheet['badgeRect']['bottom']<sheet['bodyRect']['y']-4, f'Chapter banner overlaps content on {width} {sheet["id"]}: {sheet}'
+                assert sheet['badgeRect']['right']<=sheet['bodyRect']['right']+15, f'Banner extends right edge {sheet["id"]}'
+            if width>800:
+              assert out['mode']=='spread'
+              assert all(d['display']=='none' for d in out['dividers']),f'Divider visible in desktop spread'
+              for chapter,ids in [
+                ('current',['current','current-journeys']),
+                ('spec',['spec','spec-delivery']),
+                ('budget',['budget']),
+                ('implementation',['implementation','implementation-evidence']),
+                ('proposed',['proposed']),
+                ('examples',['examples','examples-client'])
+              ]:
+                if chapter=='examples':await page.locator('#tab-examples').click()
+                else:await page.locator('#tab-'+chapter).click()
+                await page.wait_for_timeout(100)
+                state=await evaluate(page)
+                visible=[x['id'] for x in state['pages'] if x['active']]
+                print('DESKTOP_CHAPTER',width,chapter,visible,state['current'])
+                assert visible==ids, f'{width}: bad spread {chapter}: {visible}'
+                assert state['current']==chapter,f'{width}: active chapter not tracked {chapter}'
+                if chapter!='examples':
+                  tab=next(x for x in state['nav'] if x['chapter']==chapter)
+                  assert tab['color']=='rgb(255, 255, 255)',f'{width}: selected chapter not contrasting {tab}'
+                  assert tab['background']=='rgb(187, 38, 115)',f'{width}: active chapter not visibly differentiated {tab}'
+              if width==1440:
+                await page.locator('#nav-proposal').click()
+                await page.locator('#tab-current').click()
+                imagebytes=await page.locator('#current .chapter-banner').screenshot()
+                img=Image.open(io.BytesIO(imagebytes)).convert('RGB')
+                buf=io.BytesIO();img.save(buf,'PNG')
+                print('BANNER_PREVIEW_BASE64',base64.b64encode(buf.getvalue()).decode('ascii'))
+                await page.evaluate("window.dispatchEvent(new Event('beforeprint'))")
+                await page.emulate_media(media='print')
+                assert await page.locator('.chapter-divider:visible').count()==0,'Divider printed'
+                await page.pdf(path='/tmp/fahmai-chapter-boundaries-v14.pdf',prefer_css_page_size=True,print_background=True)
+                n=len(PdfReader('/tmp/fahmai-chapter-boundaries-v14.pdf').pages)
+                print('PDF_PAGES',n)
+                assert n==12,f'Chapter changes created extra PDF pages: {n}'
+            else:
+              assert out['mode']=='vertical'
+              assert all(d['display']=='flex' for d in out['dividers']),f'{width}: vertical reader has no chapter breaks'
+              assert [d['chapter'] for d in out['dividers']]==['current','spec','budget','implementation','proposed','examples']
+              # Scroll to actual chapter location, not just click a tab.
+              for chapter in ('current','spec','implementation','examples'):
+                await page.evaluate("""chapter=>{
+                  const el=document.getElementById(chapter),y=el.getBoundingClientRect().top+window.scrollY;
+                  window.scrollTo({top:y-130,behavior:'instant'});
+                }""",chapter)
+                await page.wait_for_timeout(160)
+                state=await evaluate(page)
+                print('MOBILE_SCROLL',width,chapter,'active',state['current'],'nav',state['nav'])
+                assert state['current']==chapter,f'{width}: scrolling did not select {chapter}: {state["current"]}'
+                if chapter!='examples':
+                  tab=next(x for x in state['nav'] if x['chapter']==chapter)
+                  assert tab['current']=='true',f'{width}: active tab not synced on scroll {chapter}'
+            assert not errors,f'Javascript errors {width}: {errors}'
+            await page.close()
+          async def main():
+            async with async_playwright() as p:
+              browser=await p.chromium.launch()
+              for width in (1440,900,390,320):
+                await check(browser,width)
+              await browser.close()
+          asyncio.run(main())
+          PY
+      - name: Commit the verified chapter hierarchy to the public website
+        run: |
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add proposals/fah-mai/index.html
+          git diff --cached --quiet || (git commit -m "Clarify sections with chapter markers, stronger active menu, and vertical reading breaks" && git push)
