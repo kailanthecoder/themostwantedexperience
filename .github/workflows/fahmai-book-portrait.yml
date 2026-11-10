@@ -17,7 +17,7 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add proposals/fah-mai/book-site-live.jpg proposals/fah-mai/book-image-metadata.json proposals/fah-mai/portrait-browser-candidates.json proposals/fah-mai/overview-dom-inspection.json
+          git add proposals/fah-mai/book-site-live.jpg proposals/fah-mai/book-image-metadata.json proposals/fah-mai/portrait-browser-candidates.json
           find proposals/fah-mai -maxdepth 1 \( -name 'portrait-candidate-*.jpg' -o -name 'portrait-candidate-*.b64.txt' \) -print0 | xargs -0 -r git add
           git diff --cached --quiet || (git commit -m 'Inspect original booking portrait for Fah Mai proposal' && git push)
 
