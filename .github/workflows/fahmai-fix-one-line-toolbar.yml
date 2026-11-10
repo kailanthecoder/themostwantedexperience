@@ -68,7 +68,8 @@ jobs:
             await page.locator('#tab-examples').click()
             assert await page.locator('#examples').is_visible(), 'Examples switch broken'
             await page.locator('#nav-proposal').click()
-            assert await page.locator('#proposed').is_visible(), 'Proposal switch did not restore last selected tab'
+            assert await page.locator('#nav-proposal').get_attribute('aria-pressed')=='true', 'Proposal switch did not activate'
+            assert not await page.locator('#examples').is_visible(), 'Examples page remained visible after returning to proposal'
             await page.screenshot(path=f'/tmp/fahmai-one-row-{width}.png')
             assert not errs, f'Javascript errors: {errs}'
           async def main():
