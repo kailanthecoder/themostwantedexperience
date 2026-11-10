@@ -1,0 +1,61 @@
+name: Inspect Fah Mai brand header responsive styling
+on:
+  push:
+    paths: ['.github/workflows/fahmai-inspect-brandbar-2026.yml']
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read brand header structure and responsive rules
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path('proposals/fah-mai/index.html').read_text()
+          print('HEAD BEFORE STYLE',s[:500])
+          for pat in ['PRESENTED TO','PRESENTED BY','presented to','presented by','fahmai-top','brandbar','presentation-header','presentation-hairline','class="identity"','class="presentation-']:
+            a=list(re.finditer(re.escape(pat),s,re.I))
+            print('PATTERN',pat,'COUNT',len(a))
+            for m in a[-2:]:
+              before=s[max(0,m.start()-430):m.start()]
+              after=s[m.end():m.end()+600]
+              print('LOCATION',m.start(),'SNIP',(before+pat+after)[:1050].replace('\n',' '))
+          for m in re.finditer(r'@media[^{]*\{',s):
+            chunk=s[m.start():m.start()+200]
+            if any(q in chunk for q in ('max-width','max-device-width')):
+              print('MEDIA',m.start(),chunk[:130].replace('\n',' '))
+          print('ICONLINKS',re.findall(r'<link[^>]*(?:icon|shortcut)[^>]*>',s[:120000],flags=re.I)[:30])
+          PY
+      - name: Compare rendered presentation header at desktop and mobile widths
+        shell: bash
+        run: |
+          python -m pip install -q playwright
+          python -m playwright install chromium > /dev/null 2>&1
+          python - <<'PY'
+          import asyncio
+          from pathlib import Path
+          from playwright.async_api import async_playwright
+          async def main():
+            async with async_playwright() as p:
+              browser=await p.chromium.launch()
+              for width in (390,794,1200):
+                page=await browser.new_page(viewport={'width':width,'height':860})
+                await page.goto(Path('proposals/fah-mai/index.html').resolve().as_uri(),wait_until='domcontentloaded')
+                val=await page.evaluate("""() => {
+                  let out = {};
+                  for(let sel of ['.sheet.is-active','.identity','.client-lockups','.identity-right','.presenter-lockups','.presentation-header','.presentation-hairline','.presented-to','.presented-by','.presented-who','.waveblock']) {
+                    const e=document.querySelector(sel); if(!e){out[sel]=null;continue}
+                    let r=e.getBoundingClientRect(),s=getComputedStyle(e);
+                    out[sel]={width:Math.round(r.width),height:Math.round(r.height),x:Math.round(r.x),y:Math.round(r.y),font:s.fontSize,display:s.display,flex:s.flexDirection,grid:s.gridTemplateColumns,transform:s.transform,zoom:s.zoom}
+                  }
+                  let e=[...document.querySelectorAll('*')].filter(e=>(e.textContent||'').trim()==='PRESENTED TO').slice(-2);
+                  out.label=e.map(x=>({tag:x.tagName,cl:x.className,html:x.outerHTML.slice(0,300)}));
+                  return out
+                }""")
+                print('COMPUTED WIDTH',width,val)
+                await page.close()
+              await browser.close()
+          asyncio.run(main())
+          PY
