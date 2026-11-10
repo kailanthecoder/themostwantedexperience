@@ -1,0 +1,50 @@
+name: Inspect Fah Mai Spec and eyebrow decorations
+on:
+  push:
+    paths: ['.github/workflows/fahmai-inspect-spec2026-v6.yml']
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect current Spec, navigation and eyebrow headings
+        run: |
+          python -m pip install beautifulsoup4 -q
+          python - <<'PY'
+          from pathlib import Path
+          from bs4 import BeautifulSoup
+          import re,json,collections
+          p=Path('proposals/fah-mai/index.html')
+          html=p.read_text()
+          soup=BeautifulSoup(html,'html.parser')
+          print('FILE_LEN',len(html),'SHEETS',len(soup.select('.viewport > .sheet')))
+          for section in ('spec','design','current-growth','proposed'):
+            e=soup.find(id=section)
+            if not e:continue
+            print('SECTION',section,'TOPLEVEL',[(c.name,c.get('class'),c.get('id')) for c in e.find_all(recursive=False)])
+            body=e.select_one('.sheet-body')
+            if body:
+              print('BODY',section,'classes',body.get('class'),'CHILDREN',[(c.name,c.get('class'),c.get('id')) for c in body.find_all(recursive=False)])
+              if section=='spec':
+                raw=str(body)
+                raw=re.sub(r'(src|href)="data:[^"]+"',r'\1="[embedded]"',raw)
+                print('SPEC_BODY',raw[:23000].replace('\n',' '))
+              if section=='current-growth':
+                print('GROWTH',body.get_text(' ',strip=True)[:2400])
+          for n in soup.select('nav.proposal-sections button'):
+            print('TAB',n.get('id'),n.get('data-target'),n.get_text(' ',strip=True))
+          print('EYEBROW_CLASSES')
+          counter=collections.Counter()
+          for e in soup.select('.sheet *'):
+            names=[c for c in e.get('class',[]) if re.search(r'eyebrow|kicker|overline|label|micro|badge|subhead',c,re.I)]
+            if names:
+              for name in names:counter[name]+=1
+          print(json.dumps(counter.most_common(70)))
+          for name,total in counter.most_common(30):
+            found=soup.select('.sheet .'+name)[:4]
+            print('MICRO',name,total,[(x.name,x.get_text(' ',strip=True)[:110]) for x in found])
+          for e in soup.select('.sheet h1,.sheet h2,.sheet h3'):
+            if len(e.get_text(' ',strip=True))<100:continue
+            print('HEADING',e.parent.get('class'),e.get_text(' ',strip=True)[:105])
+          print('STYLE_META',[{'id':e.get('id'),'size':len(e.get_text())} for e in soup.select('style')][-12:])
+          PY
