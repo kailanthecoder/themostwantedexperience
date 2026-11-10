@@ -23,3 +23,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git add proposals/fah-mai/index.html proposals/fah-mai/Fah-Mai-Seven-Tabs-A4.pdf proposals/fah-mai/Fah-Mai-Seven-Tabs-Contact.jpg proposals/fah-mai/Fah-Mai-Seven-Tabs-Contact.b64.txt proposals/fah-mai/Fah-Mai-Seven-Tabs-Mobile.png
           git diff --cached --quiet || (git commit -m "Publish seven-tab Fah Mai presentation addressed to Louis with portfolio examples" && git push)
+
+# Rerun after ensuring apostrophes remain literal in headline
