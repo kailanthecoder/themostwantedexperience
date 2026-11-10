@@ -141,3 +141,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git add proposals/fah-mai/index.html
           git diff --cached --quiet || (git commit -m "Present full GBP partnership Budget and reconcile obsolete implementation payments" && git push)
+
+# QA rerun after mobile A4 footer clearance refinement
