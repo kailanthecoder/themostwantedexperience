@@ -1,0 +1,136 @@
+name: Release executive GBP Budget and consistent payment terms
+on:
+  push:
+    paths: ['.github/workflows/fahmai-release-budget-investment-v8.yml']
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Replace Budget and reconcile only conflicting Implementation payment terms
+        run: |
+          python proposals/fah-mai/install_budget_investment_v8.py
+          python proposals/fah-mai/align_implementation_payment_terms_v8.py
+      - name: Validate A4 fit, accurate quotation, storybook navigation, responsive layout and PDF
+        run: |
+          python -m pip install playwright pypdf pillow -q
+          python -m playwright install chromium >/dev/null 2>&1
+          python - <<'PY'
+          import asyncio,base64,io,re
+          from pathlib import Path
+          from PIL import Image
+          from pypdf import PdfReader
+          from playwright.async_api import async_playwright
+          path=Path('proposals/fah-mai/index.html')
+          raw=path.read_text(encoding='utf-8')
+          assert '$305' not in raw and '—' not in raw
+          assert raw.count('id="fahmai-budget-investment-v8"')==1
+          assert raw.count('id="fahmai-implementation-payment-alignment-v8"')==1
+          assert 'id="invest"' not in raw and 'id="margin"' not in raw
+          uri=path.resolve().as_uri()
+          def validate_copy(s):
+            text=s['budgetText']
+            for item in ('£5,750','£400','£2,750','£3,000','£10,550','£4,800','$11,500','$800','$21,100','£15,811','33.3%','Page 1 of Google','international','case studies','AI','consultation','not be guaranteed','scope','phased'):
+              assert item.lower() in text.lower(), f'Missing essential Budget text: {item}'
+            assert '$305' not in text
+            assert '50% of balance' not in text
+            assert s['stdRows']==8 and s['ongoingRows']==8, 'Standard USD rate card has missing line items'
+            assert s['tableCount']==2
+            assert s['bodyHtml'].count('<div class="budgetv8-milestones"')==1
+            for term in ('£2,750','£3,000','£400','£5,750'):
+              assert term in s['implementationText'] and term in s['evidenceText'],f'Implementation terms conflict for {term}'
+            assert '$305' not in s['implementationText']+s['evidenceText']
+          async def metrics(page):
+            return await page.evaluate("""()=>{
+              const box=e=>{if(!e)return null;const r=e.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height,bottom:r.bottom,right:r.right}};
+              const a=document.getElementById('budget'),i=document.getElementById('implementation'),e=document.getElementById('implementation-evidence');
+              const main=document.querySelector('.viewport');
+              return {
+                budgetText:a.textContent,bodyHtml:a.querySelector('.sheet-body').outerHTML.slice(0,1400),
+                implementationText:i.textContent,evidenceText:e.textContent,
+                budget:box(a),budgetBody:box(a.querySelector('.sheet-body')),budgetFooter:box(a.querySelector('.sheet-footer')),
+                budgetNotes:box(a.querySelector('.budgetv8-footer-notes')),
+                budgetParts:[...a.querySelector('.sheet-body').children].map(n=>({section:n.className,box:box(n)})),
+                implFooter:box(i.querySelector('.sheet-footer')),implLast:box(i.querySelector('.launch-signoff')),
+                evidenceFooter:box(e.querySelector('.sheet-footer')),evidenceLast:box(e.querySelector('.launch-proof-terms')),
+                tableCount:a.querySelectorAll('table').length,
+                stdRows:a.querySelectorAll('.budgetv8-rate-tables table:first-child tbody tr').length,
+                ongoingRows:a.querySelectorAll('.budgetv8-rate-tables table:last-child tbody tr').length,
+                mode:main.dataset.readingMode,
+                active:[...main.querySelectorAll('.sheet.is-active')].map(n=>n.id),
+                count:main.querySelectorAll('.sheet').length,
+                documentWidth:document.documentElement.scrollWidth,
+                windowWidth:innerWidth,
+                label:document.querySelector('.fm-story-counter')?.textContent,
+                unwantedDesign:!!document.getElementById('design')
+              };
+            }""")
+          async def test(page,width):
+            errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
+            await page.goto(uri,wait_until='domcontentloaded',timeout=75000)
+            await page.wait_for_timeout(130)
+            await page.locator('#tab-budget').click()
+            await page.wait_for_timeout(140)
+            s=await metrics(page)
+            print('BUDGET_LAYOUT',width,{
+              'mode':s['mode'],'active':s['active'],'pageCount':s['count'],
+              'budgetFooter':s['budgetFooter'],'budgetNotes':s['budgetNotes'],
+              'implementationLast':s['implLast'],'implementationFooter':s['implFooter'],
+              'evidenceLast':s['evidenceLast'],'evidenceFooter':s['evidenceFooter'],
+              'sections':s['budgetParts']})
+            validate_copy(s)
+            assert s['count']==12 and not s['unwantedDesign']
+            assert s['documentWidth']<=width+2,f'Whole document overflows at {width}'
+            assert s['budgetNotes']['bottom']<=s['budgetFooter']['y']-3,f'Budget clips into the A4 footer at {width}'
+            assert s['implLast']['bottom']<=s['implFooter']['y']-3,f'Implementation clips into footer at {width}'
+            assert s['evidenceLast']['bottom']<=s['evidenceFooter']['y']-3,f'Evidence clips into footer at {width}'
+            assert s['budgetBody']['w']>500 or width<=800
+            if width>800:
+              assert s['mode']=='spread' and s['active']==['budget']
+              await page.locator('#tab-spec').click()
+              assert (await metrics(page))['active']==['spec','spec-delivery']
+              await page.locator('#tab-implementation').click()
+              assert (await metrics(page))['active']==['implementation','implementation-evidence']
+              await page.locator('#tab-examples').click()
+              assert (await metrics(page))['active']==['examples','examples-client']
+              await page.locator('#nav-proposal').click()
+              await page.locator('#tab-budget').click()
+            else:
+              assert s['mode']=='vertical' and len(s['active'])==12
+              assert 'budget' in s['active']
+              await page.locator('#tab-implementation').click()
+              assert (await metrics(page))['count']==12
+              await page.locator('#tab-budget').click()
+            assert not errors,f'JavaScript errors at {width}: {errors}'
+            if width==1440:
+              await page.locator('#budget').screenshot(path='/tmp/fahmai-budget-v8.png')
+              im=Image.open('/tmp/fahmai-budget-v8.png').convert('RGB')
+              im.thumbnail((500,740))
+              b=io.BytesIO();im.save(b,'JPEG',quality=80,optimize=True)
+              print('BUDGET_SAMPLE_JPEG_BASE64',base64.b64encode(b.getvalue()).decode('ascii'))
+              await page.evaluate("window.dispatchEvent(new Event('beforeprint'))")
+              await page.emulate_media(media='print')
+              n=await page.evaluate("""()=>[...document.querySelectorAll('.viewport>.sheet')].filter(x=>getComputedStyle(x).display!=='none').length""")
+              assert n==12,f'PDF would omit sheets: {n}'
+              await page.pdf(path='/tmp/fahmai-budget-v8.pdf',prefer_css_page_size=True,print_background=True)
+              total=len(PdfReader('/tmp/fahmai-budget-v8.pdf').pages)
+              print('PDF_PAGES',total)
+              assert total==12,f'PDF has {total} pages, expected 12'
+            await page.close()
+          async def main():
+            async with async_playwright() as p:
+              browser=await p.chromium.launch()
+              for width in (1440,900,390,320):
+                page=await browser.new_page(viewport={'width':width,'height':950},device_scale_factor=1)
+                await test(page,width)
+              await browser.close()
+          asyncio.run(main())
+          PY
+      - name: Publish at existing public proposal URL
+        run: |
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add proposals/fah-mai/index.html
+          git diff --cached --quiet || (git commit -m "Present full GBP partnership Budget and reconcile obsolete implementation payments" && git push)
