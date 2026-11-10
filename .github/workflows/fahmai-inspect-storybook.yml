@@ -1,0 +1,31 @@
+name: Inspect Fah Mai storybook structure
+on:
+  push:
+    paths: ['.github/workflows/fahmai-inspect-storybook.yml']
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect DOM and script structure
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from bs4 import BeautifulSoup
+          import re
+          s=Path('proposals/fah-mai/index.html').read_text()
+          soup=BeautifulSoup(s,'html.parser')
+          for e in soup.select('main, .viewport,.sheet,.toolbar,.fm-zoom'):
+            if 'sheet' in e.get('class',[]): print('SHEET',e.name,e.get('id'),e.get('data-proposal-section'),e.get('class'))
+            else: print('WRAPPER',e.name,e.get('id'),e.get('class'),'CHILDREN',[(x.name,x.get('id'),x.get('class')) for x in list(e.children) if getattr(x,'name',None)][:20])
+          for s in soup.select('script'):
+            txt=s.get_text()
+            print('SCRIPT',s.get('id'),len(txt), 'CONTAINS', [(k,txt.find(k)) for k in ['const activate','const tabs','is-active','MutationObserver','fahmai_mobile_zoom','render(false)','querySelectorAll','.viewport','print()']])
+            if 'const activate' in txt: print('ACTIVATE SCRIPT',txt[:7500])
+            if 'fahmai_mobile_zoom' in txt: print('ZOOM SCRIPT',txt[:6000])
+          for key in ['.viewport{','.sheet{','.sheet.is-active{','.viewport .sheet{','.fm-zoom{','.proposal-sections[hidden]']:
+            print('CSS',key,'count',s.count(key))
+          print('PRINT css',re.findall(r'@media print[^{]*\{.{0,550}',s[:90000],re.S)[:3])
+          PY
