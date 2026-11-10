@@ -119,3 +119,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git add proposals/fah-mai/index.html
           git diff --cached --quiet || (git commit -m "Replace Spec with brand-specific roadmap and seven full-stack capabilities; remove eyebrows" && git push)
+
+# Retry: Spec article attributes are matched independent of their order
