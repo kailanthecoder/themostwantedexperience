@@ -1,0 +1,25 @@
+name: Fah Mai premium overview redesign
+on:
+  push:
+    paths: ['.github/workflows/fahmai-overview-v11.yml']
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install design and rendering tools
+        run: |
+          python -m pip install beautifulsoup4 pillow requests playwright pypdf
+          python -m playwright install chromium
+      - name: Build square gradient cards and booking portrait signature
+        run: python proposals/fah-mai/redesign-overview-v11.py
+      - name: Render and verify print and mobile layout
+        run: python proposals/fah-mai/test-overview-v11.py
+      - name: Publish updated HTML and print PDF
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add proposals/fah-mai/index.html proposals/fah-mai/Fah-Mai-Proposal-Glass.pdf proposals/fah-mai/overview-v11-desktop.jpg proposals/fah-mai/overview-v11-desktop.b64.txt proposals/fah-mai/overview-v11-a4.jpg proposals/fah-mai/overview-v11-a4.b64.txt
+          git diff --cached --quiet || (git commit -m 'Upgrade overview with gradient statements, 10–20-day roadmap and personal sign-off' && git push)
