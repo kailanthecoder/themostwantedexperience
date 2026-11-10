@@ -1,0 +1,62 @@
+name: Fix Fah Mai mobile menu without redesign
+on:
+  push:
+    paths: ['.github/workflows/fahmai-correct-mobile-menu.yml']
+permissions:
+  contents: write
+jobs:
+  patch-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Correct inherited Proposed tab styling on mobile
+        run: python proposals/fah-mai/correct_mobile_menu_2026.py
+      - name: Verify equal tab styling and unchanged desktop
+        run: |
+          python -m pip install playwright -q
+          python -m playwright install chromium >/dev/null 2>&1
+          python - <<'PY'
+          import asyncio
+          from pathlib import Path
+          from playwright.async_api import async_playwright
+          async def main():
+            async with async_playwright() as p:
+              browser=await p.chromium.launch()
+              for width in (320,390,540,768,900,1200):
+                page=await browser.new_page(viewport={'width':width,'height':800})
+                await page.goto(Path('proposals/fah-mai/index.html').resolve().as_uri(),wait_until='domcontentloaded',timeout=60000)
+                js="""() => {
+                  const ids=['tab-overview','tab-proposed'], out={};
+                  for(let id of ids){let el=document.getElementById(id),s=getComputedStyle(el),r=el.getBoundingClientRect();let before=getComputedStyle(el,'::before');out[id]={font:s.fontSize,color:s.color,bg:s.backgroundColor,image:s.backgroundImage,h:r.height,y:r.y,weight:s.fontWeight,shadow:s.boxShadow,border:s.border, before:before.content}};
+                  const nav=document.querySelector('.proposal-sections'),switcher=document.querySelector('.view-switcher'),pdf=document.querySelector('.pdf-btn');
+                  out.nav={h:nav.getBoundingClientRect().height,w:nav.getBoundingClientRect().width,scrollWidth:nav.scrollWidth};out.switcherY=switcher.getBoundingClientRect().y;out.pdfY=pdf.getBoundingClientRect().y;out.viewport=innerWidth;out.pageWidth=document.documentElement.scrollWidth;return out
+                }"""
+                data=await page.evaluate(js)
+                print('CHECK',width,data)
+                if width<=800:
+                  assert data['tab-proposed']['font']==data['tab-overview']['font'], "Proposed font still oversized"
+                  assert abs(data['tab-proposed']['h']-data['tab-overview']['h'])<1, "Different tab heights"
+                  assert data['tab-proposed']['shadow']=='none', "Unrequested Proposed shadow remains"
+                  assert data['tab-proposed']['border'].startswith('0px'), "Special border still showing"
+                  assert data['tab-proposed']['before']=='none', "Special divider remains"
+                  assert data['tab-proposed']['color']== 'rgb(113, 96, 107)', "Inactive Proposed wrong color"
+                  assert data['pageWidth']<=width+2, "Page overflows"
+                  assert abs(data['switcherY']-data['pdfY'])<6, "Top row wrapped"
+                  await page.locator('#tab-proposed').click()
+                  selected=await page.evaluate(js)
+                  assert selected['tab-proposed']['bg']=='rgb(249, 228, 238)', "Active Proposed not matching other active tabs"
+                  assert selected['tab-proposed']['color']=='rgb(171, 27, 103)', "Active Proposed wrong text"
+                  await page.locator('#tab-overview').click()
+                  await page.screenshot(path=f'/tmp/fahmai-menu-fixed-{width}.png')
+                else:
+                  assert data['tab-proposed']['font']=='14px',"Desktop original Proposed appearance changed"
+                await page.close()
+              await browser.close()
+          asyncio.run(main())
+          PY
+      - name: Update live public HTML
+        run: |
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add proposals/fah-mai/index.html
+          git diff --cached --quiet || (git commit -m "Fix inconsistent Proposed tab on mobile without redesign" && git push)
