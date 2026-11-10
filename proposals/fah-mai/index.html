@@ -632,8 +632,132 @@ h1,h2,h3,.feature-index,.audit-brand,.small-label,.tag,.phase-status,.tool-brand
  }
 }
 </style>
+
+<style id="proposal-centered-navigation-2026">
+/* Subtle ambient pink across the application, never behind the paper itself. */
+@media screen{
+ body{
+  background:radial-gradient(ellipse 72% 58% at 7% 8%,rgba(243,173,209,.20),transparent 72%),
+             radial-gradient(ellipse 69% 60% at 96% 82%,rgba(247,195,219,.20),transparent 75%),
+             linear-gradient(160deg,#fcfafb 0%,#faf8fa 52%,#fcfafb 100%)!important;
+  background-attachment:fixed!important;
+ }
+ .toolbar{background:rgba(255,250,253,.92)!important}
+ .toolbar-inner{
+  max-width:1160px!important;min-height:0!important;height:auto!important;
+  display:flex!important;flex-direction:column!important;align-items:center!important;
+  justify-content:center!important;gap:7px!important;padding:13px 18px 12px!important;
+ }
+ .nav-toprow{
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  flex-wrap:wrap!important;gap:13px!important;width:100%!important;
+ }
+ .view-switcher{
+  display:inline-flex!important;align-items:center!important;gap:3px!important;
+  padding:4px!important;border-radius:999px!important;
+  border:1px solid rgba(218,90,147,.16)!important;
+  background:#f6eaf0!important;
+ }
+ .view-switch{
+  border:0!important;border-radius:999px!important;
+  background:transparent!important;color:#7b5267!important;
+  min-height:36px!important;padding:0 23px!important;
+  font-family:'Poppins','Figtree',Arial,sans-serif!important;
+  font-size:12px!important;font-weight:800!important;
+  letter-spacing:0!important;white-space:nowrap!important;
+  box-shadow:none!important;
+ }
+ .view-switch.is-current,.view-switch[aria-pressed="true"]{
+  background:#e72982!important;color:white!important;
+  box-shadow:0 2px 7px rgba(214,40,116,.16)!important;
+ }
+ .view-switch:focus-visible,.toolbar .pdf-btn:focus-visible,.proposal-sections .tab:focus-visible{
+  outline:2px solid #b91865!important;outline-offset:2px!important;
+ }
+ .tool-actions{
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  margin:0!important;padding-left:14px!important;
+  border-left:1px solid rgba(192,104,147,.28)!important;
+ }
+ .toolbar .pdf-btn{
+  min-height:40px!important;padding:0 17px!important;
+  background:#fff!important;color:#ad236a!important;
+  border:1px solid #dfa4c1!important;border-radius:999px!important;
+  font-family:'Poppins',Arial,sans-serif!important;
+  font-size:11.5px!important;font-weight:800!important;
+  box-shadow:none!important;white-space:nowrap!important;
+ }
+ .toolbar .pdf-btn:hover{background:#fff0f7!important;border-color:#df3688!important}
+ .proposal-sections{
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  flex-wrap:wrap!important;gap:5px!important;
+  width:100%!important;max-width:100%!important;
+  min-width:0!important;margin:0!important;padding:2px 0 0!important;
+  overflow:visible!important;
+ }
+ .proposal-sections[hidden]{display:none!important}
+ .proposal-sections .tab{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  flex:0 0 auto!important;
+  height:33px!important;min-height:33px!important;padding:0 14px!important;
+  font-family:'Poppins','Figtree',Arial,sans-serif!important;
+  font-size:11.5px!important;line-height:1!important;font-weight:700!important;
+  letter-spacing:0!important;border-radius:9px!important;
+  background:transparent!important;color:#776474!important;
+  border:1px solid transparent!important;box-shadow:none!important;
+  margin:0!important;
+ }
+ .proposal-sections .tab[aria-selected="true"]{
+  background:#fff!important;color:#c51d72!important;
+  border:1px solid #efc9dd!important;
+  box-shadow:0 1px 4px rgba(115,40,75,.05)!important;
+ }
+ .proposal-sections .tab:hover:not([aria-selected="true"]){
+  background:rgba(255,255,255,.7)!important;color:#b5256d!important;
+ }
+}
+@media screen and (max-width:650px){
+ .toolbar-inner{
+  padding:10px 10px 9px!important;gap:8px!important;max-width:100%!important;
+ }
+ .nav-toprow{gap:8px!important}
+ .view-switcher{padding:3px!important;gap:2px!important}
+ .view-switch{min-height:33px!important;padding:0 13px!important;font-size:11px!important}
+ .tool-actions{padding-left:9px!important}
+ .toolbar .pdf-btn{min-height:36px!important;padding:0 11px!important;font-size:10px!important}
+ .proposal-sections{gap:4px!important;padding:0!important}
+ .proposal-sections .tab{height:31px!important;min-height:31px!important;padding:0 9px!important;font-size:10.5px!important}
+ .proposal-sections #tab-proposed{margin:0!important}
+}
+@media screen and (max-width:355px){
+ .nav-toprow{gap:6px!important}
+ .view-switch{padding:0 10px!important;font-size:10px!important}
+ .tool-actions{padding-left:6px!important}
+ .toolbar .pdf-btn{padding:0 9px!important;font-size:9.5px!important}
+}
+@media print{
+ body{background:#fff!important}
+ .toolbar{display:none!important}
+}
+</style>
 </head><body>
-<div class="toolbar"><div class="toolbar-inner"><div class="tool-brand">FAH MAI <span>×</span> MOST WANTED</div><nav class="tabs" role="tablist" aria-label="Proposal sections"><button class="tab" id="tab-overview" role="tab" aria-controls="overview" aria-selected="true" data-target="overview" tabindex="0">Overview</button><button class="tab" id="tab-current" role="tab" aria-controls="current" aria-selected="false" data-target="current" tabindex="-1">Current</button><button class="tab" id="tab-spec" role="tab" aria-controls="spec" aria-selected="false" data-target="spec" tabindex="-1">Spec</button><button class="tab" id="tab-budget" role="tab" aria-controls="budget" aria-selected="false" data-target="budget" tabindex="-1">Budget</button><button class="tab" id="tab-implementation" role="tab" aria-controls="implementation" aria-selected="false" data-target="implementation" tabindex="-1">Implementation</button><button class="tab tab-proposals" id="tab-proposed" role="tab" aria-controls="proposed" aria-selected="false" data-target="proposed" tabindex="-1">Proposals</button><button class="tab" id="tab-examples" role="tab" aria-controls="examples" aria-selected="false" data-target="examples" tabindex="-1">Examples</button></nav><div class="tool-actions"><span class="status">A4 · 7 TABS</span><button type="button" class="pdf-btn">Export PDF</button></div></div></div>
+<div class="toolbar"><div class="toolbar-inner">
+ <div class="nav-toprow">
+  <div class="view-switcher" role="group" aria-label="Choose proposal or examples">
+   <button type="button" class="view-switch is-current" id="nav-proposal" data-view="proposal" aria-pressed="true">Proposal</button>
+   <button type="button" class="view-switch" id="tab-examples" data-view="examples" aria-pressed="false">Examples</button>
+  </div>
+  <div class="tool-actions"><button type="button" class="pdf-btn" title="Print or save the full A4 proposal as PDF">Export PDF</button></div>
+ </div>
+ <nav class="tabs proposal-sections" role="tablist" aria-label="Proposal sections">
+  <button class="tab" id="tab-overview" role="tab" aria-controls="overview" aria-selected="true" data-target="overview" tabindex="0">Overview</button>
+  <button class="tab" id="tab-current" role="tab" aria-controls="current" aria-selected="false" data-target="current" tabindex="-1">Current</button>
+  <button class="tab" id="tab-spec" role="tab" aria-controls="spec" aria-selected="false" data-target="spec" tabindex="-1">Spec</button>
+  <button class="tab" id="tab-budget" role="tab" aria-controls="budget" aria-selected="false" data-target="budget" tabindex="-1">Budget</button>
+  <button class="tab" id="tab-implementation" role="tab" aria-controls="implementation" aria-selected="false" data-target="implementation" tabindex="-1">Implementation</button>
+  <button class="tab" id="tab-proposed" role="tab" aria-controls="proposed" aria-selected="false" data-target="proposed" tabindex="-1">Proposed</button>
+ </nav>
+</div></div>
 <main class="viewport" aria-label="Fah Mai Holdings commercial proposal"><article aria-labelledby="tab-overview" class="sheet is-active" id="overview" role="tabpanel">
 <div class="sheet-cap"></div>
 <div class="identity presentation-header">
@@ -839,10 +963,57 @@ h1,h2,h3,.feature-index,.audit-brand,.small-label,.tag,.phase-status,.tool-brand
  <footer class="sheet-footer"></footer>
 </article></main><script>
 (()=>{
- const tabs=[...document.querySelectorAll('[role="tab"]')];const sheets=[...document.querySelectorAll('.sheet')];
- const activate=(name,updateUrl=true)=>{if(!document.getElementById(name))return;tabs.forEach(t=>{const yes=t.dataset.target===name;t.setAttribute('aria-selected',yes?'true':'false');t.tabIndex=yes?0:-1});sheets.forEach(s=>s.classList.toggle('is-active',s.id===name));if(updateUrl)history.replaceState({},'',location.pathname+location.search+'#'+name);scrollTo({top:0,behavior:'instant'});};
- tabs.forEach((t,i)=>{t.addEventListener('click',()=>activate(t.dataset.target));t.addEventListener('keydown',e=>{let j=i;if(e.key==='ArrowRight')j=(i+1)%tabs.length;else if(e.key==='ArrowLeft')j=(i-1+tabs.length)%tabs.length;else if(e.key==='Home')j=0;else if(e.key==='End')j=tabs.length-1;else return;e.preventDefault();activate(tabs[j].dataset.target);tabs[j].focus()})});
- const hash=location.hash.replace('#','');if(hash&&document.getElementById(hash))activate(hash,false);
+ const tabs=[...document.querySelectorAll('.proposal-sections [role="tab"]')];
+ const sheets=[...document.querySelectorAll('.sheet')];
+ const sections=new Set(tabs.map(t=>t.dataset.target));
+ const sectionMenu=document.querySelector('.proposal-sections');
+ const switchProposal=document.getElementById('nav-proposal');
+ const switchExamples=document.getElementById('tab-examples');
+ let lastProposal='overview';
+ try{
+  const saved=sessionStorage.getItem('fahmai_last_proposal_section');
+  if(saved&&sections.has(saved))lastProposal=saved;
+ }catch(e){}
+ const activate=(name,updateUrl=true)=>{
+  if(!document.getElementById(name))return;
+  const showingExamples=name==='examples';
+  if(!showingExamples){
+   if(!sections.has(name))return;
+   lastProposal=name;
+   try{sessionStorage.setItem('fahmai_last_proposal_section',lastProposal)}catch(e){}
+  }
+  tabs.forEach(t=>{
+   const yes=t.dataset.target===name;
+   t.setAttribute('aria-selected',yes?'true':'false');
+   t.tabIndex=yes?0:-1;
+  });
+  sheets.forEach(sheet=>sheet.classList.toggle('is-active',sheet.id===name));
+  switchProposal.setAttribute('aria-pressed',showingExamples?'false':'true');
+  switchExamples.setAttribute('aria-pressed',showingExamples?'true':'false');
+  switchProposal.classList.toggle('is-current',!showingExamples);
+  switchExamples.classList.toggle('is-current',showingExamples);
+  sectionMenu.hidden=showingExamples;
+  if(updateUrl)history.replaceState({},'',location.pathname+location.search+'#'+name);
+  window.scrollTo({top:0,behavior:'instant'});
+ };
+ tabs.forEach((t,i)=>{
+  t.addEventListener('click',()=>activate(t.dataset.target));
+  t.addEventListener('keydown',e=>{
+   let j=i;
+   if(e.key==='ArrowRight')j=(i+1)%tabs.length;
+   else if(e.key==='ArrowLeft')j=(i-1+tabs.length)%tabs.length;
+   else if(e.key==='Home')j=0;
+   else if(e.key==='End')j=tabs.length-1;
+   else return;
+   e.preventDefault();activate(tabs[j].dataset.target);tabs[j].focus();
+  });
+ });
+ switchProposal.addEventListener('click',()=>activate(lastProposal));
+ switchExamples.addEventListener('click',()=>activate('examples'));
+ const hash=location.hash.replace('#','');
+ if(hash==='examples')activate('examples',false);
+ else if(sections.has(hash))activate(hash,false);
+ else activate('overview',false);
  const invest=document.getElementById('invest'),margin=document.getElementById('margin'),result=document.getElementById('breakeven');
  const calc=()=>{const a=parseFloat(invest.value),b=parseFloat(margin.value);result.textContent=(a>0&&b>0)?String(Math.ceil(a/b)):'—';try{localStorage.setItem('fahmai_invest',invest.value);localStorage.setItem('fahmai_margin',margin.value)}catch(e){}};
  try{invest.value=localStorage.getItem('fahmai_invest')||'';margin.value=localStorage.getItem('fahmai_margin')||'';}catch(e){}
