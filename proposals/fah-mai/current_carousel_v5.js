@@ -19,17 +19,17 @@
   function move(i){
     i=Math.max(0,Math.min(slides.length-1,i));
     setActive(i);
-    const first=slides[0].getBoundingClientRect();
-    const target=slides[i].getBoundingClientRect();
-    track.scrollBy({left:target.left-first.left-track.scrollLeft,behavior:'smooth'});
+    // offsetWidth and scrollLeft share the same unzoomed CSS pixel space.
+    // getBoundingClientRect uses *scaled* pixels in the A4 storybook, which
+    // would otherwise select the wrong screenshot at smaller desktop sizes.
+    track.scrollTo({left:i*slides[0].offsetWidth,behavior:'smooth'});
   }
   buttons.forEach(b=>b.addEventListener('click',()=>move(Number(b.dataset.auditSlide))));
   track.addEventListener('scroll',()=>{
     if(frame!==null)cancelAnimationFrame(frame);
     frame=requestAnimationFrame(()=>{
       frame=null;
-      const first=slides[0].getBoundingClientRect();
-      const idx=Math.round(track.scrollLeft/Math.max(1,first.width));
+      const idx=Math.round(track.scrollLeft/Math.max(1,slides[0].offsetWidth));
       setActive(Math.max(0,Math.min(slides.length-1,idx)));
     });
   },{passive:true});
