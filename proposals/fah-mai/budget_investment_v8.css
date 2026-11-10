@@ -1,0 +1,336 @@
+/* Budget v8: a restrained executive A4 investment statement, not an online pricing page. */
+#budget .sheet-body.budgetv8-body{
+  box-sizing:border-box!important;
+  width:100%!important;
+  flex:1 1 auto!important;
+  display:flex!important;
+  flex-direction:column!important;
+  min-height:0!important;
+  height:auto!important;
+  padding:17px 37px 12px!important;
+  gap:0!important;
+  margin:0!important;
+  color:#312631!important;
+  background:#fff!important;
+  overflow:hidden!important;
+  font-family:"Helvetica Neue",Helvetica,Arial,sans-serif!important;
+}
+#budget .budgetv8-body *,
+#budget .budgetv8-body *::before,
+#budget .budgetv8-body *::after{
+  box-sizing:border-box;
+  font-family:"Helvetica Neue",Helvetica,Arial,sans-serif!important;
+}
+#budget .budgetv8-intro{margin:0 0 11px!important;padding:0!important}
+#budget .budgetv8-intro h1{
+  font-size:27px!important;
+  font-weight:800!important;
+  letter-spacing:-.95px!important;
+  line-height:1.09!important;
+  margin:0 0 6px!important;
+  color:#2a2029!important;
+}
+#budget .budgetv8-intro h1 em{font-style:normal!important;color:#c02b76!important}
+#budget .budgetv8-intro p{
+  max-width:600px!important;
+  font-size:10.1px!important;
+  line-height:1.32!important;
+  font-weight:550!important;
+  color:#746772!important;
+  margin:0!important;
+}
+#budget .budgetv8-quotation{
+  padding:12px 16px 10px!important;
+  background:#fcf8fa!important;
+  border-top:2px solid #c32d76!important;
+  border-bottom:1px solid #ead8e2!important;
+  margin:0 0 12px!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+}
+#budget .budgetv8-quote-heading{
+  display:flex!important;align-items:baseline!important;justify-content:space-between!important;
+  gap:10px!important;margin:0 0 9px!important;
+}
+#budget .budgetv8-quote-heading strong{
+  color:#352530!important;font-size:12.8px!important;line-height:1.1!important;font-weight:800!important;
+}
+#budget .budgetv8-quote-heading span{
+  color:#a02a67!important;font-size:9.1px!important;line-height:1.2!important;font-weight:750!important;text-align:right!important;
+}
+#budget .budgetv8-offer-prices{
+  display:grid!important;
+  grid-template-columns:1fr 1.28fr .73fr!important;
+  gap:17px!important;
+  align-items:start!important;
+}
+#budget .budgetv8-offer-prices>div:not(.budgetv8-discount-seal){
+  display:flex!important;flex-direction:column!important;
+  align-items:flex-start!important;
+  justify-content:flex-start!important;
+  gap:4px!important;min-width:0!important;
+}
+#budget .budgetv8-offer-prices>div:nth-child(2){
+  border-left:1px solid #e9d7e1!important;
+  padding-left:17px!important;
+}
+#budget .budgetv8-offer-prices strong{
+  display:block!important;
+  color:#b6236a!important;
+  font-size:31px!important;
+  line-height:1!important;
+  font-weight:850!important;
+  letter-spacing:-1.15px!important;
+  font-variant-numeric:tabular-nums!important;
+  white-space:nowrap!important;
+}
+#budget .budgetv8-offer-prices strong small{
+  font-size:14px!important;letter-spacing:-.35px!important;
+  font-weight:750!important;
+  color:#744f65!important;
+}
+#budget .budgetv8-offer-prices span{
+  font-size:9.3px!important;
+  line-height:1.3!important;
+  color:#695560!important;
+  font-weight:650!important;
+}
+#budget .budgetv8-discount-seal{
+  display:flex!important;flex-direction:column!important;
+  justify-content:center!important;align-items:flex-start!important;
+  border-left:1px solid #e9d7e1!important;padding-left:12px!important;
+  gap:5px!important;
+}
+#budget .budgetv8-discount-seal b{
+  font-weight:850!important;font-size:25px!important;letter-spacing:-1px!important;line-height:1!important;color:#42323d!important;
+}
+#budget .budgetv8-discount-seal span{
+  color:#8d617a!important;font-size:8.1px!important;line-height:1.18!important;
+}
+#budget .budgetv8-quotation>p{
+  margin:9px 0 0!important;
+  color:#715e6b!important;font-size:9.2px!important;line-height:1.35!important;font-weight:600!important;
+}
+#budget .budgetv8-section-heading{
+  display:flex!important;align-items:baseline!important;
+  justify-content:space-between!important;
+  gap:15px!important;margin:0 0 7px!important;
+}
+#budget .budgetv8-section-heading h2{
+  margin:0!important;
+  font-size:12.8px!important;
+  line-height:1.1!important;
+  font-weight:800!important;
+  letter-spacing:-.24px!important;
+  color:#352832!important;
+}
+#budget .budgetv8-section-heading>span{
+  font-size:8.7px!important;
+  font-weight:650!important;
+  color:#947e8b!important;
+  line-height:1.2!important;
+  text-align:right!important;
+}
+#budget .budgetv8-benchmark{margin:0 0 11px!important;padding:0!important}
+#budget .budgetv8-rate-tables{
+  display:grid!important;grid-template-columns:1fr 1fr!important;
+  column-gap:20px!important;
+  width:100%!important;
+  min-width:0!important;
+}
+#budget .budgetv8-rate-tables table{
+  border-collapse:collapse!important;
+  border-spacing:0!important;
+  width:100%!important;
+  table-layout:auto!important;
+  font-variant-numeric:tabular-nums!important;
+  margin:0!important;
+}
+#budget .budgetv8-rate-tables th{
+  font-size:9.3px!important;
+  font-weight:800!important;
+  color:#4d3947!important;
+  line-height:1.2!important;
+  padding:6px 3px 6px 0!important;
+  background:#f6eef2!important;
+  border-bottom:1px solid #e7d8e0!important;
+}
+#budget .budgetv8-rate-tables th:first-child{padding-left:7px!important;text-align:left!important}
+#budget .budgetv8-rate-tables th:last-child{text-align:right!important;padding-right:7px!important;width:61px!important}
+#budget .budgetv8-rate-tables td{
+  padding:3.6px 3px 3.6px 0!important;
+  font-size:9.1px!important;
+  font-weight:560!important;
+  line-height:1.17!important;
+  color:#655761!important;
+  border-bottom:1px solid #f1ebee!important;
+  vertical-align:middle!important;
+}
+#budget .budgetv8-rate-tables td:first-child{padding-left:5px!important}
+#budget .budgetv8-rate-tables td:last-child{
+  font-weight:730!important;
+  color:#41323c!important;
+  white-space:nowrap!important;
+  text-align:right!important;
+  padding-right:5px!important;
+}
+#budget .budgetv8-rate-tables .budgetv8-rate-total td{
+  padding-top:6px!important;padding-bottom:5px!important;
+  border-bottom:2px solid #d1a5bc!important;
+  color:#9e2b67!important;
+  font-weight:850!important;
+  font-size:9.35px!important;
+}
+#budget .budgetv8-comparison{
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  column-gap:20px!important;
+  padding:8px 7px!important;
+  background:#fbf7f9!important;
+  border-bottom:1px solid #ede2e8!important;
+}
+#budget .budgetv8-comparison>span{
+  display:flex!important;align-items:baseline!important;justify-content:space-between!important;gap:7px!important;
+}
+#budget .budgetv8-comparison b{
+  color:#6e5f68!important;font-weight:700!important;
+  font-size:9.25px!important;line-height:1.2!important;
+}
+#budget .budgetv8-comparison strong{
+  color:#b4246c!important;font-size:12.25px!important;white-space:nowrap!important;
+  font-weight:850!important;line-height:1!important;
+  font-variant-numeric:tabular-nums!important;
+}
+#budget .budgetv8-fx{
+  margin:5px 0 0!important;
+  color:#8c7c86!important;
+  font-size:8.45px!important;
+  line-height:1.27!important;
+  font-weight:560!important;
+}
+#budget .budgetv8-seo{
+  padding:10px 0 9px!important;
+  margin:0 0 11px!important;
+  border-top:1px solid #eadfe5!important;
+  border-bottom:1px solid #eadfe5!important;
+}
+#budget .budgetv8-seo>p:not(.budgetv8-seo-result){
+  margin:0 0 8px!important;font-size:9.8px!important;line-height:1.34!important;
+  color:#61525f!important;font-weight:575!important;
+}
+#budget .budgetv8-seo>p strong{
+  color:#a52569!important;font-weight:850!important;
+}
+#budget .budgetv8-seo-columns{
+  display:grid!important;grid-template-columns:1fr 1.14fr!important;
+  column-gap:17px!important;
+  padding:0!important;
+}
+#budget .budgetv8-seo-columns>div{
+  margin:0!important;color:#71616b!important;
+  font-size:9.15px!important;line-height:1.29!important;
+  font-weight:550!important;
+}
+#budget .budgetv8-seo-columns>div+div{border-left:1px solid #ede5e9!important;padding-left:15px!important}
+#budget .budgetv8-seo-columns b{
+  display:block!important;margin:0 0 3px!important;
+  color:#45343e!important;font-size:9.4px!important;font-weight:830!important;
+}
+#budget .budgetv8-seo-result{
+  margin:8px 0 0!important;
+  font-size:9.1px!important;line-height:1.28!important;
+  font-weight:750!important;color:#ae3271!important;
+}
+#budget .budgetv8-commercial{
+  margin:0 0 10px!important;padding:0!important;
+}
+#budget .budgetv8-rationale{
+  margin:0 0 10px!important;
+  font-size:9.45px!important;line-height:1.33!important;
+  color:#70616d!important;font-weight:560!important;
+}
+#budget .budgetv8-rationale strong{
+  font-weight:825!important;color:#ad3070!important;
+}
+#budget .budgetv8-milestones{
+  display:grid!important;grid-template-columns:1fr 1fr 1fr!important;gap:13px!important;
+}
+#budget .budgetv8-milestones>div{
+  display:flex!important;flex-direction:column!important;
+  gap:3px!important;min-width:0!important;
+  border-top:2px solid #c8739d!important;
+  padding:7px 0 0!important;
+}
+#budget .budgetv8-milestones span{
+  font-size:9.1px!important;font-weight:775!important;line-height:1.1!important;
+  color:#6a5361!important;
+}
+#budget .budgetv8-milestones strong{
+  font-size:21px!important;font-weight:850!important;letter-spacing:-.7px!important;
+  line-height:1.1!important;color:#ae266e!important;
+  font-variant-numeric:tabular-nums!important;
+}
+#budget .budgetv8-milestones small{
+  font-size:8.75px!important;line-height:1.23!important;font-weight:550!important;
+  color:#8a7781!important;
+}
+#budget .budgetv8-final{
+  display:grid!important;
+  grid-template-columns:1fr 1.24fr 1fr!important;
+  gap:16px!important;
+  align-items:center!important;
+  padding:10px 12px!important;
+  margin:0 0 9px!important;
+  background:#2b1d28!important;
+  border-radius:2px!important;
+}
+#budget .budgetv8-final>div{
+  display:flex!important;flex-direction:column!important;gap:3px!important;min-width:0!important;
+}
+#budget .budgetv8-final>div+div{
+  padding-left:12px!important;border-left:1px solid rgba(255,255,255,.17)!important;
+}
+#budget .budgetv8-final span{
+  font-size:9.05px!important;
+  line-height:1.28!important;
+  color:#f5dce9!important;
+  font-weight:625!important;
+}
+#budget .budgetv8-final strong{
+  color:#fff!important;
+  font-size:20px!important;line-height:1.1!important;
+  font-weight:850!important;letter-spacing:-.5px!important;
+  font-variant-numeric:tabular-nums!important;
+}
+#budget .budgetv8-final-total strong{color:#f69ac7!important;font-size:23px!important}
+#budget .budgetv8-footer-notes{
+  display:flex!important;flex-direction:column!important;
+  gap:5px!important;margin:0!important;padding:0!important;
+}
+#budget .budgetv8-footer-notes p{
+  margin:0!important;color:#8b7b85!important;
+  font-size:8.6px!important;line-height:1.32!important;
+  font-weight:550!important;
+}
+#budget .budgetv8-footer-notes strong{
+  color:#a52b6d!important;font-weight:850!important;
+}
+@media screen and (max-width:800px){
+  /* The existing storybook scales the fixed A4 sheet. Preserve internal layout. */
+  #budget .sheet-body.budgetv8-body{padding:17px 37px 12px!important}
+}
+@media print {
+  #budget .budgetv8-body,
+  #budget .budgetv8-quotation,
+  #budget .budgetv8-final,
+  #budget .budgetv8-rate-tables th,
+  #budget .budgetv8-comparison {
+    -webkit-print-color-adjust:exact!important;
+    print-color-adjust:exact!important;
+  }
+  #budget .budgetv8-rate-tables tr,
+  #budget .budgetv8-milestones>div,
+  #budget .budgetv8-seo-columns>div{
+    break-inside:avoid!important;
+  }
+}
