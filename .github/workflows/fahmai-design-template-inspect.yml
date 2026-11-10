@@ -1,0 +1,33 @@
+name: Inspect proposal section template
+on:
+  push:
+    paths: ['.github/workflows/fahmai-design-template-inspect.yml']
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Exact Spec markup, navigation and CSS
+        run: |
+          python -m pip install beautifulsoup4 -q
+          python - <<'PY'
+          from pathlib import Path
+          from bs4 import BeautifulSoup
+          import re
+          s=Path('proposals/fah-mai/index.html').read_text()
+          d=BeautifulSoup(s,'html.parser')
+          spec=d.select_one('#spec')
+          print('TEMPLATE_SPEC')
+          print(str(spec)[:17500].replace('\n',' ')[:12000])
+          print('NAV_LINE')
+          n=d.select_one('nav.proposal-sections')
+          print(str(n)[:5000].replace('\n',' '))
+          print('PREPEND_SCRIPT')
+          print((d.find_all('script')[0].get_text() or '')[:6000].replace('\n',' '))
+          for key in ['.sheet-body','.waveblock','.sheet-footer','.page-heading','.page-heading-copy','.sheet-section','.page-kicker','.sheet-content','.sheet-cap','.sheet','@media print']:
+            print('KEY',key)
+            matches=list(re.finditer(r'([^{}]{0,165})\{([^{}]{0,900})\}',s))
+            got=[m for m in matches if key in m.group(1)]
+            for m in got[-6:]:
+              print('STYLE',m.group(1).replace('\n',' ')[:200],'=>',m.group(2).replace('\n',' ')[:900])
+          PY
