@@ -1,0 +1,40 @@
+name: Inspect Fah Mai design insertion point
+on:
+  push:
+    paths: ['.github/workflows/fahmai-inspect-design-page.yml']
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Locate page structure, page scripts and visual design patterns
+        run: |
+          python -m pip install beautifulsoup4 -q
+          python - <<'PY'
+          from pathlib import Path
+          from bs4 import BeautifulSoup
+          import re
+          s=Path('proposals/fah-mai/index.html').read_text()
+          soup=BeautifulSoup(s,'html.parser')
+          print('FILE_LEN',len(s))
+          for node in soup.select('.viewport > .sheet'):
+            print('SHEET',node.get('id'),'class',node.get('class'),'attrs',node.attrs,'text',node.get_text(' ',strip=True)[:140])
+          for node in soup.select('nav.proposal-sections button,.view-switcher button'):
+            print('TAB',node.get('id'),node.get('data-target'),node.get('aria-selected'),node.get_text(' ',strip=True))
+          for id in ['spec','budget','implementation','overview','proposed','examples']:
+            n=soup.select_one('#'+id)
+            if not n:continue
+            print('STRUCT',id,'children',[(x.name,x.get('class'),x.get('id')) for x in n.find_all(recursive=False)][:40])
+            for x in n.find_all(['h1','h2','h3'])[:12]:
+              print('HEADING',id,x.get_text(' ',strip=True)[:170],x.get('class'))
+            if id in ('spec','budget'):
+              raw=str(n)
+              raw=re.sub(r'(src|href)="data:[^"]+"',r'\1="[embedded]"',raw)
+              print('SHEET_MARKUP',id,raw[:8000])
+          for k in ['.sheet-header','.page-heading','.page-heading-copy','.sheet-section','.sheet-body','.feature-columns','.vision-grid','.footer','page-index','.tab','const tabs=']:
+            print('KEY',k,'matches',s.count(k))
+          print('TITLE',soup.title.string if soup.title else None)
+          for script in soup.find_all('script'):
+            code=script.string or ''
+            print('SCRIPT',script.get('id'),len(code), 'has page indexes', ('11' in code or '/11' in code))
+          PY
