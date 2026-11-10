@@ -1,0 +1,50 @@
+name: Fah Mai precise intro copy refresh
+on:
+  push:
+    paths:
+      - '.github/workflows/fahmai-copy-refresh.yml'
+permissions:
+  contents: write
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          python -m pip install beautifulsoup4 playwright pypdf
+          python -m playwright install chromium
+      - run: python proposals/fah-mai/copy-refresh.py
+      - name: Verify copy and regenerate A4 PDF
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from playwright.sync_api import sync_playwright
+          from pypdf import PdfReader
+          p=Path('proposals/fah-mai/index.html').resolve()
+          with sync_playwright() as q:
+              b=q.chromium.launch(headless=True)
+              page=b.new_page(viewport={'width':1370,'height':1100})
+              page.goto(p.as_uri(),wait_until='domcontentloaded',timeout=60000)
+              page.evaluate('() => document.fonts.ready')
+              a=page.locator('#overview h1').inner_text()
+              sub=page.locator('#overview .page-heading .sub').inner_text()
+              statement=page.locator('#overview .statement').inner_text()
+              print('HEADLINE',a)
+              print('SUBTITLE',sub)
+              print('STATEMENT',statement)
+              assert a.startswith('Fah Mai Holdings Re-Envisioned:')
+              assert 'Ferrari-calibre design' in sub and '2026 A-tier' in sub
+              assert 'Under Kailan' in statement and 'AI-credit limit' in statement
+              assert page.locator('nav.tabs .tab').count()==7
+              page.pdf(path='proposals/fah-mai/Fah-Mai-Proposal-Glass.pdf',format='A4',print_background=True,margin={'top':'0','right':'0','bottom':'0','left':'0'},prefer_css_page_size=True)
+              b.close()
+          n=len(PdfReader('proposals/fah-mai/Fah-Mai-Proposal-Glass.pdf').pages)
+          print('PDF_PAGES',n)
+          assert n==7, 'Expected exactly seven pages'
+          PY
+      - name: Publish corrected content
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add proposals/fah-mai/index.html proposals/fah-mai/Fah-Mai-Proposal-Glass.pdf
+          git diff --cached --quiet || (git commit -m 'Refine Fah Mai 2026 A-tier proposal copy' && git push)
