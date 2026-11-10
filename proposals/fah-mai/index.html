@@ -2867,6 +2867,189 @@ html body .sheet .hero-eyebrow{
 #overview .vision-card.vision-card-b::before {background-position:50% 50% !important;}
 #overview .vision-card.vision-card-c::before {background-position:100% 50% !important;}
 </style>
+<style id="fahmai-chapter-boundaries-v14">/* Chapter identity: one consistent, readable system on every A4 sheet.
+   No floating arrows, decorative overlines, or changes to document copy. */
+html body .viewport > .sheet .chapter-banner {
+  position:absolute!important;
+  top:132px!important;
+  left:40px!important;
+  z-index:5!important;
+  width:max-content!important;
+  max-width:calc(100% - 85px)!important;
+  height:41px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:10px!important;
+  margin:0!important;
+  padding:5px 13px 5px 10px!important;
+  background:rgba(255,255,255,.95)!important;
+  border:1px solid rgba(206,165,187,.76)!important;
+  border-left:4px solid #c52877!important;
+  border-radius:3px!important;
+  box-shadow:0 2px 9px rgba(70,30,55,.045)!important;
+  pointer-events:none!important;
+  color:#30212b!important;
+  font-family:"Helvetica Neue",Helvetica,Arial,sans-serif!important;
+  line-height:1!important;
+  text-transform:none!important;
+  letter-spacing:normal!important;
+}
+html body .viewport > .sheet .chapter-banner-index{
+  font:850 21px/1 "Helvetica Neue",Helvetica,Arial,sans-serif!important;
+  letter-spacing:-.7px!important;
+  color:#bb2875!important;
+  flex:none!important;
+}
+html body .viewport > .sheet .chapter-banner-name{
+  font:800 16px/1.1 "Helvetica Neue",Helvetica,Arial,sans-serif!important;
+  letter-spacing:-.35px!important;
+  color:#34222e!important;
+  white-space:nowrap!important;
+}
+html body .viewport > .sheet .chapter-banner-count{
+  display:block!important;
+  margin-left:5px!important;
+  padding-left:10px!important;
+  border-left:1px solid #e7d5df!important;
+  color:#816575!important;
+  font:750 11px/1.2 "Helvetica Neue",Helvetica,Arial,sans-serif!important;
+  white-space:nowrap!important;
+  flex:none!important;
+}
+html body .viewport > .sheet[data-chapter-start="false"] .chapter-banner{
+  border-left-color:#d39ab9!important;
+  background:rgba(255,255,255,.94)!important;
+}
+html body .viewport > .sheet[data-chapter-start="false"] .chapter-banner-index{
+  color:#b76a90!important;
+}
+/* The footer is already reserved in the A4 sheet and otherwise empty.
+   Use it for a genuine section indicator, without reducing content space. */
+html body .viewport > .sheet footer.sheet-footer .chapter-footer-label{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:11px!important;
+  flex:1 1 auto!important;
+  width:100%!important;
+  height:100%!important;
+  padding:0 20px 0 39px!important;
+  margin:0!important;
+  color:#826a79!important;
+  visibility:visible!important;
+  font:670 10px/1 "Helvetica Neue",Helvetica,Arial,sans-serif!important;
+  letter-spacing:0!important;
+  text-transform:none!important;
+  white-space:nowrap!important;
+}
+html body .viewport > .sheet footer.sheet-footer .chapter-footer-label strong{
+  color:#af306f!important;
+  font-weight:830!important;
+}
+html body .viewport > .sheet footer.sheet-footer .chapter-footer-page{
+  margin-left:auto!important;
+  color:#8c7383!important;
+  font-weight:750!important;
+}
+/* The active chapter is unambiguous rather than a faint pink tab. */
+html body .toolbar nav.tabs.proposal-sections button.tab[aria-selected="true"],
+html body .toolbar nav.tabs.proposal-sections button#tab-proposed[aria-selected="true"],
+html body .toolbar nav.tabs.proposal-sections button.tab[data-chapter-current="true"],
+html body .toolbar nav.tabs.proposal-sections button#tab-proposed[data-chapter-current="true"]{
+  background:#bb2673!important;
+  background-image:none!important;
+  color:#fff!important;
+  border:1px solid #ac236b!important;
+  border-radius:7px!important;
+  box-shadow:0 2px 6px rgba(140,35,87,.15)!important;
+  font-weight:840!important;
+  text-shadow:none!important;
+}
+html body .toolbar nav.tabs.proposal-sections button.tab[data-chapter-current="true"]:hover,
+html body .toolbar nav.tabs.proposal-sections button#tab-proposed[data-chapter-current="true"]:hover{
+  background:#a92065!important;
+  color:#fff!important;
+}
+html body[data-chapter-tracking="vertical"] .toolbar nav.tabs.proposal-sections button.tab[aria-selected="true"]:not([data-chapter-current="true"]),
+html body[data-chapter-tracking="vertical"] .toolbar nav.tabs.proposal-sections button#tab-proposed[aria-selected="true"]:not([data-chapter-current="true"]){
+  background:transparent!important;
+  background-image:none!important;
+  color:#756571!important;
+  border:1px solid transparent!important;
+  box-shadow:none!important;
+}
+html body .toolbar #tab-examples[data-chapter-current="true"]{
+  box-shadow:inset 0 0 0 2px rgba(197,42,113,.34)!important;
+}
+/* In continuous vertical reading, chapter transitions are actual whitespace
+   with a text title. No extra A4 pages, no interruption inside each chapter. */
+html body .viewport > .chapter-divider{
+  display:none!important;
+}
+html body .viewport[data-reading-mode="vertical"] > .chapter-divider{
+  box-sizing:border-box!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:11px!important;
+  flex:0 0 auto!important;
+  width:min(calc(100% - 18px),210mm)!important;
+  max-width:210mm!important;
+  min-height:52px!important;
+  margin:36px auto 15px!important;
+  padding:0 8px!important;
+  background:transparent!important;
+  color:#2e202b!important;
+  text-align:left!important;
+  font-family:"Helvetica Neue",Helvetica,Arial,sans-serif!important;
+}
+html body .viewport[data-reading-mode="vertical"] .chapter-divider-index{
+  font:850 27px/1 "Helvetica Neue",Helvetica,Arial,sans-serif!important;
+  letter-spacing:-1.1px!important;
+  color:#be2775!important;
+}
+html body .viewport[data-reading-mode="vertical"] .chapter-divider strong{
+  font:800 19px/1 "Helvetica Neue",Helvetica,Arial,sans-serif!important;
+  letter-spacing:-.4px!important;
+  color:#30222c!important;
+  white-space:nowrap!important;
+}
+html body .viewport[data-reading-mode="vertical"] .chapter-divider-line{
+  flex:1 1 auto!important;
+  height:1px!important;
+  background:linear-gradient(90deg,#d9afc4,#eee1e8)!important;
+  margin-left:12px!important;
+}
+/* Contrast with the lighter separator between pages within one chapter. */
+@media (max-width:800px){
+  html body .viewport[data-reading-mode="vertical"] > .chapter-divider{
+    width:calc(100% - 18px)!important;
+    min-height:43px!important;
+    margin:22px auto 11px!important;
+    gap:9px!important;
+  }
+  html body .viewport[data-reading-mode="vertical"] .chapter-divider-index{
+    font-size:24px!important;
+  }
+  html body .viewport[data-reading-mode="vertical"] .chapter-divider strong{
+    font-size:17px!important;
+  }
+}
+@media print{
+  html body .viewport > .chapter-divider{
+    display:none!important;
+    height:0!important;
+    margin:0!important;
+    padding:0!important;
+  }
+  html body .viewport > .sheet .chapter-banner{
+    -webkit-print-color-adjust:exact!important;
+    print-color-adjust:exact!important;
+    box-shadow:none!important;
+  }
+  html body .toolbar{display:none!important}
+}</style>
 </head><body>
 <div class="toolbar"><div class="toolbar-inner">
  <div class="nav-toprow">
@@ -2885,7 +3068,7 @@ html body .sheet .hero-eyebrow{
   <button class="tab" id="tab-proposed" role="tab" aria-controls="proposed" aria-selected="false" data-target="proposed" tabindex="-1">Proposed</button>
  </nav>
 </div></div>
-<main class="viewport" aria-label="Fah Mai Holdings commercial proposal"><article aria-labelledby="tab-overview" class="sheet is-active" id="overview" role="tabpanel">
+<main class="viewport" aria-label="Fah Mai Holdings commercial proposal"><article aria-labelledby="tab-overview" class="sheet is-active" id="overview" role="tabpanel" data-chapter="overview" data-chapter-start="true" data-chapter-page="1">
 <div class="sheet-cap"></div>
 <div class="identity presentation-header">
 <section aria-label="Presented to Louis on behalf of" class="presented-group presented-to">
@@ -2898,7 +3081,7 @@ html body .sheet .hero-eyebrow{
 </section>
 </div><div class="presentation-hairline"></div>
 <div aria-hidden="true" class="waveblock"></div>
-<div class="sheet-body"><div class="page-heading"><div class="page-heading-copy"><h1>Fah Mai Holdings Re-Envisioned: A Revenue Focused Ferrari-Design Brand Rehaul For All 3 Sectors</h1><p class="sub">An execution-led proposal to launch a 2026 A-tier web package that propels Fah Mai Holdings, Platinum Cask and Whisky Bull into a new era of digital leadership: future-proof technology, Ferrari-calibre design and stunningly responsive, AI-assisted websites.</p></div></div>
+<div class="chapter-banner" role="note" aria-label="Section 1 of 7, Overview, page 1 of 1"><span class="chapter-banner-index">01</span><strong class="chapter-banner-name">Overview</strong><span class="chapter-banner-count">1 of 1</span></div><div class="sheet-body"><div class="page-heading"><div class="page-heading-copy"><h1>Fah Mai Holdings Re-Envisioned: A Revenue Focused Ferrari-Design Brand Rehaul For All 3 Sectors</h1><p class="sub">An execution-led proposal to launch a 2026 A-tier web package that propels Fah Mai Holdings, Platinum Cask and Whisky Bull into a new era of digital leadership: future-proof technology, Ferrari-calibre design and stunningly responsive, AI-assisted websites.</p></div></div>
 <div class="sheet-section statement-firstpage">
 <div class="vision-intro">Under Kailan’s leadership, Most Wanted specialises in the design-led, AI-assisted transformation that could catapult Fah Mai into its next phase of growth. I began developing all three websites with my existing technology stack, but reached my available AI-credit limit before completing them. This proposal lays out the vision and a clear path to delivery.</div>
 <div aria-label="Three group design outcomes" class="vision-grid">
@@ -2926,8 +3109,9 @@ html body .sheet .hero-eyebrow{
 </div>
 </div>
 </div></div>
-<footer class="sheet-footer"><div><span class="footer-kicker">FAH MAI HOLDINGS × MOST WANTED</span><span>Strategic growth proposal · Confidential draft</span></div><div class="footer-right"><span class="footer-page"></span><span class="footer-rule"></span><span>2026</span></div></footer>
-</article><article class="sheet" id="current" role="tabpanel" aria-labelledby="tab-current">
+<footer class="sheet-footer"><div><span class="footer-kicker">FAH MAI HOLDINGS × MOST WANTED</span><span>Strategic growth proposal · Confidential draft</span></div><div class="footer-right"><span class="footer-page"></span><span class="footer-rule"></span><span>2026</span></div><div class="chapter-footer-label" aria-hidden="true"><strong>Overview</strong><span>Section 1 of 7</span><span class="chapter-footer-page">1/1</span></div></footer>
+</article><div class="chapter-divider" data-chapter-divider="current" role="separator" aria-label="Start of section 2, Current"><span class="chapter-divider-index">02</span><strong>Current</strong><span class="chapter-divider-line" aria-hidden="true"></span></div>
+<article class="sheet" id="current" role="tabpanel" aria-labelledby="tab-current" data-chapter="current" data-chapter-start="true" data-chapter-page="1">
   <div class="sheet-cap"></div>
 <div class="identity presentation-header">
  <section class="presented-group presented-to" aria-label="Presented to Louis on behalf of">
@@ -2941,7 +3125,7 @@ html body .sheet .hero-eyebrow{
  </div><div class="presentation-hairline"></div>
 <div class="waveblock" aria-hidden="true"></div>
 
-  <div class="sheet-body audit-v5-body audit-v5-current">
+  <div class="chapter-banner" role="note" aria-label="Section 2 of 7, Current, page 1 of 3"><span class="chapter-banner-index">02</span><strong class="chapter-banner-name">Current</strong><span class="chapter-banner-count">1 of 3</span></div><div class="sheet-body audit-v5-body audit-v5-current">
   <div class="audit-v5-gallery-heading">
     <span class="audit-v5-eyebrow">THE CURRENT DIGITAL EXPERIENCE</span>
     <span class="audit-v5-gallery-date">Google PageSpeed tests, 11 November 2026</span>
@@ -3034,9 +3218,9 @@ html body .sheet .hero-eyebrow{
   <div class="audit-v5-summary-row"><strong>Priority:</strong> Make the first mobile interaction faster, clearer and easier to act on.</div>
   <p class="audit-v5-source">Source: Google PageSpeed Insights, single mobile lab tests, 11 Nov 2026. LCP is the time until the largest visible element appears, not total page-load time. Whisky Bull's test returned an error; no score is implied.</p>
 </div>
-<footer class="sheet-footer"><div><span class="footer-kicker">FAH MAI HOLDINGS × MOST WANTED</span><span>Strategic growth proposal · Confidential draft</span></div><div class="footer-right"><span class="footer-page"></span><span class="footer-rule"></span><span>2026</span></div></footer>
+<footer class="sheet-footer"><div><span class="footer-kicker">FAH MAI HOLDINGS × MOST WANTED</span><span>Strategic growth proposal · Confidential draft</span></div><div class="footer-right"><span class="footer-page"></span><span class="footer-rule"></span><span>2026</span></div><div class="chapter-footer-label" aria-hidden="true"><strong>Current</strong><span>Section 2 of 7</span><span class="chapter-footer-page">1/3</span></div></footer>
  </article></article>
-<article class="sheet current-detail" data-proposal-section="current" id="current-journeys" role="region" aria-label="Current audit: brand opportunities">
+<article class="sheet current-detail" data-proposal-section="current" id="current-journeys" role="region" aria-label="Current audit: brand opportunities" data-chapter="current" data-chapter-start="false" data-chapter-page="2">
   <div class="sheet-cap"></div>
 <div class="identity presentation-header">
  <section class="presented-group presented-to" aria-label="Presented to Louis on behalf of">
@@ -3050,7 +3234,7 @@ html body .sheet .hero-eyebrow{
  </div><div class="presentation-hairline"></div>
 <div class="waveblock" aria-hidden="true"></div>
 
-  <div class="sheet-body audit-v5-body audit-v5-journeys">
+  <div class="chapter-banner" role="note" aria-label="Section 2 of 7, Current, page 2 of 3"><span class="chapter-banner-index">02</span><strong class="chapter-banner-name">Current</strong><span class="chapter-banner-count">2 of 3</span></div><div class="sheet-body audit-v5-body audit-v5-journeys">
   <header class="audit-v5-page-title">
     <span class="audit-v5-eyebrow">WHAT EACH BRAND CAN DO BETTER</span>
     <h1>Make the value <em>obvious.</em></h1>
@@ -3100,9 +3284,9 @@ html body .sheet .hero-eyebrow{
   <div class="audit-v5-bottom-line"><strong>Same quality standard.</strong> Three identities. Three customer experiences that are easier to trust and use.</div>
   <p class="audit-v5-source">Observations concern publicly visible pages, not internal processes. Detailed scope follows consultation with each team.</p>
 </div>
-<footer class="sheet-footer"><div><span class="footer-kicker">FAH MAI HOLDINGS × MOST WANTED</span><span>Strategic growth proposal · Confidential draft</span></div><div class="footer-right"><span class="footer-page"></span><span class="footer-rule"></span><span>2026</span></div></footer>
+<footer class="sheet-footer"><div><span class="footer-kicker">FAH MAI HOLDINGS × MOST WANTED</span><span>Strategic growth proposal · Confidential draft</span></div><div class="footer-right"><span class="footer-page"></span><span class="footer-rule"></span><span>2026</span></div><div class="chapter-footer-label" aria-hidden="true"><strong>Current</strong><span>Section 2 of 7</span><span class="chapter-footer-page">2/3</span></div></footer>
  </article></article>
-<article class="sheet current-detail" data-proposal-section="current" id="current-growth" role="region" aria-label="Current audit: commercial growth opportunities">
+<article class="sheet current-detail" data-proposal-section="current" id="current-growth" role="region" aria-label="Current audit: commercial growth opportunities" data-chapter="current" data-chapter-start="false" data-chapter-page="3">
   <div class="sheet-cap"></div>
 <div class="identity presentation-header">
  <section class="presented-group presented-to" aria-label="Presented to Louis on behalf of">
@@ -3116,7 +3300,7 @@ html body .sheet .hero-eyebrow{
  </div><div class="presentation-hairline"></div>
 <div class="waveblock" aria-hidden="true"></div>
 
-  <div class="sheet-body audit-v5-body audit-v5-growth">
+  <div class="chapter-banner" role="note" aria-label="Section 2 of 7, Current, page 3 of 3"><span class="chapter-banner-index">02</span><strong class="chapter-banner-name">Current</strong><span class="chapter-banner-count">3 of 3</span></div><div class="sheet-body audit-v5-body audit-v5-growth">
   <header class="audit-v5-page-title">
     <span class="audit-v5-eyebrow">THE OPPORTUNITY</span>
     <h1>Less friction.<br/><em>More qualified demand.</em></h1>
@@ -3145,8 +3329,9 @@ html body .sheet .hero-eyebrow{
   </div>
   <p class="audit-v5-source">These are execution objectives, not rankings or revenue guarantees. Establish baselines first, then measure, iterate and report. SEO specialist support is subject to the agreed ongoing scope.</p>
 </div>
-<footer class="sheet-footer"><div><span class="footer-kicker">FAH MAI HOLDINGS × MOST WANTED</span><span>Strategic growth proposal · Confidential draft</span></div><div class="footer-right"><span class="footer-page"></span><span class="footer-rule"></span><span>2026</span></div></footer>
- </article></article><article class="sheet" id="spec" role="tabpanel" aria-labelledby="tab-spec">
+<footer class="sheet-footer"><div><span class="footer-kicker">FAH MAI HOLDINGS × MOST WANTED</span><span>Strategic growth proposal · Confidential draft</span></div><div class="footer-right"><span class="footer-page"></span><span class="footer-rule"></span><span>2026</span></div><div class="chapter-footer-label" aria-hidden="true"><strong>Current</strong><span>Section 2 of 7</span><span class="chapter-footer-page">3/3</span></div></footer>
+ </article></article><div class="chapter-divider" data-chapter-divider="spec" role="separator" aria-label="Start of section 3, Spec"><span class="chapter-divider-index">03</span><strong>Spec</strong><span class="chapter-divider-line" aria-hidden="true"></span></div>
+<article class="sheet" id="spec" role="tabpanel" aria-labelledby="tab-spec" data-chapter="spec" data-chapter-start="true" data-chapter-page="1">
   <div class="sheet-cap"></div>
 <div class="identity presentation-header">
  <section class="presented-group presented-to" aria-label="Presented to Louis on behalf of">
@@ -3159,7 +3344,7 @@ html body .sheet .hero-eyebrow{
  </section>
  </div><div class="presentation-hairline"></div>
 <div class="waveblock" aria-hidden="true"></div>
-  <div class="sheet-body specv6-body specv6-scope">
+  <div class="chapter-banner" role="note" aria-label="Section 3 of 7, Spec, page 1 of 2"><span class="chapter-banner-index">03</span><strong class="chapter-banner-name">Spec</strong><span class="chapter-banner-count">1 of 2</span></div><div class="sheet-body specv6-body specv6-scope">
   <header class="specv6-heading">
     <h1>What I would <em>build.</em></h1>
     <p>A separate, credible experience for each business, backed by systems that make the day-to-day work easier.</p>
@@ -3214,9 +3399,9 @@ html body .sheet .hero-eyebrow{
   </div>
   <div class="specv6-scope-note"><strong>Built around real operations.</strong> Existing systems, data quality, permissions and integration requirements are confirmed in discovery, not assumed from the public websites.</div>
 </div>
-<footer class="sheet-footer"><div><span class="footer-kicker">FAH MAI HOLDINGS × MOST WANTED</span><span>Strategic growth proposal · Confidential draft</span></div><div class="footer-right"><span class="footer-page"></span><span class="footer-rule"></span><span>2026</span></div></footer>
+<footer class="sheet-footer"><div><span class="footer-kicker">FAH MAI HOLDINGS × MOST WANTED</span><span>Strategic growth proposal · Confidential draft</span></div><div class="footer-right"><span class="footer-page"></span><span class="footer-rule"></span><span>2026</span></div><div class="chapter-footer-label" aria-hidden="true"><strong>Spec</strong><span>Section 3 of 7</span><span class="chapter-footer-page">1/2</span></div></footer>
  </article>
-<article class="sheet specv6-detail" data-proposal-section="spec" id="spec-delivery" role="region" aria-label="Spec: technical delivery">
+<article class="sheet specv6-detail" data-proposal-section="spec" id="spec-delivery" role="region" aria-label="Spec: technical delivery" data-chapter="spec" data-chapter-start="false" data-chapter-page="2">
   <div class="sheet-cap"></div>
 <div class="identity presentation-header">
  <section class="presented-group presented-to" aria-label="Presented to Louis on behalf of">
@@ -3229,7 +3414,7 @@ html body .sheet .hero-eyebrow{
  </section>
  </div><div class="presentation-hairline"></div>
 <div class="waveblock" aria-hidden="true"></div>
-  <div class="sheet-body specv6-body specv6-delivery">
+  <div class="chapter-banner" role="note" aria-label="Section 3 of 7, Spec, page 2 of 2"><span class="chapter-banner-index">03</span><strong class="chapter-banner-name">Spec</strong><span class="chapter-banner-count">2 of 2</span></div><div class="sheet-body specv6-body specv6-delivery">
   <header class="specv6-heading">
     <h1>How it becomes <em>reality.</em></h1>
     <p>Seven capabilities, engineered as one connected experience. Final technologies and integration scope are selected after discovery.</p>
@@ -3278,9 +3463,10 @@ html body .sheet .hero-eyebrow{
     </div>
   </div>
 </div>
-<footer class="sheet-footer"><div><span class="footer-kicker">FAH MAI HOLDINGS × MOST WANTED</span><span>Strategic growth proposal · Confidential draft</span></div><div class="footer-right"><span class="footer-page"></span><span class="footer-rule"></span><span>2026</span></div></footer>
+<footer class="sheet-footer"><div><span class="footer-kicker">FAH MAI HOLDINGS × MOST WANTED</span><span>Strategic growth proposal · Confidential draft</span></div><div class="footer-right"><span class="footer-page"></span><span class="footer-rule"></span><span>2026</span></div><div class="chapter-footer-label" aria-hidden="true"><strong>Spec</strong><span>Section 3 of 7</span><span class="chapter-footer-page">2/2</span></div></footer>
  </article>
-<article class="sheet" id="budget" role="tabpanel" aria-labelledby="tab-budget">
+<div class="chapter-divider" data-chapter-divider="budget" role="separator" aria-label="Start of section 4, Budget"><span class="chapter-divider-index">04</span><strong>Budget</strong><span class="chapter-divider-line" aria-hidden="true"></span></div>
+<article class="sheet" id="budget" role="tabpanel" aria-labelledby="tab-budget" data-chapter="budget" data-chapter-start="true" data-chapter-page="1">
   <div class="sheet-cap"></div>
 <div class="identity presentation-header">
  <section class="presented-group presented-to" aria-label="Presented to Louis on behalf of">
@@ -3293,7 +3479,7 @@ html body .sheet .hero-eyebrow{
  </section>
  </div><div class="presentation-hairline"></div>
 <div class="waveblock" aria-hidden="true"></div>
-  <div class="sheet-body budgetv8-body">
+  <div class="chapter-banner" role="note" aria-label="Section 4 of 7, Budget, page 1 of 1"><span class="chapter-banner-index">04</span><strong class="chapter-banner-name">Budget</strong><span class="chapter-banner-count">1 of 1</span></div><div class="sheet-body budgetv8-body">
   <header class="budgetv8-intro">
     <h1>One connected investment.<br/><em>Three stronger brands.</em></h1>
     <p>Three website redevelopments, international SEO and AI-search optimisation, plus a custom operational backend.</p>
@@ -3385,8 +3571,9 @@ html body .sheet .hero-eyebrow{
     <p>Ongoing services cover the agreed support, maintenance and SEO scope. Third-party processing fees, optional subscriptions, taxes and work outside the final statement of work are excluded unless expressly included.</p>
   </div>
 </div>
-<footer class="sheet-footer"><div><span class="footer-kicker">FAH MAI HOLDINGS × MOST WANTED</span><span>Strategic growth proposal · Confidential draft</span></div><div class="footer-right"><span class="footer-page"></span><span class="footer-rule"></span><span>2026</span></div></footer>
- </article><article class="sheet" id="implementation" role="tabpanel" aria-labelledby="tab-implementation">
+<footer class="sheet-footer"><div><span class="footer-kicker">FAH MAI HOLDINGS × MOST WANTED</span><span>Strategic growth proposal · Confidential draft</span></div><div class="footer-right"><span class="footer-page"></span><span class="footer-rule"></span><span>2026</span></div><div class="chapter-footer-label" aria-hidden="true"><strong>Budget</strong><span>Section 4 of 7</span><span class="chapter-footer-page">1/1</span></div></footer>
+ </article><div class="chapter-divider" data-chapter-divider="implementation" role="separator" aria-label="Start of section 5, Implementation"><span class="chapter-divider-index">05</span><strong>Implementation</strong><span class="chapter-divider-line" aria-hidden="true"></span></div>
+<article class="sheet" id="implementation" role="tabpanel" aria-labelledby="tab-implementation" data-chapter="implementation" data-chapter-start="true" data-chapter-page="1">
   <div class="sheet-cap"></div>
 <div class="identity presentation-header">
  <section class="presented-group presented-to" aria-label="Presented to Louis on behalf of">
@@ -3399,7 +3586,7 @@ html body .sheet .hero-eyebrow{
  </section>
  </div><div class="presentation-hairline"></div>
 <div class="waveblock" aria-hidden="true"></div>
-  <div class="sheet-body launch-body">
+  <div class="chapter-banner" role="note" aria-label="Section 5 of 7, Implementation, page 1 of 2"><span class="chapter-banner-index">05</span><strong class="chapter-banner-name">Implementation</strong><span class="chapter-banner-count">1 of 2</span></div><div class="sheet-body launch-body">
   <div class="page-heading"><div class="page-heading-copy">
     <h1>Three stages. <em>From agreement to launch.</em></h1>
     <p class="sub">A phased delivery plan for the three websites and the supporting systems, agreed in consultation and governed by clear payment milestones.</p>
@@ -3434,9 +3621,9 @@ html body .sheet .hero-eyebrow{
   <div class="launch-payment-rule"><strong>Initial tooling advance: 999,999 COP (approximately $305 USD).</strong> My AI account is linked to Colombia. I will pay the lowest suitable membership price; if it costs less, the unused balance will be credited against the total £5,750 development fee. The entire advance counts towards the £2,750 commencement milestone, never on top of it. The £3,000 balance is due on completed delivery.</div>
   <div class="launch-signoff">Project timing, acceptance criteria and scope dependencies will be documented in the final statement of work. Optional external subscriptions and changes outside the agreed scope are separately approved.</div>
 </div>
-<footer class="sheet-footer"><div><span class="footer-kicker">FAH MAI HOLDINGS × MOST WANTED</span><span>Strategic growth proposal · Confidential draft</span></div><div class="footer-right"><span class="footer-page"></span><span class="footer-rule"></span><span>2026</span></div></footer>
+<footer class="sheet-footer"><div><span class="footer-kicker">FAH MAI HOLDINGS × MOST WANTED</span><span>Strategic growth proposal · Confidential draft</span></div><div class="footer-right"><span class="footer-page"></span><span class="footer-rule"></span><span>2026</span></div><div class="chapter-footer-label" aria-hidden="true"><strong>Implementation</strong><span>Section 5 of 7</span><span class="chapter-footer-page">1/2</span></div></footer>
  </article>
-<article class="sheet implementation-detail" data-proposal-section="implementation" id="implementation-evidence" role="region" aria-label="Implementation funding and AI development evidence">
+<article class="sheet implementation-detail" data-proposal-section="implementation" id="implementation-evidence" role="region" aria-label="Implementation funding and AI development evidence" data-chapter="implementation" data-chapter-start="false" data-chapter-page="2">
   <div class="sheet-cap"></div>
 <div class="identity presentation-header">
  <section class="presented-group presented-to" aria-label="Presented to Louis on behalf of">
@@ -3449,7 +3636,7 @@ html body .sheet .hero-eyebrow{
  </section>
  </div><div class="presentation-hairline"></div>
 <div class="waveblock" aria-hidden="true"></div>
- <div class="sheet-body launch-body launch-proof launch-proof-v8">
+ <div class="chapter-banner" role="note" aria-label="Section 5 of 7, Implementation, page 2 of 2"><span class="chapter-banner-index">05</span><strong class="chapter-banner-name">Implementation</strong><span class="chapter-banner-count">2 of 2</span></div><div class="sheet-body launch-body launch-proof launch-proof-v8">
   <div class="page-heading"><div class="page-heading-copy">
     <h1>Built with <em>accountability.</em></h1>
     <p class="sub">The implementation is supported by dedicated engineering capacity, transparent review stages and documented handover.</p>
@@ -3478,8 +3665,9 @@ html body .sheet .hero-eyebrow{
   <div class="launch-proof-takeaway"><strong>Two development milestones:</strong> £2,750 at commencement (less any prepaid tooling advance of 999,999 COP, approximately $305 USD) and £3,000 at delivery. The £400/month service starts at launch or agreed handover.</div>
   <div class="launch-proof-terms">Third-party processing charges, optional external subscriptions, taxes and additional work outside the agreed statement of work are not included unless expressly agreed. All changes requiring extra spend will be approved first.</div>
 </div>
-<footer class="sheet-footer"><div><span class="footer-kicker">FAH MAI HOLDINGS × MOST WANTED</span><span>Strategic growth proposal · Confidential draft</span></div><div class="footer-right"><span class="footer-page"></span><span class="footer-rule"></span><span>2026</span></div></footer>
- </article><article class="sheet" id="proposed" role="tabpanel" aria-labelledby="tab-proposed">
+<footer class="sheet-footer"><div><span class="footer-kicker">FAH MAI HOLDINGS × MOST WANTED</span><span>Strategic growth proposal · Confidential draft</span></div><div class="footer-right"><span class="footer-page"></span><span class="footer-rule"></span><span>2026</span></div><div class="chapter-footer-label" aria-hidden="true"><strong>Implementation</strong><span>Section 5 of 7</span><span class="chapter-footer-page">2/2</span></div></footer>
+ </article><div class="chapter-divider" data-chapter-divider="proposed" role="separator" aria-label="Start of section 6, Proposed"><span class="chapter-divider-index">06</span><strong>Proposed</strong><span class="chapter-divider-line" aria-hidden="true"></span></div>
+<article class="sheet" id="proposed" role="tabpanel" aria-labelledby="tab-proposed" data-chapter="proposed" data-chapter-start="true" data-chapter-page="1">
   <div class="sheet-cap"></div>
 <div class="identity presentation-header">
  <section class="presented-group presented-to" aria-label="Presented to Louis on behalf of">
@@ -3492,7 +3680,7 @@ html body .sheet .hero-eyebrow{
  </section>
  </div><div class="presentation-hairline"></div>
 <div class="waveblock" aria-hidden="true"></div>
-  <div class="sheet-body"><div class="page-heading"><div class="page-heading-copy"><h1>The <em>90-day growth pilot.</em></h1><p class="sub">A focused commercial engagement with decision points rather than an open-ended retainer.</p></div></div>
+  <div class="chapter-banner" role="note" aria-label="Section 6 of 7, Proposed, page 1 of 1"><span class="chapter-banner-index">06</span><strong class="chapter-banner-name">Proposed</strong><span class="chapter-banner-count">1 of 1</span></div><div class="sheet-body"><div class="page-heading"><div class="page-heading-copy"><h1>The <em>90-day growth pilot.</em></h1><p class="sub">A focused commercial engagement with decision points rather than an open-ended retainer.</p></div></div>
   <div class="sheet-section">
  
  <div class="phases">
@@ -3503,8 +3691,9 @@ html body .sheet .hero-eyebrow{
  <div class="funnel"><div>VISIT / LEAD</div><span></span><div>QUALIFIED</div><span></span><div>CONVERSATION</div><span></span><div>COMMERCIAL OUTCOME</div></div>
  <div class="callout-outline"><strong>Commercial principle:</strong> No promise of a specific uplift before data access. The deliverable is a transparent process with measurable weekly progress and a documented 90-day recommendation.</div>
 </div></div>
-  <footer class="sheet-footer"><div><span class="footer-kicker">FAH MAI HOLDINGS × MOST WANTED</span><span>Strategic growth proposal · Confidential draft</span></div><div class="footer-right"><span class="footer-page"></span><span class="footer-rule"></span><span>2026</span></div></footer>
- </article><article class="sheet" id="examples" role="tabpanel" aria-labelledby="tab-examples">
+  <footer class="sheet-footer"><div><span class="footer-kicker">FAH MAI HOLDINGS × MOST WANTED</span><span>Strategic growth proposal · Confidential draft</span></div><div class="footer-right"><span class="footer-page"></span><span class="footer-rule"></span><span>2026</span></div><div class="chapter-footer-label" aria-hidden="true"><strong>Proposed</strong><span>Section 6 of 7</span><span class="chapter-footer-page">1/1</span></div></footer>
+ </article><div class="chapter-divider" data-chapter-divider="examples" role="separator" aria-label="Start of section 7, Examples"><span class="chapter-divider-index">07</span><strong>Examples</strong><span class="chapter-divider-line" aria-hidden="true"></span></div>
+<article class="sheet" id="examples" role="tabpanel" aria-labelledby="tab-examples" data-chapter="examples" data-chapter-start="true" data-chapter-page="1">
  <div class="sheet-cap"></div><div class="identity presentation-header">
  <section class="presented-group presented-to" aria-label="Presented to Louis on behalf of">
   <h2 class="presented-copy"><span class="presentation-kicker">Presented to</span><strong>Louis</strong><span class="presentation-sub">on behalf of</span></h2>
@@ -3516,7 +3705,7 @@ html body .sheet .hero-eyebrow{
  </section>
  </div><div class="presentation-hairline"></div>
 <div aria-hidden="true" class="waveblock"></div>
- <div class="sheet-body">
+ <div class="chapter-banner" role="note" aria-label="Section 7 of 7, Examples, page 1 of 2"><span class="chapter-banner-index">07</span><strong class="chapter-banner-name">Examples</strong><span class="chapter-banner-count">1 of 2</span></div><div class="sheet-body">
   <div class="page-heading"><div class="page-heading-copy">
    <h1>Selected <em>work.</em><br>Independent projects.</h1>
    <p class="sub">Four independent projects, each with a different purpose and current status.</p>
@@ -3538,9 +3727,9 @@ html body .sheet .hero-eyebrow{
    <div class="example-footer-note">Select any project to visit its website in a new tab.</div>
   </div>
  </div>
- <footer class="sheet-footer"></footer>
+ <footer class="sheet-footer"><div class="chapter-footer-label" aria-hidden="true"><strong>Examples</strong><span>Section 7 of 7</span><span class="chapter-footer-page">1/2</span></div></footer>
 </article>
-<article class="sheet examples-detail" id="examples-client" data-proposal-section="examples" role="region" aria-label="Selected client website projects">
+<article class="sheet examples-detail" id="examples-client" data-proposal-section="examples" role="region" aria-label="Selected client website projects" data-chapter="examples" data-chapter-start="false" data-chapter-page="2">
  <div class="sheet-cap"></div><div class="identity presentation-header">
  <section class="presented-group presented-to" aria-label="Presented to Louis on behalf of">
   <h2 class="presented-copy"><span class="presentation-kicker">Presented to</span><strong>Louis</strong><span class="presentation-sub">on behalf of</span></h2>
@@ -3553,7 +3742,7 @@ html body .sheet .hero-eyebrow{
  </div><div class="presentation-hairline"></div>
 <div aria-hidden="true" class="waveblock"></div>
 
- <div class="sheet-body">
+ <div class="chapter-banner" role="note" aria-label="Section 7 of 7, Examples, page 2 of 2"><span class="chapter-banner-index">07</span><strong class="chapter-banner-name">Examples</strong><span class="chapter-banner-count">2 of 2</span></div><div class="sheet-body">
    <div class="page-heading"><div class="page-heading-copy">
       <h1>Selected <em>work.</em><br>Client projects.</h1>
       <p class="sub">Four client websites I sold and designed or co-designed, with roles clearly identified.</p>
@@ -3589,7 +3778,7 @@ html body .sheet .hero-eyebrow{
     
    </div>
  </div>
- <footer class="sheet-footer"></footer>
+ <footer class="sheet-footer"><div class="chapter-footer-label" aria-hidden="true"><strong>Examples</strong><span>Section 7 of 7</span><span class="chapter-footer-page">2/2</span></div></footer>
 </article></main><script>
 (()=>{
  const tabs=[...document.querySelectorAll('.proposal-sections [role="tab"]')];
@@ -4065,5 +4254,109 @@ html body .sheet .hero-eyebrow{
   // on 11 November 2026. They are historical snapshots, not live tests.
   show(0);
   switchMode("reports");
+})();</script>
+<script id="fahmai-chapter-track-v14">(function(){
+  "use strict";
+  const viewport=document.querySelector(".viewport");
+  const sheets=viewport?[...viewport.querySelectorAll(".sheet")]:[];
+  const sectionTabs=[...document.querySelectorAll(".toolbar nav.proposal-sections button[data-target]")];
+  const sectionNav=document.querySelector(".toolbar nav.proposal-sections");
+  const examplesSwitch=document.getElementById("tab-examples");
+  const toolbar=document.querySelector(".toolbar");
+  if(!viewport||sheets.length!==12||!sectionTabs.length)return;
+
+  let scheduled=false;
+  let previousSection="";
+  const isVertical=()=>viewport.dataset.readingMode==="vertical";
+
+  function getVisibleSheet(){
+    if(!isVertical()){
+      return sheets.find(s=>s.classList.contains("is-active"))||sheets[0];
+    }
+    // The toolbar can scroll above the viewport in the long mobile reader.
+    // Negative toolbar coordinates must not move our reading focus offscreen.
+    const toolbarBottom=Math.max(0,Math.min(window.innerHeight*.25,toolbar?.getBoundingClientRect().bottom||0));
+    const focusY=toolbarBottom+Math.min(220,(window.innerHeight-toolbarBottom)*.42);
+    let closest=sheets[0],closestDistance=Infinity;
+    for(const sheet of sheets){
+      const rect=sheet.getBoundingClientRect();
+      if(rect.height<1)continue;
+      if(rect.top<=focusY&&rect.bottom>=focusY)return sheet;
+      const distance=Math.min(Math.abs(rect.top-focusY),Math.abs(rect.bottom-focusY));
+      if(distance<closestDistance){
+        closestDistance=distance;
+        closest=sheet;
+      }
+    }
+    return closest;
+  }
+
+  function update(){
+    scheduled=false;
+    const sheet=getVisibleSheet();
+    const section=sheet?.dataset.chapter||sheet?.dataset.proposalSection||sheet?.id||"overview";
+    const vertical=isVertical();
+    document.body.dataset.chapterTracking=vertical?"vertical":"spread";
+    document.body.dataset.currentChapter=section;
+
+    for(const tab of sectionTabs){
+      const selected=tab.dataset.target===section;
+      if(selected)tab.dataset.chapterCurrent="true";
+      else delete tab.dataset.chapterCurrent;
+      if(selected)tab.setAttribute("aria-current","page");
+      else tab.removeAttribute("aria-current");
+    }
+    if(examplesSwitch){
+      if(section==="examples")examplesSwitch.dataset.chapterCurrent="true";
+      else delete examplesSwitch.dataset.chapterCurrent;
+    }
+
+    // When mobile scrolling changes the chapter, reveal its label in the
+    // existing one-line horizontal menu, without moving the page vertically.
+    if(vertical&&section!==previousSection&&sectionNav){
+      const active=sectionTabs.find(t=>t.dataset.target===section);
+      if(active&&sectionNav.scrollWidth>sectionNav.clientWidth+8){
+        const navRect=sectionNav.getBoundingClientRect();
+        const tabRect=active.getBoundingClientRect();
+        const next=sectionNav.scrollLeft+(tabRect.left-navRect.left)-(navRect.width-tabRect.width)/2;
+        sectionNav.scrollTo({left:Math.max(0,next),behavior:"smooth"});
+      }
+    }
+    previousSection=section;
+  }
+
+  function schedule(){
+    if(scheduled)return;
+    scheduled=true;
+    window.requestAnimationFrame(update);
+  }
+
+  window.addEventListener("scroll",schedule,{passive:true});
+  document.addEventListener("scroll",schedule,{passive:true,capture:true});
+  document.scrollingElement?.addEventListener("scroll",schedule,{passive:true});
+  window.addEventListener("resize",schedule,{passive:true});
+  document.addEventListener("click",schedule,true);
+  viewport.addEventListener("scroll",schedule,{passive:true});
+
+  const observer=new MutationObserver(schedule);
+  observer.observe(viewport,{attributes:true,attributeFilter:["data-reading-mode"]});
+  sheets.forEach(sheet=>observer.observe(sheet,{attributes:true,attributeFilter:["class"]}));
+  if("IntersectionObserver" in window){
+    const seen=new IntersectionObserver(schedule,{root:null,threshold:[0,.18,.4,.7]});
+    sheets.forEach(sheet=>seen.observe(sheet));
+  }
+  // Some in-app browsers do not consistently dispatch root-document scroll
+  // events. A lightweight scroll-position check makes mobile tracking reliable
+  // without repeatedly calculating all twelve sheet layouts.
+  let lastScrollY=window.scrollY;
+  window.setInterval(()=>{
+    if(!isVertical())return;
+    const nextY=window.scrollY;
+    if(Math.abs(nextY-lastScrollY)>1){
+      lastScrollY=nextY;
+      schedule();
+    }
+  },180);
+  schedule();
 })();</script>
 </body></html>
