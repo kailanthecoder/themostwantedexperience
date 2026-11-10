@@ -181,7 +181,9 @@ js=r"""
     const current=nav.querySelector('[aria-selected="true"]');
     if(!current||current.id===lastId)return;
     lastId=current.id;
-    const target=current.offsetLeft+current.offsetWidth/2-nav.clientWidth/2;
+    const box=nav.getBoundingClientRect();
+    const selectedBox=current.getBoundingClientRect();
+    const target=nav.scrollLeft+(selectedBox.left-box.left)+(selectedBox.width-box.width)/2;
     nav.scrollTo({left:Math.max(0,target),behavior:'smooth'});
   };
   nav.addEventListener('click',()=>requestAnimationFrame(nudge));
