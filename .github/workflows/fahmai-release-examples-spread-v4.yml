@@ -1,0 +1,105 @@
+name: Publish correct Examples two-page spread
+on:
+  push:
+    paths: ['.github/workflows/fahmai-release-examples-spread-v4.yml']
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update only storybook page grouping
+        run: python proposals/fah-mai/fix_examples_spread_v4.py
+      - name: Verify all desktop spreads, Examples navigation, mobile and PDF
+        run: |
+          python -m pip install playwright pypdf -q
+          python -m playwright install chromium >/dev/null 2>&1
+          python - <<'PY'
+          import asyncio
+          from pathlib import Path
+          from pypdf import PdfReader
+          from playwright.async_api import async_playwright
+          uri=Path('proposals/fah-mai/index.html').resolve().as_uri()
+          async def current(page):
+            return await page.evaluate("""() => ({
+              mode: document.querySelector('.viewport').dataset.readingMode,
+              pages: [...document.querySelectorAll('.viewport .sheet.is-active')].map(x=>x.id),
+              counter: document.querySelector('.fm-story-counter').textContent,
+              prevDisabled: document.querySelector('.fm-story-prev').disabled,
+              nextDisabled: document.querySelector('.fm-story-next').disabled,
+              sheetCount: document.querySelectorAll('.viewport .sheet').length,
+              nav: document.querySelector('#nav-proposal').getAttribute('aria-pressed')
+            })""")
+          async def run():
+            async with async_playwright() as p:
+              browser=await p.chromium.launch()
+              for width in (1440,900):
+                page=await browser.new_page(viewport={'width':width,'height':860})
+                exceptions=[]
+                page.on('pageerror',lambda err:exceptions.append(str(err)))
+                await page.goto(uri,wait_until='domcontentloaded',timeout=70000)
+                await page.wait_for_timeout(100)
+                s=await current(page)
+                print('DESKTOP_OPEN',width,s)
+                assert s['pages']==['overview'] and s['counter']=='1 / 12'
+                groups=[['overview'],['current','current-journeys'],['current-growth','spec'],
+                  ['design','budget'],['implementation','implementation-evidence'],
+                  ['proposed'],['examples','examples-client']]
+                for expected in groups[1:]:
+                  await page.locator('.fm-story-next').click()
+                  s=await current(page)
+                  print('NEXT',width,s['pages'],s['counter'])
+                  assert s['pages']==expected, f'Incorrect next spread: expected {expected}, got {s}'
+                assert s['nextDisabled'] and s['counter']=='11–12 / 12','Examples not final two-page spread'
+                await page.locator('.fm-story-prev').click()
+                s=await current(page)
+                print('PREV_TO_PROPOSED',width,s)
+                assert s['pages']==['proposed'] and s['counter']=='10 / 12'
+                await page.locator('.fm-story-next').click()
+                assert (await current(page))['pages']==['examples','examples-client']
+                await page.locator('#tab-proposed').click()
+                s=await current(page)
+                print('PROPOSED_TAB',width,s)
+                assert s['pages']==['proposed'],f'Proposed tab shows Examples incorrectly: {s}'
+                await page.locator('#tab-examples').click()
+                s=await current(page)
+                print('EXAMPLES_TAB',width,s)
+                assert s['pages']==['examples','examples-client'],f'Examples tab still pairs Proposed: {s}'
+                geometry=await page.evaluate("""() => [...document.querySelectorAll('.viewport .sheet.is-active')].map(x=>({id:x.id,y:x.getBoundingClientRect().top,height:x.getBoundingClientRect().height}))""")
+                assert abs(geometry[0]['y']-geometry[1]['y'])<1.0, f'Examples not aligned: {geometry}'
+                assert not exceptions,f'JavaScript errors: {exceptions}'
+                if width==1440:
+                  await page.evaluate("window.dispatchEvent(new Event('beforeprint'))")
+                  await page.emulate_media(media='print')
+                  await page.pdf(path='/tmp/examples-fixed.pdf',prefer_css_page_size=True,print_background=True)
+                  n=len(PdfReader('/tmp/examples-fixed.pdf').pages)
+                  print('PRINT_PAGES',n)
+                  assert n==12,'A4 PDF changed page count'
+                await page.close()
+              for width in (390,320):
+                page=await browser.new_page(viewport={'width':width,'height':860})
+                await page.goto(uri,wait_until='domcontentloaded',timeout=70000)
+                s=await current(page)
+                assert s['mode']=='vertical' and s['sheetCount']==12
+                assert len(s['pages'])==12,'Mobile must retain continuous scrolling'
+                await page.locator('#tab-examples').click()
+                await page.wait_for_timeout(130)
+                s=await current(page)
+                print('MOBILE_EXAMPLES',width,s)
+                assert s['mode']=='vertical' and len(s['pages'])==12,'Examples switch hides mobile pages'
+                assert s['counter']=='11 / 12',f'Mobile Examples should start on page 11: {s}'
+                await page.locator('.fm-story-next').click()
+                await page.wait_for_timeout(760)
+                s=await current(page)
+                assert s['counter']=='12 / 12',f'Mobile should advance to page 12: {s}'
+                await page.close()
+              await browser.close()
+          asyncio.run(run())
+          PY
+      - name: Update existing public proposal
+        run: |
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add proposals/fah-mai/index.html
+          git diff --cached --quiet || (git commit -m "Keep the two Examples pages together as their own spread" && git push)
