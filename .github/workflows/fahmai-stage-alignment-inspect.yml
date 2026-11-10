@@ -1,0 +1,43 @@
+name: Inspect Overview three-stage layout
+on:
+  push:
+    paths: ['.github/workflows/fahmai-stage-alignment-inspect.yml']
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect three-stage markup and computed layout
+        run: |
+          python -m pip install playwright beautifulsoup4 -q
+          python -m playwright install chromium >/dev/null 2>&1
+          python - <<'PY'
+          from pathlib import Path
+          from bs4 import BeautifulSoup
+          import asyncio,re
+          html=Path('proposals/fah-mai/index.html').read_text()
+          soup=BeautifulSoup(html,'html.parser')
+          for e in soup.select('#overview .stage-runway'):
+            print('MARKUP',str(e)[:6500])
+          for k in ['stage-runway','stage-card','stage-no','stage-icon','three-stage']:
+            print('STYLES',k)
+            styles='\n'.join(e.get_text() for e in soup.select('style'))
+            matches=list(re.finditer(r'([^{}]{0,220})\{([^{}]{0,700})\}',styles))
+            for m in [m for m in matches if k in m.group(1)][-22:]:
+              print('CSS',m.group(1).strip().replace('\n',' ')[:200],m.group(2).strip().replace('\n',' ')[:600])
+          async def go():
+            async with async_playwright() as p:
+              b=await p.chromium.launch()
+              for w in [1440,900,390,320]:
+                page=await b.new_page(viewport={'width':w,'height':980})
+                await page.goto(Path('proposals/fah-mai/index.html').resolve().as_uri(),wait_until='domcontentloaded')
+                data=await page.evaluate("""() => {
+                  const g=e=>{let r=e.getBoundingClientRect(),s=getComputedStyle(e);return {x:Math.round(r.x),y:Math.round(r.y),w:Math.round(r.width),h:Math.round(r.height),display:s.display,align:s.alignItems,grid:s.gridTemplateColumns,padding:s.padding,margin:s.margin,fontSize:s.fontSize,lineHeight:s.lineHeight,before:getComputedStyle(e,'::before').content,after:getComputedStyle(e,'::after').content}};
+                  const parent=document.querySelector('#overview .stage-runway');
+                  return {parent:g(parent),cards:[...parent.children].map(e=>({box:g(e),markup:e.outerHTML.slice(0,1200),children:[...e.children].map(c=>({text:c.textContent,css:g(c)}))}))}
+                }""")
+                print('LAYOUT',w,data)
+                await page.close()
+              await b.close()
+          asyncio.run(go())
+          PY
