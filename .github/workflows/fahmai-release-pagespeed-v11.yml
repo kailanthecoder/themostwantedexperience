@@ -1,0 +1,130 @@
+name: Publish authentic PageSpeed screenshot carousel
+on:
+  push:
+    paths: ['.github/workflows/fahmai-release-pagespeed-v11.yml']
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install original PageSpeed evidence on Current
+        run: python proposals/fah-mai/install_pagespeed_carousel_v11.py
+      - name: Browser check clickable reports, historical figures, mobile, site gallery and PDF
+        run: |
+          python -m pip install playwright pypdf pillow -q
+          python -m playwright install chromium >/dev/null 2>&1
+          python - <<'PY'
+          import asyncio
+          from pathlib import Path
+          from PIL import Image
+          from pypdf import PdfReader
+          from playwright.async_api import async_playwright
+          root=Path('proposals/fah-mai')
+          assert Image.open(root/'pagespeed-evidence-v11.avif').size==(2300,320)
+          uri=(root/'index.html').resolve().as_uri()
+          slides=['Fah Mai Holdings','Fah Mai Holdings','Whisky Bull Auctions','Platinum Cask','Platinum Cask']
+          async def state(page):
+            return await page.evaluate("""()=>{
+              const sheet=document.getElementById('current');
+              const r=e=>{const x=e.getBoundingClientRect();return {y:x.y,bottom:x.bottom,x:x.x,w:x.width,h:x.height}};
+              const photo=sheet.querySelector('.ps-report-image');
+              const evidence=sheet.querySelector('.ps-evidence');
+              const sites=sheet.querySelector('.audit-v5-carousel');
+              return {
+                active:[...document.querySelectorAll('.viewport>.sheet.is-active')].map(n=>n.id),
+                mode:document.querySelector('.viewport').dataset.readingMode,
+                pages:document.querySelectorAll('.viewport>.sheet').length,
+                count:sheet.querySelector('.ps-slide-count').textContent,
+                caption:sheet.querySelector('.ps-slide-caption').textContent,
+                dots:[...sheet.querySelectorAll('[data-ps-slide]')].map(x=>x.getAttribute('aria-pressed')),
+                buttons:[...sheet.querySelectorAll('[data-ps-view]')].map(x=>x.getAttribute('aria-pressed')),
+                photo:photo?{pos:getComputedStyle(photo).backgroundPosition,asset:getComputedStyle(photo).backgroundImage,box:r(photo)}:null,
+                siteDisplay:getComputedStyle(sites).display,
+                speedDisplay:getComputedStyle(evidence).display,
+                source:r(sheet.querySelector('.audit-v5-source')),
+                footer:r(sheet.querySelector('.sheet-footer')),
+                view:r(sheet.querySelector('.sheet-body')),
+                docOverflow:document.documentElement.scrollWidth>innerWidth+2
+              };
+            }""")
+          async def test(browser,width):
+            page=await browser.new_page(viewport={'width':width,'height':920},device_scale_factor=1)
+            errors=[]
+            page.on('pageerror',lambda e:errors.append(str(e)))
+            await page.goto(uri,wait_until='domcontentloaded',timeout=85000)
+            await page.wait_for_timeout(130)
+            if width>800:await page.locator('#tab-current').click()
+            d=await state(page)
+            print('INITIAL',width,{k:d[k] for k in ('count','caption','photo','siteDisplay','speedDisplay','pages','active')})
+            assert d['pages']==12 and not d['docOverflow']
+            assert d['count']=='1 / 5' and '9.8s' in d['caption'],'Expected FMH mobile first'
+            assert 'pagespeed-evidence-v11.avif' in d['photo']['asset'],'Source image missing'
+            assert d['speedDisplay']!='none' and d['siteDisplay']=='none'
+            assert d['source']['bottom'] <= d['footer']['y']-2,f'{width}: Current A4 content overlaps footer'
+            assert d['buttons']==['true','false'] and d['dots'][0]=='true'
+            # All five original evidence screens in the correct order.
+            for i in range(5):
+              await page.locator(f'#current [data-ps-slide="{i}"]').click()
+              s=await state(page)
+              assert s['count']==f'{i+1} / 5',f'{width}: wrong counter {i}'
+              assert slides[i] in s['caption'],f'{width}: wrong screenshot {i}: {s["caption"]}'
+              assert s['dots'][i]=='true',f'{width}: selected dot did not update'
+              assert s['photo']['pos'].startswith(['0%','25%','50%','75%','100%'][i]),f'{width}: image position incorrect'
+              if i==2:assert 'error' in s['caption'].lower(),'Whisky Bull error mislabeled'
+            # Click main screenshot cycles to next; previous wraps from first to fifth.
+            await page.locator('#current .ps-next').click()
+            assert (await state(page))['count']=='1 / 5'
+            await page.locator('#current .ps-previous').click()
+            assert (await state(page))['count']=='5 / 5'
+            await page.locator('#current .ps-report-image').click()
+            assert (await state(page))['count']=='1 / 5'
+            await page.locator('#current [data-ps-view="sites"]').click()
+            q=await state(page)
+            assert q['siteDisplay']!='none' and q['speedDisplay']=='none' and q['buttons']==['false','true'],'Existing site carousel did not display'
+            await page.locator('#current .audit-v5-gallery-nav button[data-audit-slide="1"]').click()
+            assert (await page.locator('#current [data-audit-slide="1"]').get_attribute('aria-pressed'))=='true','Original live carousel broken'
+            await page.locator('#current [data-ps-view="reports"]').click()
+            assert (await state(page))['speedDisplay']!='none','Cannot return to PageSpeed screenshots'
+            if width>800:
+              assert (await state(page))['mode']=='spread'
+              await page.locator('#tab-examples').click()
+              assert (await state(page))['active']==['examples','examples-client'],'Examples spread changed'
+              await page.locator('#nav-proposal').click()
+              await page.locator('#tab-current').click()
+            else:
+              assert (await state(page))['mode']=='vertical' and len((await state(page))['active'])==12,'Mobile vertical reader changed'
+            if width==1440:
+              await page.locator('#current').screenshot(path='/tmp/current-with-pagespeed.png')
+              await page.evaluate("window.dispatchEvent(new Event('beforeprint'))")
+              await page.emulate_media(media='print')
+              printed=await page.evaluate("""()=>{
+                const e=document.querySelector('#current .ps-print-evidence');
+                return {printVisible:getComputedStyle(e).display,normalVisible:getComputedStyle(document.querySelector('#current .ps-carousel-main')).display,
+                img:getComputedStyle(e.querySelector('.ps-print-image')).backgroundImage,
+                sheetCount:[...document.querySelectorAll('.viewport>.sheet')].filter(x=>getComputedStyle(x).display!=='none').length};
+              }""")
+              print('PRINT_CONFIG',printed)
+              assert printed['printVisible']=='grid' and printed['normalVisible']=='none'
+              assert printed['sheetCount']==12 and 'pagespeed-evidence-v11.avif' in printed['img']
+              await page.pdf(path='/tmp/fahmai-pagespeed-v11.pdf',prefer_css_page_size=True,print_background=True)
+              n=len(PdfReader('/tmp/fahmai-pagespeed-v11.pdf').pages)
+              print('PDF_PAGES',n)
+              assert n==12, f'PDF changed to {n} pages'
+            assert not errors,errors
+            print('PASS',width)
+            await page.close()
+          async def main():
+            async with async_playwright() as p:
+              browser=await p.chromium.launch()
+              for width in (1440,900,390,320):await test(browser,width)
+              await browser.close()
+          asyncio.run(main())
+          PY
+      - name: Publish at existing public URL
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add proposals/fah-mai/index.html proposals/fah-mai/pagespeed-evidence-v11.avif
+          git diff --cached --quiet || (git commit -m "Add clickable historical PageSpeed evidence carousel to Current" && git push)
