@@ -1,0 +1,29 @@
+name: Inspect design page and cleanup text
+on:
+  push:
+    paths: ['.github/workflows/fahmai-inspect-cleanup-nov2026.yml']
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Locate design markup, live website disclaimer and em dashes
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path('proposals/fah-mai/index.html').read_text(encoding='utf-8')
+          print('LEN',len(s),'EMDASH',s.count('—'),'DESIGN',s.count('id="design"'),'TAB',s.count('id="tab-design"'))
+          for term in ['These live websites', 'may have been updated since my involvement', 'Select a card to open the current site.', 'id="design"','id="tab-design"','const spreadGroups = (() => {','sheets[i].id === "current-growth"','id="fahmai-current-editorial-v5"']:
+            indexes=[m.start() for m in re.finditer(re.escape(term),s,re.I)]
+            print('TERM',term,'COUNT',len(indexes))
+            for ix in indexes[:3]:
+              a=s[max(0,ix-320):min(len(s),ix+950)]
+              a=re.sub(r'(src|href)="data:[^"]+"',r'\1="[embedded]"',a)
+              print('SNIPPET',a[:1250].replace('\n',' '))
+          for m in list(re.finditer('—',s))[:14]:
+            print('EMDASH_CONTEXT',s[max(0,m.start()-95):m.start()+100].replace('\n',' ')[:200])
+          print('SECTIONS')
+          for m in re.finditer(r'<article[^>]*\bclass="[^"]*\bsheet\b[^"]*"[^>]*>',s):
+            print('SHEET_START',m.group()[:240])
+          PY
