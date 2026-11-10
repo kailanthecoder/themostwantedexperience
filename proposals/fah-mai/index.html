@@ -2615,8 +2615,34 @@ h1,h2,h3,.feature-index,.audit-brand,.small-label,.tag,.phase-status,.tool-brand
   let scrollQueued = false;
 
   const mode = () => mobile() ? "vertical" : zoomFactor > spreadThreshold + 0.001 ? "vertical" : "spread";
-  const spreadStart = i => i === 0 ? 0 : (i % 2 === 0 ? i - 1 : i);
-  const maxSpread = sheets.length > 1 ? 1 + 2 * Math.floor((sheets.length - 2) / 2) : 0;
+  // Group pages by actual reading units rather than an odd/even index rule.
+  // The cover stands alone, interior pages form spreads, and Examples always
+  // displays its own two pages together. Proposed must not borrow page 1 of Examples.
+  const spreadGroups = (() => {
+    const groups = [];
+    let i = 0;
+    while (i < sheets.length) {
+      if (i === 0) {
+        groups.push([0]);
+        i += 1;
+      } else if (sheets[i].id === "examples" && sheets[i + 1]?.id === "examples-client") {
+        groups.push([i, i + 1]);
+        i += 2;
+      } else if (sheets[i + 1]?.id === "examples") {
+        groups.push([i]);
+        i += 1;
+      } else {
+        const group = [i];
+        if (i + 1 < sheets.length && sheets[i + 1].id !== "examples-client") group.push(++i);
+        groups.push(group);
+        i += 1;
+      }
+    }
+    return groups;
+  })();
+  const groupAt = page => spreadGroups.find(group => group.includes(page)) || [0];
+  const spreadStart = page => groupAt(page)[0];
+  const maxSpread = spreadGroups.at(-1)?.[0] ?? 0;
   const pageGroup = sheet => sheet.dataset.proposalSection ||
       (sheet.id === "examples-client" ? "examples" : sheet.id);
 
@@ -2624,7 +2650,7 @@ h1,h2,h3,.feature-index,.audit-brand,.small-label,.tag,.phase-status,.tool-brand
     const isSpread = mode() === "spread";
     if (isSpread) pageIndex = spreadStart(pageIndex);
     pageIndex = Math.min(sheets.length - 1, Math.max(0, pageIndex));
-    const last = isSpread ? Math.min(sheets.length, pageIndex === 0 ? 1 : pageIndex + 2) : pageIndex + 1;
+    const last = isSpread ? groupAt(pageIndex).at(-1) + 1 : pageIndex + 1;
     const first = pageIndex + 1;
     counter.textContent = isSpread && last !== first ? first + "–" + last + " / " + sheets.length : first + " / " + sheets.length;
     counter.title = last !== first ? "Pages " + first + "–" + last + " of " + sheets.length : "Page " + first + " of " + sheets.length;
@@ -2644,13 +2670,13 @@ h1,h2,h3,.feature-index,.audit-brand,.small-label,.tag,.phase-status,.tool-brand
     const isSpread = readingMode === "spread";
     if (isSpread) pageIndex = spreadStart(pageIndex);
     sheets.forEach((sheet, i) => {
-      const show = !isSpread || i === pageIndex || (pageIndex !== 0 && i === pageIndex + 1);
+      const show = !isSpread || groupAt(pageIndex).includes(i);
       sheet.classList.toggle("is-active", show);
       sheet.setAttribute("aria-hidden", String(!show));
     });
     updateCounter();
     const documentWidth = 794; // A4 CSS width
-    const pageCount = isSpread ? (pageIndex === 0 ? 1 : 2) : 1;
+    const pageCount = isSpread ? groupAt(pageIndex).length : 1;
     const available = viewport.clientWidth - (mobile() ? 18 : 32) - (isSpread && pageCount === 2 ? 16 : 0);
     const fit = Math.min(1, Math.max(0.16, available / (documentWidth * pageCount)));
     const size = fit * zoomFactor;
@@ -2729,11 +2755,13 @@ h1,h2,h3,.feature-index,.audit-brand,.small-label,.tag,.phase-status,.tool-brand
   zoomIn?.addEventListener("click", () => updateZoom(zoomFactor + 0.25));
 
   previous.addEventListener("click", () => {
-    const target = mode() === "spread" ? (pageIndex <= 1 ? 0 : pageIndex - 2) : pageIndex - 1;
+    const current = spreadGroups.findIndex(group => group[0] === spreadStart(pageIndex));
+    const target = mode() === "spread" ? spreadGroups[Math.max(0, current - 1)][0] : pageIndex - 1;
     selectPage(target);
   });
   next.addEventListener("click", () => {
-    const target = mode() === "spread" ? (pageIndex === 0 ? 1 : pageIndex + 2) : pageIndex + 1;
+    const current = spreadGroups.findIndex(group => group[0] === spreadStart(pageIndex));
+    const target = mode() === "spread" ? spreadGroups[Math.min(spreadGroups.length - 1, current + 1)][0] : pageIndex + 1;
     selectPage(target);
   });
 
