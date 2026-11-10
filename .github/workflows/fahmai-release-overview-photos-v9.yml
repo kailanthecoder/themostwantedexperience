@@ -1,0 +1,98 @@
+name: Publish provided Overview brand photographs
+on:
+  push:
+    paths: ['.github/workflows/fahmai-release-overview-photos-v9.yml']
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install supplied photos and preserve gradient styling
+        run: |
+          python -m pip install pillow -q
+          python proposals/fah-mai/install_overview_photos_v9.py
+      - name: Verify exact images, ordering, opacity, mobile layout and PDF
+        run: |
+          python -m pip install playwright pypdf -q
+          python -m playwright install chromium >/dev/null 2>&1
+          python - <<'PY'
+          from pathlib import Path
+          from pypdf import PdfReader
+          from PIL import Image
+          import asyncio
+          from playwright.async_api import async_playwright
+          root=Path('proposals/fah-mai')
+          asset=root/'overview-photo-strip-v9.webp'
+          assert asset.is_file() and Image.open(asset).size==(360,120)
+          uri=(root/'index.html').resolve().as_uri()
+
+          async def run():
+            async with async_playwright() as p:
+              browser=await p.chromium.launch()
+              for width in (1440,900,390,320):
+                page=await browser.new_page(viewport={'width':width,'height':920},device_scale_factor=1)
+                errors=[]
+                page.on('pageerror',lambda err:errors.append(str(err)))
+                await page.goto(uri,wait_until='domcontentloaded',timeout=65000)
+                await page.wait_for_timeout(100)
+                data=await page.evaluate("""async()=>{
+                  const img = await new Promise((resolve,reject)=>{
+                    const picture=new Image();
+                    picture.onload=()=>resolve({width:picture.naturalWidth,height:picture.naturalHeight});
+                    picture.onerror=()=>reject(new Error('Image failed to load'));
+                    picture.src=new URL('./overview-photo-strip-v9.webp',location.href).href;
+                  });
+                  const cards=[...document.querySelectorAll('#overview .vision-card')];
+                  const info=cards.map(e=>{
+                    const bg=getComputedStyle(e),before=getComputedStyle(e,'::before');
+                    let box=e.getBoundingClientRect();
+                    return {name:e.className,text:e.textContent.trim(),x:box.x,y:box.y,w:box.width,h:box.height,
+                      photo:before.backgroundImage,
+                      size:before.backgroundSize,
+                      position:before.backgroundPosition,
+                      opacity:before.opacity,
+                      fullGradient:bg.backgroundImage,
+                      z:before.zIndex}
+                  });
+                  return {img,cards:info,mode:document.querySelector('.viewport').dataset.readingMode,
+                    pages:document.querySelectorAll('.viewport>.sheet').length,
+                    visible:[...document.querySelectorAll('.viewport>.sheet.is-active')].map(x=>x.id),
+                    horizontalOverflow:document.documentElement.scrollWidth>innerWidth+2,
+                    emDash:document.body.innerText.includes('—')}
+                }""")
+                print('VERIFY',width,data)
+                assert data['img']=={'width':360,'height':120},f'{width}: image failed'
+                assert len(data['cards'])==3
+                for i,c in enumerate(data['cards']):
+                  assert 'overview-photo-strip-v9.webp' in c['photo'],f'{width}: missing photograph {i+1}'
+                  assert c['opacity']=='0.15',f'{width}: wrong image opacity {i+1}: {c["opacity"]}'
+                  assert c['size']=='300% 100%',f'{width}: incorrect image slicing {i+1}'
+                  assert c['position']==['0% 50%','50% 50%','100% 50%'][i],f'{width}: incorrect photo order'
+                  assert 'linear-gradient' in c['fullGradient'] and 'radial-gradient' in c['fullGradient'], 'Original gradient changed'
+                assert not data['horizontalOverflow'],f'{width}: layout overflows'
+                assert data['pages']==12 and not data['emDash'],f'{width}: unwanted presentation change'
+                if width>800:
+                  assert data['visible']==['overview'] and data['mode']=='spread'
+                else:
+                  assert data['mode']=='vertical' and len(data['visible'])==12
+                if width==1440:
+                  await page.locator('#overview').screenshot(path='/tmp/fahmai-photo-overview.png')
+                  await page.evaluate("window.dispatchEvent(new Event('beforeprint'))")
+                  await page.emulate_media(media='print')
+                  await page.pdf(path='/tmp/fahmai-photo-overview.pdf',prefer_css_page_size=True,print_background=True)
+                  n=len(PdfReader('/tmp/fahmai-photo-overview.pdf').pages)
+                  print('PDF_PAGE_COUNT',n)
+                  assert n==12,'PDF page count changed'
+                assert not errors,f'Unexpected JS errors: {errors}'
+                await page.close()
+              await browser.close()
+          asyncio.run(run())
+          PY
+      - name: Commit new photo asset and updated Overview styling to public page
+        run: |
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add proposals/fah-mai/index.html proposals/fah-mai/overview-photo-strip-v9.webp
+          git diff --cached --quiet || (git commit -m "Use client-provided photos on Overview cards with stronger gradient" && git push)
