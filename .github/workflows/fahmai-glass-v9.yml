@@ -23,3 +23,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git add proposals/fah-mai/index.html proposals/fah-mai/Fah-Mai-Proposal-Glass.pdf proposals/fah-mai/Fah-Mai-Glass-Mobile.jpg proposals/fah-mai/Fah-Mai-Glass-Desktop.jpg proposals/fah-mai/Fah-Mai-Glass-Desktop.b64.txt proposals/fah-mai/Fah-Mai-Glass-Mobile.b64.txt
           git diff --cached --quiet || (git commit -m "Publish sixth Proposals tab, glass navigation and stronger 2026 pitch" && git push)
+
+# Rebuild with the mobile visual regression check
