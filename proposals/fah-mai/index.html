@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="light" />
+<meta name="description" content="Fah Mai Holdings — Digital portfolio proposal prepared by Most Wanted." />
+<title>Fah Mai Holdings | Proposal — Most Wanted</title>
+<style>
+:root{--pink:#e63082;--pink-dark:#bd2366;--ink:#242124;--muted:#777176;--line:#e9e3e6;--mist:#faf8f9;--paper:#fff;--wash:#f9f7f8}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--wash);color:var(--ink);font-family:Arial,Helvetica,sans-serif;-webkit-font-smoothing:antialiased;font-size:15px}
+button{font:inherit;cursor:pointer}a{color:inherit;text-decoration:none}a:hover{text-decoration:underline;text-decoration-color:var(--pink);text-underline-offset:3px}
+.wrap{width:min(1100px,calc(100vw - 72px));margin:0 auto}
+.utility{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:26px 0 22px}
+.utility-left{font-size:10px;line-height:1.4;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#777177}.utility-left b{color:var(--ink)}
+.utility-actions{display:flex;gap:9px;align-items:center}
+.utility button{background:transparent;border:1px solid #dcd5d9;border-radius:0;color:#5e585c;padding:10px 16px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;font-size:10px;transition:.16s}
+.utility button:hover{border-color:var(--pink);color:var(--pink)}
+.utility .pdf{background:var(--pink);border-color:var(--pink);color:white}.utility .pdf:hover{background:var(--pink-dark);color:white;border-color:var(--pink-dark)}
+.document{background:#fff;border:1px solid #ece7e9;min-height:696px}
+.masthead{padding:58px 65px 46px}
+.brandline{display:flex;justify-content:space-between;align-items:start;gap:20px}
+.brand{font-size:17px;line-height:1.2;letter-spacing:2.6px;font-weight:800;text-transform:uppercase}.brand .dot{color:var(--pink)}
+.prepared{font-size:10px;line-height:1.65;color:var(--muted);text-align:right;letter-spacing:.5px}.prepared strong{color:#3c383c;font-weight:700}
+.eyebrow{display:flex;align-items:center;gap:12px;margin-top:69px;color:var(--pink);font-size:10px;letter-spacing:2.3px;font-weight:800;text-transform:uppercase}.eyebrow:before{content:"";width:25px;height:2px;background:var(--pink)}
+h1{font-weight:600;font-size:clamp(37px,4.4vw,60px);line-height:1.08;letter-spacing:-2.5px;margin:19px 0 18px;max-width:740px}
+.subtitle{color:#6f686d;font-size:16px;line-height:1.65;margin:0;max-width:620px;font-weight:400}
+.navigation{display:flex;width:100%;overflow:auto;scrollbar-width:thin;border-bottom:1px solid var(--line);border-top:1px solid var(--line);padding:0 42px;position:relative}
+.tab{flex:1 0 auto;min-width:110px;text-align:center;border:0;border-bottom:2px solid transparent;background:transparent;color:#928b90;padding:23px 10px 20px;margin-bottom:-1px;font-size:11px;font-weight:700;letter-spacing:1.1px;text-transform:uppercase;white-space:nowrap;transition:color .15s,border-color .15s}
+.tab:hover{color:var(--ink)}.tab[aria-selected="true"]{color:var(--pink);border-bottom-color:var(--pink)}.tab:focus-visible,.pager button:focus-visible{outline:2px solid var(--pink);outline-offset:-3px}
+.panel{display:none;min-height:365px;padding:46px 65px 35px;animation:appear .18s ease}.panel.active{display:block}@keyframes appear{from{opacity:.3;transform:translateY(3px)}to{opacity:1;transform:none}}
+.section-kicker{font-size:10px;font-weight:800;letter-spacing:1.8px;text-transform:uppercase;color:var(--pink);margin-bottom:18px}
+.section-kicker .num{color:#b7adb2;margin-right:14px}
+h2{font-size:clamp(26px,3vw,35px);font-weight:600;line-height:1.17;letter-spacing:-1.2px;margin:0 0 21px;max-width:720px}
+p{font-size:15px;line-height:1.8;color:#6d666b;max-width:800px;margin:0 0 16px}
+.intro{font-size:15.5px;line-height:1.85;max-width:780px}
+.thin-rule{height:1px;background:var(--line);margin:26px 0 0}
+.split{display:grid;grid-template-columns:1fr 1fr;column-gap:60px;row-gap:20px;margin-top:28px}
+.meta-title{font-size:10px;text-transform:uppercase;letter-spacing:1.45px;color:var(--pink);font-weight:800;margin:0 0 7px}
+.meta-body{font-size:14px;line-height:1.68;color:#645f63;margin:0}
+.listing{margin-top:28px;border-top:1px solid var(--line)}
+.list-row{display:grid;grid-template-columns:33px minmax(130px,1.05fr) minmax(220px,1.8fr);gap:15px;align-items:baseline;padding:15px 0;border-bottom:1px solid var(--line)}
+.list-no{font-size:10px;font-weight:700;color:var(--pink);letter-spacing:1px}.list-label{font-size:14px;font-weight:700;line-height:1.5}.list-description{font-size:13px;line-height:1.65;color:#807a7e}.list-label a{border-bottom:1px solid #d9cfd4}.list-label a:hover{border-color:var(--pink)}
+.note{color:#a0999d;font-size:11px;line-height:1.6;margin:19px 0 0}
+.budget{margin-top:24px;border-top:1px solid var(--line)}.budget-row{display:grid;grid-template-columns:2fr 1fr;gap:12px;padding:18px 0;border-bottom:1px solid var(--line);align-items:center}.budget-title{font-size:14px;font-weight:700}.budget-desc{font-size:12px;color:#807a7e;line-height:1.55;margin-top:5px}.price{font-size:13px;color:#696166;text-align:right;font-weight:700}.price[contenteditable="true"]{outline:1px dashed var(--pink);outline-offset:5px}
+.timeline{margin-top:28px;display:grid;grid-template-columns:repeat(4,1fr);gap:24px}.step{border-top:2px solid var(--pink);padding-top:15px}.step-num{font-size:11px;color:var(--pink);font-weight:800;letter-spacing:1px}.step-title{font-size:14px;font-weight:700;margin:16px 0 8px}.step-desc{font-size:12px;line-height:1.75;color:#7b7478;margin:0}
+.document-bottom{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:0 65px 29px}
+.footmark{display:flex;gap:12px;align-items:center;color:#a69ca2;font-size:10px;letter-spacing:1px;text-transform:uppercase;font-weight:700}.footmark:before{content:"";display:block;width:14px;height:3px;background:var(--pink)}
+.pager{display:flex;align-items:center;gap:12px}.pager span{font-size:11px;color:#a39aa0;letter-spacing:1px;min-width:47px;text-align:center}.pager button{border:1px solid var(--line);width:35px;height:35px;background:#fff;color:#6b6268;font-size:19px;font-weight:300;line-height:1}.pager button:hover{color:var(--pink);border-color:var(--pink)}.pager button:disabled{opacity:.25;cursor:default}
+.below{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:19px 1px 48px;color:#a0969c;font-size:10px;letter-spacing:.2px}.below a{border-bottom:1px solid #ccc5c8}
+[contenteditable="true"]{outline:1px dashed rgba(230,48,130,.45);outline-offset:5px;cursor:text}
+.editing-note{display:none;color:var(--pink);font-size:11px;margin:0 0 4px}.editing .editing-note{display:block}
+@media(max-width:750px){.wrap{width:calc(100% - 26px)}.utility{padding:14px 0;gap:6px}.utility-left{font-size:8px;letter-spacing:1px}.utility button{padding:10px 9px;font-size:9px}.masthead{padding:36px 26px 37px}.brandline{gap:8px}.brand{font-size:13px;letter-spacing:1px}.prepared{font-size:9px}.eyebrow{margin-top:55px;font-size:9px}h1{font-size:39px;letter-spacing:-1.9px}.subtitle{font-size:14px}.navigation{padding:0 8px}.tab{min-width:103px;font-size:10px;padding:19px 9px}.panel{padding:30px 26px 26px;min-height:440px}h2{font-size:29px}.intro,p{font-size:14px}.split{gap:22px;grid-template-columns:1fr}.list-row{grid-template-columns:22px 1fr;gap:8px}.list-description{grid-column:2}.timeline{grid-template-columns:1fr 1fr;gap:19px}.document-bottom{padding:0 26px 27px}.footmark{font-size:9px}.below{flex-wrap:wrap;gap:5px;padding-bottom:25px}}
+@media(max-width:390px){.utility-left{max-width:125px}.utility-actions{gap:4px}.utility button{font-size:8px;padding:9px 7px}.brand{font-size:12px}.prepared{font-size:8px}h1{font-size:35px}}
+@media(prefers-reduced-motion:reduce){.panel{animation:none}html{scroll-behavior:auto}}
+@page{size:A4;margin:15mm 18mm}
+@media print{html,body{background:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}.wrap{width:100%;margin:0}.utility,.navigation,.pager,.below,.editing-note{display:none!important}.document{border:0;min-height:0}.masthead{padding:0 0 18mm}.brand{font-size:13pt}.prepared{font-size:9pt}.eyebrow{margin-top:27mm}.masthead h1{font-size:38pt}.panel{display:block!important;min-height:0;animation:none;padding:9mm 0 12mm;break-inside:auto;border-top:1px solid var(--line)}.section-kicker{margin-bottom:8mm}h2{break-after:avoid}.split,.timeline,.list-row,.budget-row,.step{break-inside:avoid}.document-bottom{padding:15mm 0 0}.footmark{font-size:8pt}.note{margin-top:4mm}.timeline{gap:10px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="utility" aria-label="Proposal actions">
+    <div class="utility-left"><b>MOST WANTED</b> / PRIVATE PROPOSAL</div>
+    <div class="utility-actions">
+      <button id="edit" type="button" title="Edit the proposal copy in your browser">Edit copy</button>
+      <button class="pdf" type="button" onclick="window.print()">Export PDF ↗</button>
+    </div>
+  </header>
+  <main class="document" id="proposal">
+    <div class="masthead">
+      <div class="brandline">
+        <div class="brand">FAH MAI HOLDINGS<span class="dot">.</span></div>
+        <div class="prepared">PREPARED BY <strong>MOST WANTED</strong><br>10 NOVEMBER 2026 · DRAFT</div>
+      </div>
+      <div class="eyebrow">Digital portfolio proposal</div>
+      <h1>A clearer digital<br>presence<span style="color:var(--pink)">.</span></h1>
+      <p class="subtitle">A considered direction for Fah Mai Holdings and its specialist whisky platforms.</p>
+    </div>
+    <nav class="navigation" role="tablist" aria-label="Proposal sections">
+      <button class="tab" role="tab" aria-selected="true" id="tab-overview" aria-controls="overview" tabindex="0" data-tab="overview">Overview</button>
+      <button class="tab" role="tab" aria-selected="false" id="tab-current" aria-controls="current" tabindex="-1" data-tab="current">Current</button>
+      <button class="tab" role="tab" aria-selected="false" id="tab-spec" aria-controls="spec" tabindex="-1" data-tab="spec">Spec</button>
+      <button class="tab" role="tab" aria-selected="false" id="tab-proposed" aria-controls="proposed" tabindex="-1" data-tab="proposed">Proposed</button>
+      <button class="tab" role="tab" aria-selected="false" id="tab-budget" aria-controls="budget" tabindex="-1" data-tab="budget">Budget</button>
+      <button class="tab" role="tab" aria-selected="false" id="tab-implementation" aria-controls="implementation" tabindex="-1" data-tab="implementation">Implementation</button>
+    </nav>
+    <p class="editing-note" style="margin:12px 65px 0">Editing enabled. Click proposal text to change it. Your edits stay in this browser. Export PDF when ready.</p>
+    <div id="overview" class="panel active" role="tabpanel" aria-labelledby="tab-overview">
+      <div class="section-kicker"><span class="num">01</span>Overview</div>
+      <h2>One group.<br>Distinct audiences.</h2>
+      <p class="intro editable">Fah Mai Holdings operates across the spirits industry, connecting corporate services, whisky auctions and cask ownership. The opportunity is to make this wider ecosystem simple to understand and easy to navigate.</p>
+      <div class="thin-rule"></div>
+      <div class="split">
+        <div><div class="meta-title">Objective</div><p class="meta-body editable">Present the group clearly, while helping each audience reach the relevant business or service.</p></div>
+        <div><div class="meta-title">Approach</div><p class="meta-body editable">A restrained visual system, clear information architecture and purposeful customer journeys.</p></div>
+      </div>
+    </div>
+    <div id="current" class="panel" role="tabpanel" aria-labelledby="tab-current" hidden>
+      <div class="section-kicker"><span class="num">02</span>Current</div>
+      <h2>Three platforms.<br>Three clear roles.</h2>
+      <p class="editable">Each website serves a different part of the business. A group-wide digital experience should respect those distinctions rather than force every visitor through the same journey.</p>
+      <div class="listing">
+        <div class="list-row"><div class="list-no">01</div><div class="list-label"><a href="https://fahmaiholdings.com/" target="_blank" rel="noopener">Fah Mai Holdings ↗</a></div><div class="list-description editable">Corporate group, bulk spirit trade, distribution and portfolio services.</div></div>
+        <div class="list-row"><div class="list-no">02</div><div class="list-label"><a href="https://www.whiskybull.com/" target="_blank" rel="noopener">Whisky Bull ↗</a></div><div class="list-description editable">Whisky auctions, registration, buying and selling.</div></div>
+        <div class="list-row"><div class="list-no">03</div><div class="list-label"><a href="https://www.platinumcask.com/" target="_blank" rel="noopener">Platinum Cask ↗</a></div><div class="list-description editable">Whisky cask ownership, fractions and bottlings.</div></div>
+      </div>
+      <div class="note">Public-facing review only. Technical access, analytics and existing workflows have not yet been audited.</div>
+    </div>
+    <div id="spec" class="panel" role="tabpanel" aria-labelledby="tab-spec" hidden>
+      <div class="section-kicker"><span class="num">03</span>Spec</div>
+      <h2>Clear requirements.<br>Purposeful execution.</h2>
+      <p class="editable">The final technical scope should be agreed after a short discovery process. The proposed priorities for that discussion are:</p>
+      <div class="listing">
+        <div class="list-row"><div class="list-no">01</div><div class="list-label">Structure & navigation</div><div class="list-description editable">Clear hierarchy, easy access to brands and services, intuitive user journeys.</div></div>
+        <div class="list-row"><div class="list-no">02</div><div class="list-label">Visual consistency</div><div class="list-description editable">Minimal layouts, consistent typography and a cohesive group identity.</div></div>
+        <div class="list-row"><div class="list-no">03</div><div class="list-label">Mobile experience</div><div class="list-description editable">Responsive, legible page layouts and practical mobile navigation.</div></div>
+        <div class="list-row"><div class="list-no">04</div><div class="list-label">Performance & SEO</div><div class="list-description editable">Clean technical foundations, search-friendly content and appropriate measurement.</div></div>
+      </div>
+    </div>
+    <div id="proposed" class="panel" role="tabpanel" aria-labelledby="tab-proposed" hidden>
+      <div class="section-kicker"><span class="num">04</span>Proposed</div>
+      <h2>Connected identity.<br>Independent journeys.</h2>
+      <p class="editable">Rather than treating the portfolio as one website, the proposed direction creates a clearer relationship between the group and its specialist destinations.</p>
+      <div class="listing">
+        <div class="list-row"><div class="list-no">01</div><div class="list-label">Group front door</div><div class="list-description editable">Position Fah Mai Holdings as the corporate introduction to the group, its services and capabilities.</div></div>
+        <div class="list-row"><div class="list-no">02</div><div class="list-label">Auction journey</div><div class="list-description editable">Preserve Whisky Bull’s focused buying, selling and membership experience.</div></div>
+        <div class="list-row"><div class="list-no">03</div><div class="list-label">Cask journey</div><div class="list-description editable">Keep Platinum Cask product discovery and cask ownership content distinct and accessible.</div></div>
+      </div>
+      <div class="note">Proposed concept only. Any rebuild of transactional auction, payment or investment systems must be separately scoped.</div>
+    </div>
+    <div id="budget" class="panel" role="tabpanel" aria-labelledby="tab-budget" hidden>
+      <div class="section-kicker"><span class="num">05</span>Budget</div>
+      <h2>Transparent scope.<br>Agreed investment.</h2>
+      <p class="editable">The commercial proposal can be finalised once the deliverables and technical requirements are confirmed. Amounts below are deliberately left open rather than assumed.</p>
+      <div class="budget">
+        <div class="budget-row"><div><div class="budget-title editable">Discovery & direction</div><div class="budget-desc editable">Requirements, sitemap, design direction and scope definition.</div></div><div class="price editable" data-edit-price>To be agreed</div></div>
+        <div class="budget-row"><div><div class="budget-title editable">Design & development</div><div class="budget-desc editable">Approved design, implementation and quality checks.</div></div><div class="price editable" data-edit-price>To be agreed</div></div>
+        <div class="budget-row"><div><div class="budget-title editable">Hosting & ongoing support</div><div class="budget-desc editable">Optional maintenance, hosting and future enhancements.</div></div><div class="price editable" data-edit-price>Optional</div></div>
+      </div>
+      <div class="note">No prices, delivery dates or technical integrations are contractually agreed in this draft.</div>
+    </div>
+    <div id="implementation" class="panel" role="tabpanel" aria-labelledby="tab-implementation" hidden>
+      <div class="section-kicker"><span class="num">06</span>Implementation</div>
+      <h2>Four stages.<br>A focused delivery.</h2>
+      <p class="editable">A simple, approval-led process keeps the work aligned and reduces unnecessary revision. Dates are confirmed only after scope is agreed.</p>
+      <div class="timeline">
+        <div class="step"><div class="step-num">01</div><div class="step-title editable">Discover</div><p class="step-desc editable">Confirm objectives, content, audiences and technical dependencies.</p></div>
+        <div class="step"><div class="step-num">02</div><div class="step-title editable">Design</div><p class="step-desc editable">Prepare the core layouts and agree the visual approach.</p></div>
+        <div class="step"><div class="step-num">03</div><div class="step-title editable">Develop</div><p class="step-desc editable">Build agreed components, pages and approved integrations.</p></div>
+        <div class="step"><div class="step-num">04</div><div class="step-title editable">Launch</div><p class="step-desc editable">Test, review, publish and hand over the completed project.</p></div>
+      </div>
+      <div class="note">Timeline and sign-off process to be confirmed in the final statement of work.</div>
+    </div>
+    <footer class="document-bottom">
+      <div class="footmark">FAH MAI / MOST WANTED</div>
+      <div class="pager"><button type="button" id="prev" aria-label="Previous tab" disabled>‹</button><span id="position">01 / 06</span><button type="button" id="next" aria-label="Next tab">›</button></div>
+    </footer>
+  </main>
+  <div class="below"><span>Prepared exclusively for Fah Mai Holdings · Draft for discussion</span><a href="https://usemostwanted.com/" target="_blank" rel="noopener">Most Wanted ↗</a></div>
+</div>
+<script>
+(()=>{
+const ids=['overview','current','spec','proposed','budget','implementation'];const tabs=[...document.querySelectorAll('[role="tab"]')];const panels=ids.map(id=>document.getElementById(id));const pos=document.getElementById('position');let current=0;
+function select(n,focus=false){current=Math.min(5,Math.max(0,n));tabs.forEach((tab,i)=>{const on=i===current;tab.setAttribute('aria-selected',String(on));tab.tabIndex=on?0:-1;});panels.forEach((panel,i)=>{const on=i===current;panel.classList.toggle('active',on);panel.hidden=!on});pos.textContent=String(current+1).padStart(2,'0')+' / 06';document.getElementById('prev').disabled=current===0;document.getElementById('next').disabled=current===5;if(focus)tabs[current].focus({preventScroll:true});history.replaceState(null,'','#'+ids[current]);}
+tabs.forEach((tab,i)=>{tab.addEventListener('click',()=>select(i));tab.addEventListener('keydown',e=>{let n;if(e.key==='ArrowRight')n=(i+1)%6;else if(e.key==='ArrowLeft')n=(i+5)%6;else if(e.key==='Home')n=0;else if(e.key==='End')n=5;else return;e.preventDefault();select(n,true)})});document.getElementById('prev').onclick=()=>select(current-1);document.getElementById('next').onclick=()=>select(current+1);const hash=location.hash.slice(1);if(ids.includes(hash))select(ids.indexOf(hash));
+const edit=document.getElementById('edit'),editable=[...document.querySelectorAll('.editable')];let editing=false;edit.addEventListener('click',()=>{editing=!editing;document.body.classList.toggle('editing',editing);editable.forEach((el,i)=>{el.contentEditable=editing?'true':'false';if(!el.dataset.key)el.dataset.key=String(i)});edit.textContent=editing?'Finish editing':'Edit copy';});editable.forEach((el,i)=>{const key='fahmai-proposal-v3-'+i;try{const saved=localStorage.getItem(key);if(saved!==null)el.innerHTML=saved}catch{}el.addEventListener('input',()=>{try{localStorage.setItem(key,el.innerHTML)}catch{}})});
+window.addEventListener('beforeprint',()=>{document.querySelectorAll('.panel').forEach(p=>p.hidden=false)});window.addEventListener('afterprint',()=>{select(current)});
+})();
+</script>
+</body>
+</html>
