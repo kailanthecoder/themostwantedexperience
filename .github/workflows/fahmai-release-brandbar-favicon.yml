@@ -13,7 +13,7 @@ jobs:
         run: python proposals/fah-mai/match_desktop_brandbar_mobile.py
       - name: Verify desktop/mobile parity and logo favicon
         run: |
-          python -m pip install playwright pillow -q
+          python -m pip install playwright pillow beautifulsoup4 -q
           python -m playwright install chromium >/dev/null 2>&1
           python - <<'PY'
           from pathlib import Path
