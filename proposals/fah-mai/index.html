@@ -2687,6 +2687,34 @@ html body .sheet .hero-eyebrow{
     print-color-adjust:exact!important;
   }
 }</style>
+
+<style id="fahmai-overview-photo-refresh-v9">
+/* Three photographs provided by the client, matching cards from left to right.
+   Keep the exact pink/black gradients, outlines, labels and A4 layout. */
+#overview .vision-card.vision-card-a::before,
+#overview .vision-card.vision-card-b::before,
+#overview .vision-card.vision-card-c::before {
+    content:"" !important;
+    inset:0 !important;
+    width:100% !important;
+    height:100% !important;
+    background-image:url("./overview-photo-strip-v9.webp") !important;
+    background-size:300% 100% !important;
+    background-repeat:no-repeat !important;
+    opacity:.15 !important;
+    filter:saturate(.75) contrast(1.13) !important;
+}
+#overview .vision-card.vision-card-a::before { background-position:0% 50% !important; }
+#overview .vision-card.vision-card-b::before { background-position:50% 50% !important; }
+#overview .vision-card.vision-card-c::before { background-position:100% 50% !important; }
+@media print {
+ #overview .vision-card::before {
+   print-color-adjust:exact!important;
+   -webkit-print-color-adjust:exact!important;
+ }
+}
+</style>
+
 </head><body>
 <div class="toolbar"><div class="toolbar-inner">
  <div class="nav-toprow">
