@@ -1,0 +1,38 @@
+name: Check current homepage screenshots
+on:
+  push:
+    paths: ['.github/workflows/fahmai-current-screenshot-check-v5.yml']
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Capture live sites as supporting current-state evidence
+        run: |
+          python -m pip install playwright pillow -q
+          python -m playwright install chromium >/dev/null 2>&1
+          python - <<'PY'
+          import asyncio,io
+          from PIL import Image
+          from playwright.async_api import async_playwright
+          sites=[
+            ('FMH','https://fahmaiholdings.com/'),
+            ('WHISKY_BULL','https://www.whiskybull.com/'),
+            ('PLATINUM_CASK','https://www.platinumcask.com/')]
+          async def main():
+            async with async_playwright() as p:
+              browser=await p.chromium.launch()
+              for name,url in sites:
+                pg=await browser.new_page(viewport={'width':1365,'height':860},device_scale_factor=1)
+                try:
+                  response=await pg.goto(url,wait_until='domcontentloaded',timeout=35000)
+                  await pg.wait_for_timeout(1200)
+                  image=await pg.screenshot(full_page=False)
+                  im=Image.open(io.BytesIO(image))
+                  print('SITE',name,'status',response.status if response else 'none','title',(await pg.title())[:100],'url',pg.url,'pixels',im.size,'pngbytes',len(image),'body',(await pg.locator('body').inner_text())[:100].replace('\n',' '))
+                except Exception as e:
+                  print('SITE_ERROR',name,str(e)[:240])
+                await pg.close()
+              await browser.close()
+          asyncio.run(main())
+          PY
