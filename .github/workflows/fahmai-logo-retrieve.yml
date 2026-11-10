@@ -1,0 +1,21 @@
+name: Retrieve official Fah Mai brand assets
+on:
+  push:
+    paths:
+      - '.github/workflows/fahmai-logo-retrieve.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  retrieve:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python -m pip install requests beautifulsoup4 pillow
+      - run: python proposals/fah-mai/logo_scrape.py
+      - name: Save retrieved candidate image files
+        run: |
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add proposals/fah-mai/brand-assets
+          git diff --cached --quiet || (git commit -m "Retrieve original brand artwork from sites" && git push)
