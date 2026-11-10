@@ -33,7 +33,7 @@ jobs:
                 if key=='cask':
                   btns=(await page.locator('button').all_text_contents())[:18]
                   print('CASK_BUTTONS',btns)
-                  for term in ('yes','enter site','i am over','i am of legal','continue'):
+                  for term in ('acknowledge','yes','enter site','i am over','i am of legal','continue'):
                     loc=page.get_by_role('button',name=re.compile(term,re.I))
                     if await loc.count():
                       try:
@@ -97,6 +97,9 @@ jobs:
                 if width>800:
                   await page.locator('#tab-current').click()
                 for id in ('current','current-journeys','current-growth'):
+                  if id=='current-growth' and width>800:
+                    await page.locator('.fm-story-next').click()
+                    await page.wait_for_timeout(100)
                   d=await measure(page,id)
                   print('PAGE_GEOMETRY',width,id,d)
                   assert d['font'].startswith('"Helvetica Neue"'),f'Old font on {id}: {d["font"]}'
