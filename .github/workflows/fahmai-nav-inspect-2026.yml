@@ -9,17 +9,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Inspect header HTML and CSS
+      - name: Inspect toolbar and final nav logic
         run: |
           python - <<'PY'
           from pathlib import Path
           import re
           s=Path('proposals/fah-mai/index.html').read_text()
-          print('LENGTH',len(s))
-          print('FIRST_16000',s[:16000])
-          for key in ['Proposal','Examples','Export PDF','Implementation','Proposed','topbar','proposal-switch','main-nav','tabs','navigation','tablist']:
-              print('KEY',key,'COUNT',s.lower().count(key.lower()))
-              for m in list(re.finditer(re.escape(key),s,re.I))[:5]:
-                  print('SNIP',s[max(0,m.start()-260):min(len(s),m.end()+400)].replace('\n',' '))
-          print('LAST_12000',s[-12000:])
+          for a,b in [('<div class="toolbar"','<main '),('id="proposal-centered-navigation-2026"','</style>'),('const tabs=[...document.querySelectorAll', '</script>')]:
+            i=s.find(a)
+            if i<0:continue
+            e=s.find(b,i+len(a))
+            if e<0 or e-i>18000:e=i+18000
+            print('BEGIN',a,'\n',s[i:e][:18000].replace('data:image/png;base64,','[IMAGE]'), '\nEND',a)
           PY
