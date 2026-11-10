@@ -1,0 +1,162 @@
+{
+  "size": 1663756,
+  "toolbar": "<div class=\"toolbar\"><div class=\"toolbar-inner\"><div class=\"tool-brand\">FAH MAI <span>\u00d7</span> MOST WANTED</div><nav aria-label=\"Proposal sections\" class=\"tabs\" role=\"tablist\"><button aria-controls=\"overview\" aria-selected=\"true\" class=\"tab\" data-target=\"overview\" id=\"tab-overview\" role=\"tab\" tabindex=\"0\">Overview</button><button aria-controls=\"current\" aria-selected=\"false\" class=\"tab\" data-target=\"current\" id=\"tab-current\" role=\"tab\" tabindex=\"-1\">Current</button><button aria-controls=\"spec\" aria-selected=\"false\" class=\"tab\" data-target=\"spec\" id=\"tab-spec\" role=\"tab\" tabindex=\"-1\">Spec</button><button aria-controls=\"proposed\" aria-selected=\"false\" class=\"tab\" data-target=\"proposed\" id=\"tab-proposed\" role=\"tab\" tabindex=\"-1\">Proposed</button><button aria-controls=\"budget\" aria-selected=\"false\" class=\"tab\" data-target=\"budget\" id=\"tab-budget\" role=\"tab\" tabindex=\"-1\">Budget</button><button aria-controls=\"implementation\" aria-selected=\"false\" class=\"tab\" data-target=\"implementation\" id=\"tab-implementation\" role=\"tab\" tabindex=\"-1\">Implementation</button><button aria-controls=\"examples\" aria-selected=\"false\" class=\"tab\" data-target=\"examples\" id=\"tab-examples\" role=\"tab\" tabindex=\"-1\">Examples</button></nav><div class=\"tool-actions\"><span class=\"status\">A4 \u00b7 7 TABS</span><button class=\"pdf-btn\" type=\"button\">EXPORT PDF \u2197</button></div></div></div>",
+  "nav": "<nav aria-label=\"Proposal sections\" class=\"tabs\" role=\"tablist\"><button aria-controls=\"overview\" aria-selected=\"true\" class=\"tab\" data-target=\"overview\" id=\"tab-overview\" role=\"tab\" tabindex=\"0\">Overview</button><button aria-controls=\"current\" aria-selected=\"false\" class=\"tab\" data-target=\"current\" id=\"tab-current\" role=\"tab\" tabindex=\"-1\">Current</button><button aria-controls=\"spec\" aria-selected=\"false\" class=\"tab\" data-target=\"spec\" id=\"tab-spec\" role=\"tab\" tabindex=\"-1\">Spec</button><button aria-controls=\"proposed\" aria-selected=\"false\" class=\"tab\" data-target=\"proposed\" id=\"tab-proposed\" role=\"tab\" tabindex=\"-1\">Proposed</button><button aria-controls=\"budget\" aria-selected=\"false\" class=\"tab\" data-target=\"budget\" id=\"tab-budget\" role=\"tab\" tabindex=\"-1\">Budget</button><button aria-controls=\"implementation\" aria-selected=\"false\" class=\"tab\" data-target=\"implementation\" id=\"tab-implementation\" role=\"tab\" tabindex=\"-1\">Implementation</button><button aria-controls=\"examples\" aria-selected=\"false\" class=\"tab\" data-target=\"examples\" id=\"tab-examples\" role=\"tab\" tabindex=\"-1\">Examples</button></nav>",
+  "articles": [
+    {
+      "id": "overview",
+      "class": [
+        "sheet",
+        "is-active"
+      ],
+      "heading": "Fah Mai's Re-Envision: A Revenue Focused Ferrari-Design Brand Rehaul For All 3 Sectors",
+      "start": "<article aria-labelledby=\"tab-overview\" class=\"sheet is-active\" id=\"overview\" role=\"tabpanel\">\n<div class=\"sheet-cap\"></div>\n<div class=\"identity presentation-header\">\n<section aria-label=\"Presented to Louis on behalf of"
+    },
+    {
+      "id": "current",
+      "class": [
+        "sheet"
+      ],
+      "heading": "Three brands. Three buying journeys.",
+      "start": "<article aria-labelledby=\"tab-current\" class=\"sheet\" id=\"current\" role=\"tabpanel\">\n<div class=\"sheet-cap\"></div>\n<div class=\"identity presentation-header\">\n<section aria-label=\"Presented to Louis on behalf of\" class=\"pre"
+    },
+    {
+      "id": "spec",
+      "class": [
+        "sheet"
+      ],
+      "heading": "Clear scope. Visible accountability.",
+      "start": "<article aria-labelledby=\"tab-spec\" class=\"sheet\" id=\"spec\" role=\"tabpanel\">\n<div class=\"sheet-cap\"></div>\n<div class=\"identity presentation-header\">\n<section aria-label=\"Presented to Louis on behalf of\" class=\"presented"
+    },
+    {
+      "id": "proposed",
+      "class": [
+        "sheet"
+      ],
+      "heading": "The 90-day growth pilot.",
+      "start": "<article aria-labelledby=\"tab-proposed\" class=\"sheet\" id=\"proposed\" role=\"tabpanel\">\n<div class=\"sheet-cap\"></div>\n<div class=\"identity presentation-header\">\n<section aria-label=\"Presented to Louis on behalf of\" class=\"p"
+    },
+    {
+      "id": "budget",
+      "class": [
+        "sheet"
+      ],
+      "heading": "An investment with a testable return.",
+      "start": "<article aria-labelledby=\"tab-budget\" class=\"sheet\" id=\"budget\" role=\"tabpanel\">\n<div class=\"sheet-cap\"></div>\n<div class=\"identity presentation-header\">\n<section aria-label=\"Presented to Louis on behalf of\" class=\"prese"
+    },
+    {
+      "id": "implementation",
+      "class": [
+        "sheet"
+      ],
+      "heading": "Move quickly. Report honestly.",
+      "start": "<article aria-labelledby=\"tab-implementation\" class=\"sheet\" id=\"implementation\" role=\"tabpanel\">\n<div class=\"sheet-cap\"></div>\n<div class=\"identity presentation-header\">\n<section aria-label=\"Presented to Louis on behalf "
+    },
+    {
+      "id": "examples",
+      "class": [
+        "sheet"
+      ],
+      "heading": "Selected work. Four live examples.",
+      "start": "<article aria-labelledby=\"tab-examples\" class=\"sheet\" id=\"examples\" role=\"tabpanel\">\n<div class=\"sheet-cap\"></div><div class=\"identity presentation-header\">\n<section aria-label=\"Presented to Louis on behalf of\" class=\"pr"
+    }
+  ],
+  "selectors": [
+    "toolbar",
+    "toolbar-inner",
+    "tool-brand",
+    "tabs",
+    "tab",
+    "tool-actions",
+    "pdf-btn",
+    "status",
+    "viewport",
+    "sheet",
+    "is-active",
+    "sheet-cap",
+    "identity",
+    "client-lockups",
+    "logo-fmh",
+    "fmh-symbol",
+    "fmh-word",
+    "logo-bull",
+    "bull-symbol",
+    "bull-word",
+    "logo-platinum",
+    "pc-crest",
+    "pc-word",
+    "pc-official",
+    "identity-right",
+    "presenter-label",
+    "presenter-lockups",
+    "mw-logo",
+    "presenter-separator",
+    "signature-logo",
+    "heading-top",
+    "waveblock",
+    "sheet-body",
+    "page-heading",
+    "page-heading-copy",
+    "page-index",
+    "sub",
+    "sheet-section",
+    "tagline",
+    "tag",
+    "tag-note",
+    "statement",
+    "accent-line",
+    "three-column",
+    "feature-columns",
+    "feature-index",
+    "feature",
+    "inkbox",
+    "small-label",
+    "proofline",
+    "fineprint",
+    "brand-audit",
+    "brand-audit-row",
+    "audit-num",
+    "audit-brand",
+    "audit-main",
+    "audit-action",
+    "callout-outline",
+    "foot-source",
+    "spec-list",
+    "spec-item",
+    "spec-number",
+    "spec-output",
+    "limits",
+    "phases",
+    "phase",
+    "phase-days",
+    "phase-status",
+    "funnel",
+    "budget-table",
+    "budget-header",
+    "budget-line",
+    "money",
+    "roi-model",
+    "roi-intro",
+    "roi-calc",
+    "roi-result",
+    "budget-fine",
+    "delivery",
+    "delivery-line",
+    "delivery-date",
+    "delivery-check",
+    "final-ask",
+    "signature-line",
+    "sheet-footer",
+    "footer-kicker",
+    "footer-right",
+    "footer-page",
+    "footer-rule",
+    "original-brand",
+    "brand-pc",
+    "brand-fallback",
+    "mw-black"
+  ],
+  "main": "<main aria-label=\"Fah Mai Holdings commercial proposal\" class=\"viewport\"><article aria-labelledby=\"tab-overview\" class=\"sheet is-active\" id=\"overview\" role=\"tabpanel\">\n<div class=\"sheet-cap\"></div>\n<div class=\"identity presentation-header\">\n<section aria-label=\"Presented to Louis on behalf of\" class=\"presented-group presented-to\">\n<h2 class=\"presented-copy\">Presented to Louis <span>on behalf of</span></h2>\n<div class=\"client-lockups\"><a class=\"original-brand brand-fmh\" href=\"https://fahmaiholdin",
+  "nav_parent": "<div class=\"toolbar-inner\"><div class=\"tool-brand\">FAH MAI <span>\u00d7</span> MOST WANTED</div><nav aria-label=\"Proposal sections\" class=\"tabs\" role=\"tablist\"><button aria-controls=\"overview\" aria-selected=\"true\" class=\"tab\" data-target=\"overview\" id=\"tab-overview\" role=\"tab\" tabindex=\"0\">Overview</button><button aria-controls=\"current\" aria-selected=\"false\" class=\"tab\" data-target=\"current\" id=\"tab-current\" role=\"tab\" tabindex=\"-1\">Current</button><button aria-controls=\"spec\" aria-selected=\"false\" ",
+  "scripts": 1
+}
