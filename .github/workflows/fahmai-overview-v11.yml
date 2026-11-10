@@ -23,3 +23,5 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add proposals/fah-mai/index.html proposals/fah-mai/Fah-Mai-Proposal-Glass.pdf proposals/fah-mai/overview-v11-desktop.jpg proposals/fah-mai/overview-v11-desktop.b64.txt proposals/fah-mai/overview-v11-a4.jpg proposals/fah-mai/overview-v11-a4.b64.txt
           git diff --cached --quiet || (git commit -m 'Upgrade overview with gradient statements, 10–20-day roadmap and personal sign-off' && git push)
+
+# Rebuild with the completed visual verification script
