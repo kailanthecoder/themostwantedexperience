@@ -1,0 +1,25 @@
+name: Fah Mai seven-tab final header layout
+on:
+  push:
+    paths: ['.github/workflows/fahmai-side-header-final.yml']
+permissions:
+  contents: write
+jobs:
+  finalise:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install A4 rendering dependencies
+        run: |
+          python -m pip install playwright pillow pypdf
+          python -m playwright install chromium
+      - name: Place bold presentation text to the left of both logo groups
+        run: python proposals/fah-mai/final_header.py
+      - name: Verify all seven tabs and PDF
+        run: python proposals/fah-mai/verify_seven_tabs.py
+      - name: Publish live and printable proposal
+        run: |
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add proposals/fah-mai/index.html proposals/fah-mai/Fah-Mai-Seven-Tabs-A4.pdf proposals/fah-mai/Fah-Mai-Seven-Tabs-Contact.jpg proposals/fah-mai/Fah-Mai-Seven-Tabs-Contact.b64.txt proposals/fah-mai/Fah-Mai-Seven-Tabs-Mobile.png
+          git diff --cached --quiet || (git commit -m "Centre authentic logos beside bold Louis and Kailan presentation text" && git push)
