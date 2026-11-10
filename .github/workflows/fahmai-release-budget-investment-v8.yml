@@ -38,7 +38,7 @@ jobs:
             assert '50% of balance' not in text
             assert s['stdRows']==8 and s['ongoingRows']==8, 'Standard USD rate card has missing line items'
             assert s['tableCount']==2
-            assert s['bodyHtml'].count('<div class="budgetv8-milestones"')==1
+            assert s['milestoneCount']==3
             for term in ('£2,750','£3,000','£400','£5,750'):
               assert term in s['implementationText'] and term in s['evidenceText'],f'Implementation terms conflict for {term}'
             assert '$305' not in s['implementationText']+s['evidenceText']
@@ -55,6 +55,7 @@ jobs:
                 budgetParts:[...a.querySelector('.sheet-body').children].map(n=>({section:n.className,box:box(n)})),
                 implFooter:box(i.querySelector('.sheet-footer')),implLast:box(i.querySelector('.launch-signoff')),
                 evidenceFooter:box(e.querySelector('.sheet-footer')),evidenceLast:box(e.querySelector('.launch-proof-terms')),
+                milestoneCount:a.querySelectorAll('.budgetv8-milestones>div').length,
                 tableCount:a.querySelectorAll('table').length,
                 stdRows:a.querySelectorAll('.budgetv8-rate-tables table:first-child tbody tr').length,
                 ongoingRows:a.querySelectorAll('.budgetv8-rate-tables table:last-child tbody tr').length,
