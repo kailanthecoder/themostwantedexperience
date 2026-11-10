@@ -1,0 +1,73 @@
+name: Publish polished Fah Mai A4 proposal
+on:
+  push:
+    paths: ['.github/workflows/fahmai-render-v5.yml']
+permissions:
+  contents: write
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install print tools
+        run: |
+          python -m pip install playwright pypdf pillow pymupdf
+          python -m playwright install chromium
+      - name: Render six tabs and verify physical A4
+        run: |
+          python - <<'PY'
+          import pathlib,base64,io,subprocess,os
+          from playwright.sync_api import sync_playwright
+          from PIL import Image
+          from pypdf import PdfReader
+          d=pathlib.Path('proposals/fah-mai').resolve()
+          tabs=['overview','current','spec','proposed','budget','implementation']
+          shots=[]
+          with sync_playwright() as p:
+           b=p.chromium.launch(headless=True)
+           page=b.new_page(viewport={'width':1190,'height':1300},device_scale_factor=1)
+           page.goto((d/'index.html').as_uri(),wait_until='domcontentloaded',timeout=60000)
+           page.evaluate('() => document.fonts.ready')
+           page.wait_for_timeout(400)
+           for k in tabs:
+            page.evaluate("(k) => document.querySelectorAll('.sheet').forEach(e => e.classList.toggle('is-active',e.id===k))",k)
+            el=page.locator('article.sheet#'+k)
+            shots.append(Image.open(io.BytesIO(el.screenshot())).convert('RGB'))
+            m=page.evaluate("""(k) => { let a=document.getElementById(k),f=a.querySelector('.sheet-footer').getBoundingClientRect().top,children=[...a.querySelectorAll('.sheet-section > *')],last=Math.max(...children.map(x=>x.getBoundingClientRect().bottom));return {tab:k,footerTop:Math.round(f),lastContent:Math.round(last),spare:Math.round(f-last),font:getComputedStyle(a.querySelector('h1')).fontFamily,logos:[...a.querySelectorAll('.identity img')].map(e=>({ok:e.naturalWidth>0,y:Math.round(e.getBoundingClientRect().top+e.getBoundingClientRect().height/2)}))}}""",k)
+            print('SECTION',m,flush=True)
+           page.pdf(path=str(d/'_uncompressed.pdf'),format='A4',print_background=True,margin={'top':'0','right':'0','bottom':'0','left':'0'},prefer_css_page_size=True)
+           b.close()
+          target=d/'Fah-Mai-Proposal-Refined.pdf'
+          raw=d/'_uncompressed.pdf'
+          print('RAW SIZE MB',round(raw.stat().st_size/1e6,2),flush=True)
+          if raw.stat().st_size>20*1024*1024:
+           if os.system('which gs >/dev/null 2>&1')==0:
+            subprocess.run(['gs','-sDEVICE=pdfwrite','-dNOPAUSE','-dBATCH','-dQUIET','-dCompatibilityLevel=1.6','-dPDFSETTINGS=/ebook','-dDownsampleColorImages=true','-dColorImageResolution=115','-dDetectDuplicateImages=true','-sOutputFile='+str(target),str(raw)],check=True)
+           else:
+            import fitz
+            doc=fitz.open(str(raw));out=fitz.open()
+            for pg in doc:
+             pix=pg.get_pixmap(matrix=fitz.Matrix(1.5,1.5),alpha=False)
+             rect=pg.rect
+             q=out.new_page(width=rect.width,height=rect.height)
+             q.insert_image(rect,stream=pix.tobytes('jpeg'))
+            out.save(str(target),deflate=True)
+          else:raw.rename(target)
+          doc=PdfReader(target)
+          assert len(doc.pages)==6,'PDF not six pages'
+          print('FINAL PDF MB',round(target.stat().st_size/1e6,2),'PAGES',len(doc.pages),flush=True)
+          tw=405;th=573
+          contact=Image.new('RGB',(3*tw+64,2*th+48),'#ece8ec')
+          for i,im in enumerate(shots):
+           im.thumbnail((tw,th))
+           contact.paste(im,(16+(i%3)*(tw+16),16+(i//3)*(th+16)))
+          contact.save(d/'Fah-Mai-Refined-Preview.jpg',quality=78,optimize=True)
+          (d/'Fah-Mai-Refined-Preview.b64.txt').write_text(base64.b64encode((d/'Fah-Mai-Refined-Preview.jpg').read_bytes()).decode())
+          raw.unlink(missing_ok=True)
+          PY
+      - name: Commit published PDF and contact sheet
+        run: |
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add proposals/fah-mai/Fah-Mai-Proposal-Refined.pdf proposals/fah-mai/Fah-Mai-Refined-Preview.jpg proposals/fah-mai/Fah-Mai-Refined-Preview.b64.txt
+          git diff --cached --quiet || (git commit -m "Publish visual QA and compressed A4 PDF" && git push)
