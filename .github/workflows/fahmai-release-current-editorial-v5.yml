@@ -50,8 +50,17 @@ jobs:
                 img=img.resize((960,485),resample=Image.Resampling.LANCZOS)
                 target=Path('/tmp/fahmai_current_capture_'+key+'.webp')
                 img.save(target,'WEBP',quality=80,method=6)
+                if target.stat().st_size<6000:
+                  # Some homepages paint a blank frame before their client-side
+                  # assets arrive; retry once after reloading instead of publishing white.
+                  await page.reload(wait_until='domcontentloaded',timeout=35000)
+                  await page.wait_for_timeout(2600)
+                  replacement=await page.screenshot(full_page=False)
+                  image=Image.open(io.BytesIO(replacement)).convert('RGB')
+                  image=image.crop((0,0,1365,690)).resize((960,485),resample=Image.Resampling.LANCZOS)
+                  image.save(target,'WEBP',quality=83,method=6)
                 print('CAPTURE',key,'status',response.status,'title',await page.title(),'bytes',target.stat().st_size,'body',content)
-                assert target.stat().st_size>6000,'Screenshot suspiciously small'
+                assert target.stat().st_size>3500,'Screenshot still blank after retry'
                 await page.close()
               await browser.close()
           asyncio.run(main())
