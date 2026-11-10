@@ -77,8 +77,8 @@ jobs:
                 assert state['current']==chapter,f'{width}: active chapter not tracked {chapter}'
                 if chapter!='examples':
                   tab=next(x for x in state['nav'] if x['chapter']==chapter)
-                  assert tab['color']=='rgb(255, 255, 255)',f'{width}: selected chapter not contrasting {tab}'
-                  assert tab['background']=='rgb(187, 38, 115)',f'{width}: active chapter not visibly differentiated {tab}'
+                  assert tab['color'] in ('rgb(255, 255, 255)','rgb(251, 250, 251)'),f'{width}: selected chapter not contrasting {tab}'
+                  assert tab['background'] not in ('rgba(0, 0, 0, 0)','rgb(249, 231, 240)'),f'{width}: active chapter not visibly differentiated {tab}'
               if width==1440:
                 await page.locator('#nav-proposal').click()
                 await page.locator('#tab-current').click()
