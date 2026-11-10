@@ -1,0 +1,44 @@
+name: Fah Mai glass navigation v10 — mobile visibility
+on:
+  push:
+    paths: ['.github/workflows/fahmai-nav-v10.yml']
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          python -m pip install playwright pillow pypdf
+          python -m playwright install chromium
+      - run: python proposals/fah-mai/nav-contrast-v10.py
+      - run: python proposals/fah-mai/test-glass-v9.py
+      - name: Verify visibility of all seven mobile navigation tabs
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from playwright.sync_api import sync_playwright
+          p=Path('proposals/fah-mai/index.html').resolve()
+          with sync_playwright() as q:
+           browser=q.chromium.launch()
+           page=browser.new_page(viewport={'width':390,'height':850},device_scale_factor=1)
+           page.goto(p.as_uri(),wait_until='domcontentloaded')
+           m=page.evaluate('''() => ({
+            navRows:[...new Set([...document.querySelectorAll('.tabs .tab')].map(x=>Math.round(x.getBoundingClientRect().top)))],
+            tabs:[...document.querySelectorAll('.tabs .tab')].map(x=>({t:x.innerText,visible:x.getBoundingClientRect().left>=-2&&x.getBoundingClientRect().right<=window.innerWidth+2,opacity:getComputedStyle(x).opacity,color:getComputedStyle(x).color})),
+            dark:getComputedStyle(document.querySelector('#tab-proposed')).backgroundImage,
+            scroll:document.documentElement.scrollWidth
+           })''')
+           print('ALL MOBILE TABS',m,flush=True)
+           assert len(m['navRows'])<=3 and len(m['navRows'])>=2
+           assert all(x['visible'] for x in m['tabs']),m
+           assert m['scroll']<=390
+           browser.close()
+          PY
+      - name: Push updated mobile version
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add proposals/fah-mai/index.html proposals/fah-mai/Fah-Mai-Proposal-Glass.pdf proposals/fah-mai/Fah-Mai-Glass-Mobile.jpg proposals/fah-mai/Fah-Mai-Glass-Desktop.jpg proposals/fah-mai/Fah-Mai-Glass-Desktop.b64.txt proposals/fah-mai/Fah-Mai-Glass-Mobile.b64.txt
+          git diff --cached --quiet || (git commit -m "Make sixth Proposals tab high-contrast; display all seven tabs on mobile" && git push)
