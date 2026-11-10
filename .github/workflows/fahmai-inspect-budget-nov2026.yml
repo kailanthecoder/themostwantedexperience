@@ -1,0 +1,36 @@
+name: Inspect Fah Mai Budget sheet before redesign
+on:
+  push:
+    paths: ['.github/workflows/fahmai-inspect-budget-nov2026.yml']
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect current Budget content and layout
+        run: |
+          python -m pip install beautifulsoup4 -q
+          python - <<'PY'
+          from pathlib import Path
+          from bs4 import BeautifulSoup
+          import re
+          html=Path('proposals/fah-mai/index.html').read_text(encoding='utf8')
+          d=BeautifulSoup(html,'html.parser')
+          section=d.select_one('#budget')
+          assert section
+          print('PAGE_COUNT',len(d.select('.viewport>.sheet')))
+          print('BUDGET_ROOT',str(section)[:19000].replace('\n',' ')[:15000])
+          print('BUDGET_CHILDREN',[(e.name,e.get('class'),e.get('id')) for e in section.find_all(recursive=False)])
+          print('BUDGET_LINKED_JS')
+          for script in d.find_all('script'):
+            code=script.get_text()
+            if ('breakeven' in code or 'roi-calc' in code or 'budget' in code.lower() and 'calculator' in code.lower()):
+              print('SCRIPT_ID',script.get('id'),'LEN',len(code),'SNIP',code[:7500])
+          css='\n'.join(x.get_text() for x in d.find_all('style'))
+          keys=['.budget','.roi-', '.sheet-body','.sheet-footer','.budget-fine','.budget-summary','.budget-hero','.budget-cards']
+          for key in keys:
+            print('CSS_KEY',key)
+            for m in [m for m in re.finditer(r'([^{}]{0,150})\{([^{}]{0,550})\}',css) if key in m.group(1)][-13:]:
+              print('RULE',m.group(1).strip().replace('\n',' ')[:175],'DEFS',m.group(2).strip().replace('\n',' ')[:490])
+          print('HTML_META',len(html),'EM_DASHES',html.count('—'),'SECTIONS',[x.get('id') for x in d.select('.viewport>.sheet')])
+          PY
