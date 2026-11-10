@@ -84,8 +84,14 @@ jobs:
             assert s['count']==12 and not s['unwantedDesign']
             assert s['documentWidth']<=width+2,f'Whole document overflows at {width}'
             assert s['budgetNotes']['bottom']<=s['budgetFooter']['y']-3,f'Budget clips into the A4 footer at {width}'
-            assert s['implLast']['bottom']<=s['implFooter']['y']-3,f'Implementation clips into footer at {width}'
-            assert s['evidenceLast']['bottom']<=s['evidenceFooter']['y']-3,f'Evidence clips into footer at {width}'
+            if width>800:
+              await page.locator('#tab-implementation').click()
+              impl=await metrics(page)
+              await page.locator('#tab-budget').click()
+            else:
+              impl=s
+            assert impl['implLast']['bottom']<=impl['implFooter']['y']-3,f'Implementation clips into footer at {width}'
+            assert impl['evidenceLast']['bottom']<=impl['evidenceFooter']['y']-3,f'Evidence clips into footer at {width}'
             assert s['budgetBody']['w']>500 or width<=800
             if width>800:
               assert s['mode']=='spread' and s['active']==['budget']
