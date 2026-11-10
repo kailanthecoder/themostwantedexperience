@@ -1,0 +1,158 @@
+{
+  "title": "Fah Mai Holdings \u2013 Whisky and Bulk Spirit Trading",
+  "stylesheet_count": 72,
+  "fonts": [
+    {
+      "source": "html",
+      "rule": "font-family: inherit"
+    },
+    {
+      "source": "html",
+      "rule": "font-weight: inherit"
+    },
+    {
+      "source": "https://fahmaiholdings.com/wp-content/plugins/embedpress/assets/css/embedpress.css?ver=1794114772",
+      "rule": "font-weight: 700"
+    },
+    {
+      "source": "https://fahmaiholdings.com/wp-content/plugins/embedpress/assets/css/embedpress.css?ver=1794114772",
+      "rule": "font-weight: 400"
+    },
+    {
+      "source": "https://fahmaiholdings.com/wp-content/plugins/embedpress/assets/css/embedpress.css?ver=1794114772",
+      "rule": "font-weight: 600"
+    },
+    {
+      "source": "https://fahmaiholdings.com/wp-content/plugins/embedpress/assets/css/embedpress.css?ver=1794114772",
+      "rule": "font-weight: 500"
+    },
+    {
+      "source": "https://fahmaiholdings.com/wp-content/plugins/embedpress/assets/css/embedpress.css?ver=1794114772",
+      "rule": "font-weight: bold"
+    },
+    {
+      "source": "https://fahmaiholdings.com/wp-content/plugins/embedpress/assets/css/embedpress.css?ver=1794114772",
+      "rule": "font-family: system-ui"
+    },
+    {
+      "source": "https://fahmaiholdings.com/wp-content/plugins/embedpress/assets/css/embedpress.css?ver=1794114772",
+      "rule": "font-family: sans-serif"
+    },
+    {
+      "source": "https://fahmaiholdings.com/wp-content/plugins/embedpress/assets/css/embedpress.css?ver=1794114772",
+      "rule": "font-weight: initial"
+    },
+    {
+      "source": "https://fahmaiholdings.com/wp-content/plugins/embedpress/assets/css/embedpress.css?ver=1794114772",
+      "rule": "font-weight: normal"
+    },
+    {
+      "source": "https://fahmaiholdings.com/wp-content/plugins/embedpress/assets/css/embedpress.css?ver=1794114772",
+      "rule": "font-family: Arial, sans-serif"
+    },
+    {
+      "source": "https://fahmaiholdings.com/wp-content/plugins/embedpress/assets/css/embedpress.css?ver=1794114772",
+      "rule": "font-family: var(--epyp-font)"
+    },
+    {
+      "source": "https://fahmaiholdings.com/wp-content/plugins/embedpress/assets/css/blocks.build.css?ver=1794114772",
+      "rule": "font-weight:500"
+    },
+    {
+      "source": "https://fahmaiholdings.com/wp-content/plugins/embedpress/assets/css/blocks.build.css?ver=1794114772",
+      "rule": "font-weight:600!important"
+    },
+    {
+      "source": "https://fahmaiholdings.com/wp-content/plugins/embedpress/assets/css/blocks.build.css?ver=1794114772",
+      "rule": "font-weight:600"
+    },
+    {
+      "source": "https://fahmaiholdings.com/wp-content/plugins/embedpress/assets/css/blocks.build.css?ver=1794114772",
+      "rule": "font-family:inherit"
+    },
+    {
+      "source": "https://fahmaiholdings.com/wp-content/plugins/embedpress/assets/css/blocks.build.css?ver=1794114772",
+      "rule": "font-weight:inherit"
+    },
+    {
+      "source": "https://fahmaiholdings.com/wp-content/plugins/embedpress/assets/css/blocks.build.css?ver=1794114772",
+      "rule": "font-weight:700"
+    },
+    {
+      "source": "https://fahmaiholdings.com/wp-content/plugins/embedpress/assets/css/blocks.build.css?ver=1794114772",
+      "rule": "font-weight:400"
+    },
+    {
+      "source": "https://fahmaiholdings.com/wp-content/plugins/embedpress/assets/css/blocks.build.css?ver=1794114772",
+      "rule": "font-family:system-ui"
+    },
+    {
+      "source": "https://fahmaiholdings.com/wp-content/plugins/embedpress/assets/css/blocks.build.css?ver=1794114772",
+      "rule": "font-weight:450"
+    },
+    {
+      "source": "https://fahmaiholdings.com/wp-content/plugins/embedpress/assets/css/blocks.build.css?ver=1794114772",
+      "rule": "font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace"
+    },
+    {
+      "source": "https://fahmaiholdings.com/wp-content/plugins/embedpress/assets/css/blocks.build.css?ver=1794114772",
+      "rule": "font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Oxygen-Sans, Ubuntu, Cantarell, \"Helvetica Neue\", sans-serif"
+    },
+    {
+      "source": "https://fahmaiholdings.com/wp-content/themes/hello-elementor/assets/css/reset.css?ver=3.5.2",
+      "rule": "font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji"
+    },
+    {
+      "source": "https://fahmaiholdings.com/wp-content/themes/hello-elementor/assets/css/reset.css?ver=3.5.2",
+      "rule": "font-family:monospace"
+    },
+    {
+      "source": "https://fahmaiholdings.com/wp-content/themes/hello-elementor/assets/css/reset.css?ver=3.5.2",
+      "rule": "font-weight:bolder"
+    },
+    {
+      "source": "https://fahmaiholdings.com/wp-content/plugins/elementor/assets/css/frontend.min.css?ver=4.3.6",
+      "rule": "font-family:eicons"
+    },
+    {
+      "source": "https://fahmaiholdings.com/wp-content/uploads/elementor/css/post-796.css?ver=1794114824",
+      "rule": "font-family:\"Poppins\""
+    },
+    {
+      "source": "https://fahmaiholdings.com/wp-content/uploads/elementor/css/post-796.css?ver=1794114824",
+      "rule": "font-family:\"Figtree\""
+    },
+    {
+      "source": "https://fahmaiholdings.com/wp-content/uploads/elementor/css/post-796.css?ver=1794114824",
+      "rule": "font-weight:300"
+    },
+    {
+      "source": "https://fahmaiholdings.com/wp-content/plugins/wp-members/assets/css/forms/generic-no-float.min.css?ver=3.5.8.3",
+      "rule": "font-family:Arial,sans-serif"
+    },
+    {
+      "source": "https://fahmaiholdings.com/wp-content/uploads/essential-addons-elementor/eael-845.css?ver=1778841054",
+      "rule": "font-family:\"Font Awesome 5 Free\""
+    },
+    {
+      "source": "https://fahmaiholdings.com/wp-content/uploads/essential-addons-elementor/eael-845.css?ver=1778841054",
+      "rule": "font-weight:normal"
+    },
+    {
+      "source": "https://fahmaiholdings.com/wp-content/uploads/essential-addons-elementor/eael-845.css?ver=1778841054",
+      "rule": "font-weight:bold"
+    },
+    {
+      "source": "https://fahmaiholdings.com/wp-content/uploads/essential-addons-elementor/eael-845.css?ver=1778841054",
+      "rule": "font-weight:900"
+    },
+    {
+      "source": "https://fahmaiholdings.com/wp-content/plugins/elementor/assets/lib/font-awesome/css/all.min.css?ver=4.3.6",
+      "rule": "font-family:\"Font Awesome 5 Brands\""
+    },
+    {
+      "source": "https://fahmaiholdings.com/wp-content/plugins/elementor/assets/lib/swiper/v8/css/swiper.min.css?ver=8.4.5",
+      "rule": "font-family:swiper-icons"
+    }
+  ]
+}
