@@ -1,0 +1,39 @@
+name: Inspect Overview transformation tiles
+on:
+  push:
+    paths: ['.github/workflows/fahmai-overview-image-inspect-v9.yml']
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Locate three cards and their image layers and overlay styles
+        run: |
+          python -m pip install beautifulsoup4 -q
+          python - <<'PY'
+          from pathlib import Path
+          from bs4 import BeautifulSoup
+          import re
+          s=Path('proposals/fah-mai/index.html').read_text(encoding='utf-8')
+          d=BeautifulSoup(s,'html.parser')
+          n=d.find(id='overview')
+          print('OVERVIEW_HEADINGS')
+          for k in n.find_all(['h1','h2','h3']):
+            print('HEAD',k.get_text(' ',strip=True)[:120])
+          for t in ['A Confidence', 'A Breathtakingly', 'Re-Envisioned', 'Shape-Up', 'User-Friendly']:
+            i=s.find(t)
+            if i>=0:
+              a=s[max(0,i-1500):i+650]
+              a=re.sub(r'data:image/[^"\\s]+', '[embedded image]',a)
+              print('TARGET',t,'POSITION',i,'CONTEXT',a.replace('\n',' ')[:2200])
+          for el in n.find_all(string=re.compile('confidence|breathtakingly|re.envisioned|shape.up|auctioning',re.I)):
+            print('MATCH_NODE',el.strip()[:90],str(el.parent.parent)[:3700])
+          print('CSS')
+          styles='\\n'.join(x.get_text() for x in d.find_all('style'))
+          patterns=['vision-card','brand-card','brand-tile','transformation','future-card','vision-grid','outcome-card','strategy-card','gradient-card']
+          for p in patterns:
+            matches=[m for m in re.finditer(r'([^{}]{0,245})\\{([^{}]{0,1300})\\}',styles) if p in m.group(1)]
+            print('CSS_KEY',p,'MATCHES',len(matches))
+            for m in matches[-12:]:
+              print('STYLE',m.group(1).strip().replace('\n',' '),' :: ',m.group(2).strip().replace('\n',' ')[:900])
+          PY
