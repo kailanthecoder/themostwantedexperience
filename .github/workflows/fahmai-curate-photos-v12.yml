@@ -1,0 +1,47 @@
+name: Curate whisky photo candidates
+on:
+  push:
+    paths: ['.github/workflows/fahmai-curate-photos-v12.yml']
+jobs:
+  curate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Capture image previews from brand sources and contextual photography
+        run: |
+          python -m pip install requests pillow -q
+          python - <<'PY'
+          import requests,io,base64
+          from PIL import Image,ImageOps,ImageDraw
+          candidates=[
+           ('WALL 1 whisky display','https://www.handpickedhotels.co.uk/images/hotels/norton-house/things-to-do/Scotch%20whisky%20experience/Worlds%20Largest%20Scotch%20Whisky%20Collection%20B.jpg'),
+           ('WALL 2 lit shelves','https://dynamic-media-cdn.tripadvisor.com/media/photo-o/0b/b0/73/1d/photo0jpg.jpg?h=1200&s=1&w=1200'),
+           ('CASK 1 single','https://www.stocktitan.net/news_covers/Brown_Forman_Announces_500_Million_Debt_Offering_1506232.webp'),
+           ('CASK 2 warehouse','https://walpolemedia.imgix.net/inchdairnie-cask-club---copy.jpg'),
+           ('PLATINUM Hades official','https://fahmaiholdings.com/wp-content/uploads/2026/05/Hades-Front.webp'),
+           ('PLATINUM Aphrodite official','https://fahmaiholdings.com/wp-content/uploads/2026/05/Aphrodite-Front.webp'),
+           ('PLATINUM Apollo official','https://fahmaiholdings.com/wp-content/uploads/2026/05/Apollo-Front.webp'),
+           ('PLATINUM Hades shop','https://www.platinumcask.com/assets/img-pc-hades-8d5973e3d579bb2926a22b12120208c7671ec4479e11eacb921acd8482d069d5.png')
+          ]
+          poster=Image.new('RGB',(4*260,2*280),(250,245,248));d=ImageDraw.Draw(poster)
+          for i,(label,url) in enumerate(candidates):
+           xy=(i%4*260,i//4*280)
+           try:
+            r=requests.get(url,timeout=35,headers={'User-Agent':'Mozilla/5.0'});r.raise_for_status()
+            im=Image.open(io.BytesIO(r.content))
+            print('SOURCE',label,'pixels',im.size,'bytes',len(r.content),'mode',im.mode,'url',r.url)
+            # Make subject visible and distinguish transparency and backgrounds
+            tile=Image.new('RGB',(244,245),(31,21,31))
+            src=im.convert('RGBA')
+            if 'PLATINUM' in label:
+             src.thumbnail((224,230),Image.Resampling.LANCZOS)
+             tile.paste(src,((244-src.width)//2,(245-src.height)//2),src)
+            else:
+             src=ImageOps.fit(src,(244,245),Image.Resampling.LANCZOS,centering=(.5,.37))
+             tile.paste(src,(0,0),src)
+            poster.paste(tile,(xy[0]+8,xy[1]+7))
+            d.text((xy[0]+8,xy[1]+256),label,fill=(31,25,31))
+           except Exception as e:print('SOURCE_ERR',label,str(e)[:300])
+          out=io.BytesIO();poster.save(out,'JPEG',quality=78,optimize=True)
+          print('CONTACT_SHEET_BASE64',base64.b64encode(out.getvalue()).decode())
+          PY
