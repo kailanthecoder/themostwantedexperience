@@ -1,0 +1,59 @@
+name: Compare header CSS responsive values
+on:
+  push:
+    paths: ['.github/workflows/fahmai-compare-brandbar-css.yml']
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Show CSS declaration candidates for presentation header
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path('proposals/fah-mai/index.html').read_text()
+          head=s[:s.find('</head>')]
+          for term in ['presentation-header','presented-group','presented-to','presented-by','presented-copy','presentation-kicker','presentation-sub','client-lockups','presenter-lockups','identity','original-brand','mw-black','signature-logo','presentation-hairline']:
+            snippets=[]
+            for m in re.finditer(r'([^{}]{0,180})\{([^{}]{0,1100})\}',head):
+              selector,body=m.group(1),m.group(2)
+              if term in selector:
+                snippets.append((m.start(),selector.strip(),body.strip()))
+            print('CLASS',term,'NUM',len(snippets))
+            for i,sel,body in snippets[-13:]:
+              print('RULE',i,sel.replace('\n',' ')[:190],body.replace('\n',' ')[:450])
+          PY
+      - name: Compare desktop versus phone computed style values
+        run: |
+          python -m pip install playwright -q
+          python -m playwright install chromium >/dev/null 2>&1
+          python - <<'PY'
+          import asyncio
+          from pathlib import Path
+          from playwright.async_api import async_playwright
+          async def main():
+            async with async_playwright() as p:
+              browser=await p.chromium.launch()
+              d={}
+              for width in [1200,390]:
+                page=await browser.new_page(viewport={'width':width,'height':900})
+                await page.goto(Path('proposals/fah-mai/index.html').resolve().as_uri(),wait_until='domcontentloaded')
+                d[width]=await page.evaluate("""() => {
+                  const root=document.querySelector('#overview .presentation-header');
+                  if(!root)return 'NO ROOT';
+                  return [root,...root.querySelectorAll('*')].map((e,i)=>{
+                    let c=getComputedStyle(e),r=e.getBoundingClientRect();
+                    let props=['display','width','height','minWidth','minHeight','padding','margin','gap','rowGap','columnGap','gridTemplateColumns','gridTemplateRows','gridColumn','gridRow','justifyContent','justifyItems','alignItems','flex','flexDirection','flexWrap','flexBasis','border','borderLeft','borderRight','borderBottom','backgroundColor','fontSize','lineHeight','fontWeight','letterSpacing','objectFit','maxWidth','maxHeight','position','transform','overflow','visibility'];
+                    return {i,tag:e.tagName,classes:typeof e.className==='string'?e.className:'',parent:e.parentElement?.className||'',text:e.tagName==='IMG'?e.alt:(e.children.length===0?e.textContent.trim().slice(0,60):''),css:Object.fromEntries(props.map(p=>[p,c[p]])),rect:{w:Math.round(r.width),h:Math.round(r.height),x:Math.round(r.x),y:Math.round(r.y)}};
+                  })
+                }""")
+                await page.close()
+              x,y=d[1200],d[390]
+              for a,b in zip(x,y):
+                if a['tag']!=b['tag'] or a['classes']!=b['classes']:print('MISMATCH',a['i'],a['classes'],b['classes']);continue
+                diff={k:(v,b['css'].get(k)) for k,v in a['css'].items() if v!=b['css'].get(k)}
+                print('COMP',a['i'],a['tag'],a['classes'],a['text'], 'DIFF',diff,'RECT',a['rect'],b['rect'])
+              await browser.close()
+          asyncio.run(main())
+          PY
