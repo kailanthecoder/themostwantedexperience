@@ -1,0 +1,59 @@
+name: Publish 999999 COP currency clarification
+on:
+  push:
+    paths: ['.github/workflows/fahmai-cop-clarification-v13.yml']
+permissions:
+  contents: write
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Correct currency wording without touching layout
+        run: python proposals/fah-mai/clarify_cop_amount_v13.py
+      - name: Verify exact quote and page count
+        run: |
+          python -m pip install playwright pypdf -q
+          python -m playwright install chromium >/dev/null 2>&1
+          python - <<'PY'
+          from pathlib import Path
+          import re,asyncio
+          from pypdf import PdfReader
+          from playwright.async_api import async_playwright
+          s=Path('proposals/fah-mai/index.html').read_text(encoding='utf-8')
+          assert s.count('999,999 COP')>=4
+          assert '$305 COP' not in s and '—' not in s
+          assert len(re.findall(r'<article\b[^>]*\bclass="[^"]*\bsheet\b[^"]*"[^>]*>',s))==12
+          async def main():
+            async with async_playwright() as p:
+              browser=await p.chromium.launch()
+              for w in [1440,390]:
+                page=await browser.new_page(viewport={'width':w,'height':900})
+                errors=[]
+                page.on('pageerror',lambda e:errors.append(str(e)))
+                await page.goto(Path('proposals/fah-mai/index.html').resolve().as_uri(),wait_until='domcontentloaded')
+                content=await page.evaluate("""()=>{
+                  const ids=['budget','implementation','implementation-evidence'];
+                  const clips=ids.map(id=>{let e=document.getElementById(id);return {id,contains:e.innerText.includes('999,999 COP')&&e.innerText.includes('$305 USD'),rects:[e.querySelector('.sheet-body').getBoundingClientRect().bottom,e.querySelector('.sheet-footer').getBoundingClientRect().top]};});
+                  return {clips,overflow:document.documentElement.scrollWidth>innerWidth+2,pages:document.querySelectorAll('.viewport>.sheet').length}
+                }""")
+                print('BROWSER',w,content)
+                assert content['pages']==12 and not content['overflow']
+                assert all(item['contains'] for item in content['clips'])
+                assert not errors,errors
+                if w==1440:
+                  await page.evaluate("window.dispatchEvent(new Event('beforeprint'))")
+                  await page.emulate_media(media='print')
+                  await page.pdf(path='/tmp/fahmai-cop-v13.pdf',prefer_css_page_size=True,print_background=True)
+                  assert len(PdfReader('/tmp/fahmai-cop-v13.pdf').pages)==12
+                  print('PDF_PAGE_COUNT',12)
+                await page.close()
+              await browser.close()
+          asyncio.run(main())
+          PY
+      - name: Publish corrected text at unchanged public URL
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add proposals/fah-mai/index.html
+          git diff --cached --quiet || (git commit -m "Clarify 999999 COP charge is approximately $305 USD, not $305 COP" && git push)
