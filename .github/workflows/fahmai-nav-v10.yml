@@ -42,3 +42,5 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add proposals/fah-mai/index.html proposals/fah-mai/Fah-Mai-Proposal-Glass.pdf proposals/fah-mai/Fah-Mai-Glass-Mobile.jpg proposals/fah-mai/Fah-Mai-Glass-Desktop.jpg proposals/fah-mai/Fah-Mai-Glass-Desktop.b64.txt proposals/fah-mai/Fah-Mai-Glass-Mobile.b64.txt
           git diff --cached --quiet || (git commit -m "Make sixth Proposals tab high-contrast; display all seven tabs on mobile" && git push)
+
+# Run with viewport-aware mobile scale verification
