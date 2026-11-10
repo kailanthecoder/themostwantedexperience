@@ -24,7 +24,7 @@ with sync_playwright() as q:
   candidates[url]=reason
  for im in data['images']:add(im['src'],"img "+im['alt'])
  for im in data['backgrounds']:
-  for u in re.findall(r"url\\(['\"]?([^'\"\\)]+)",im['bg']):add(urllib.parse.urljoin(page.url,u),"css "+im['cls'])
+  for u in re.findall(r"url\((?:['\"])?([^'\"\)]+)",im['bg']):add(urllib.parse.urljoin(page.url,u),"css "+im['cls'])
  for u in data['resourceImages']:add(u,'resource')
  print('FOUND',len(candidates),'CANDIDATES',flush=True)
  session=requests.Session();session.headers['User-Agent']='Mozilla/5.0 Chrome/130 Safari/537.36'
