@@ -142,3 +142,5 @@ jobs:
           git diff --cached --quiet || (git commit -m "Clarify sections with chapter markers, stronger active menu, and vertical reading breaks" && git push)
 
 # QA rerun: document scroll, IntersectionObserver and mobile position fallback
+
+# Final QA: clamp scrolled-away mobile toolbar reading focus into visible viewport
