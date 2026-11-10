@@ -1,0 +1,67 @@
+name: Release Fah Mai mobile navigation and zoom
+on:
+  push:
+    paths: ['.github/workflows/fahmai-release-mobile-zoom.yml']
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore original desktop navigation and apply mobile optimisation
+        run: python proposals/fah-mai/fix_mobile_zoom_2026.py
+      - name: Verify navigation and iPhone-style zoom with Chromium
+        run: |
+          python -m pip install playwright
+          python -m playwright install chromium
+          python - <<'PY'
+          import asyncio
+          from pathlib import Path
+          from playwright.async_api import async_playwright
+          async def run():
+            async with async_playwright() as p:
+              browser=await p.chromium.launch()
+              for width in (1200,768,390,320):
+                page=await browser.new_page(viewport={'width':width,'height':860},device_scale_factor=1)
+                page.on('pageerror',lambda e:print('PAGEERROR',str(e)))
+                await page.goto(Path('proposals/fah-mai/index.html').resolve().as_uri(),wait_until='domcontentloaded',timeout=60000)
+                await page.wait_for_timeout(250)
+                info=await page.evaluate("""() => {
+                  const rect=(sel)=>{const x=document.querySelector(sel);const r=x?.getBoundingClientRect();return r?{x:Math.round(r.x),y:Math.round(r.y),w:Math.round(r.width),h:Math.round(r.height)}:null};
+                  return {toolbar:rect('.toolbar'),toprow:rect('.nav-toprow'),proposal:rect('#nav-proposal'),examples:rect('#tab-examples'),pdf:rect('.pdf-btn'),nav:rect('.proposal-sections'),firstTab:rect('#tab-overview'),lastTab:rect('#tab-proposed'),zoom:rect('.fm-zoom'),paper:rect('.sheet.is-active'),scrollWidth:document.documentElement.scrollWidth,viewport:innerWidth,brand:!!document.querySelector('.site-identity'),buttonCount:document.querySelectorAll('.proposal-sections .tab').length}
+                }""")
+                print('LAYOUT',width,info)
+                assert not info['brand'],'Unrequested desktop branding remains'
+                assert info['buttonCount']==6,'Proposal sections changed'
+                assert info['scrollWidth']<=width+2,'Horizontal body overflow'
+                if width<=800:
+                  assert info['toolbar']['h']<121,'Mobile navigation still too tall'
+                  assert abs(info['proposal']['y']-info['pdf']['y'])<=8,'PDF wrapped away from top control row'
+                  assert abs(info['firstTab']['y']-info['lastTab']['y'])<=2,'Tabs are wrapping'
+                  assert info['zoom']['h']>=40,'Mobile zoom is missing'
+                  await page.locator('.fm-zoom-range').fill('1.5')
+                  await page.wait_for_timeout(80)
+                  z=await page.evaluate("parseFloat(document.querySelector('.sheet.is-active').style.zoom)")
+                  assert z>0.4, f'Zoom not applied: {z}'
+                  assert (await page.locator('.fm-zoom-readout').inner_text()).startswith('1.5')
+                  await page.locator('#tab-examples').click()
+                  assert await page.locator('#examples').is_visible(),'Examples view failed'
+                  await page.locator('#nav-proposal').click()
+                  assert await page.locator('#overview').is_visible(),'Proposal view failed'
+                  await page.locator('#tab-budget').click()
+                  assert await page.locator('#budget').is_visible(),'Budget tab failed'
+                else:
+                  assert not await page.locator('.fm-zoom').is_visible(),'Desktop should not show zoom'
+                  assert info['toolbar']['h']<=130,'Desktop header changed unexpectedly'
+                await page.screenshot(path=f'/tmp/fahmai-new-{width}.png')
+                await page.close()
+              await browser.close()
+          asyncio.run(run())
+          PY
+      - name: Commit live page changes
+        run: |
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add proposals/fah-mai/index.html
+          git diff --cached --quiet || (git commit -m "Restore original desktop header and optimise mobile with zoom dial" && git push)
