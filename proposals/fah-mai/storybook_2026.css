@@ -1,0 +1,31 @@
+/* Screen-only storybook: two adjacent A4 sheets on desktop, one on phones. */
+@media screen {
+  html body .viewport{display:flex!important;flex-flow:row nowrap!important;justify-content:center!important;align-items:flex-start!important;gap:16px!important;padding:22px 12px 110px!important;max-width:100%!important;overflow-x:auto!important;overflow-y:visible!important;scrollbar-width:none!important;overscroll-behavior-x:contain!important;-webkit-overflow-scrolling:touch!important}
+  html body .viewport::-webkit-scrollbar{display:none!important}
+  html body .viewport .sheet{flex:0 0 auto!important;width:210mm!important;min-width:210mm!important;max-width:none!important;height:297mm!important;min-height:297mm!important;max-height:none!important;margin:0!important;transform:none!important;box-shadow:0 10px 30px rgba(34,18,29,.09)!important}
+  html body .viewport .sheet:not(.is-active){display:none!important}
+  html body .viewport .sheet.is-active{display:flex!important}
+  .fm-zoom{display:flex!important;position:fixed!important;z-index:5000!important;left:50%!important;bottom:max(17px,env(safe-area-inset-bottom) + 10px)!important;transform:translateX(-50%)!important;align-items:center!important;justify-content:center!important;gap:4px!important;width:min(440px,calc(100vw - 24px))!important;height:48px!important;padding:0 10px!important;margin:0!important;border-radius:100px!important;background:rgba(36,22,33,.90)!important;border:1px solid rgba(255,255,255,.14)!important;color:#fff!important;box-shadow:0 10px 34px rgba(35,17,30,.20)!important;backdrop-filter:blur(20px) saturate(140%)!important;-webkit-backdrop-filter:blur(20px) saturate(140%)!important;font-family:'Figtree','Poppins',Arial,sans-serif!important}
+  .fm-zoom button{flex:0 0 26px!important;display:grid!important;place-items:center!important;width:26px!important;min-width:26px!important;height:28px!important;min-height:28px!important;padding:0!important;margin:0!important;background:transparent!important;color:white!important;border:none!important;border-radius:50%!important;box-shadow:none!important;font:700 19px/1 Arial,sans-serif!important;cursor:pointer!important}
+  .fm-zoom button:disabled{opacity:.26!important;cursor:not-allowed!important}
+  .fm-zoom button:not(:disabled):hover{background:rgba(255,255,255,.12)!important}
+  .fm-zoom .fm-story-prev,.fm-zoom .fm-story-next{font-size:25px!important}
+  .fm-story-counter{flex:0 0 76px!important;min-width:76px!important;display:block!important;white-space:nowrap!important;text-align:center!important;color:#ffcae1!important;font-size:11px!important;font-weight:800!important;font-variant-numeric:tabular-nums!important}
+  .fm-story-separator{height:21px!important;width:1px!important;flex:0 0 1px!important;margin:0 3px!important;background:rgba(255,255,255,.25)!important}
+  .fm-zoom .fm-zoom-range{flex:1 1 76px!important;max-width:112px!important;min-width:28px!important;width:auto!important;height:26px!important}
+  .fm-zoom .fm-zoom-readout{flex:0 0 34px!important;min-width:34px!important;width:34px!important;text-align:center!important;color:#ffcae1!important;font-size:11px!important;font-weight:800!important}
+}
+@media screen and (max-width:800px){
+  html body .viewport{gap:0!important;padding:12px 9px 104px!important;min-height:calc(100dvh - 110px)!important}
+  .fm-zoom{width:min(354px,calc(100vw - 18px))!important;height:46px!important;gap:2px!important;padding:0 7px!important}
+  .fm-zoom button{flex-basis:24px!important;width:24px!important;min-width:24px!important}
+  .fm-story-counter{flex-basis:65px!important;min-width:65px!important;font-size:10px!important}
+  .fm-story-separator{margin:0 2px!important}
+  .fm-zoom .fm-zoom-range{max-width:72px!important;flex-basis:50px!important}
+  .fm-zoom .fm-zoom-readout{flex-basis:30px!important;width:30px!important;min-width:30px!important;font-size:10px!important}
+}
+@media print{
+  .fm-zoom{display:none!important}
+  .viewport{display:block!important;overflow:visible!important}
+  .viewport .sheet{zoom:1!important;transform:none!important}
+}
