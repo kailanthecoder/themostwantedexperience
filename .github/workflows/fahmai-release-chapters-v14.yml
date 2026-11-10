@@ -132,3 +132,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git add proposals/fah-mai/index.html
           git diff --cached --quiet || (git commit -m "Clarify sections with chapter markers, stronger active menu, and vertical reading breaks" && git push)
+
+# QA rerun: document scroll, IntersectionObserver and mobile position fallback
