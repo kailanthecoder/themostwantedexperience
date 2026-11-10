@@ -99,13 +99,19 @@ jobs:
               assert [d['chapter'] for d in out['dividers']]==['current','spec','budget','implementation','proposed','examples']
               # Scroll to actual chapter location, not just click a tab.
               for chapter in ('current','spec','implementation','examples'):
-                await page.evaluate("""chapter=>{
+                details=await page.evaluate("""chapter=>{
                   const el=document.getElementById(chapter),y=el.getBoundingClientRect().top+window.scrollY;
                   window.scrollTo({top:y-130,behavior:'instant'});
+                  return {target:y,windowY:window.scrollY,scroller:document.scrollingElement?.tagName,scrollHeight:document.documentElement.scrollHeight,
+                    bodyHeight:document.body.scrollHeight,viewportScroll:document.querySelector('.viewport').scrollTop,
+                    rect:el.getBoundingClientRect().top}
                 }""",chapter)
-                await page.wait_for_timeout(160)
+                await page.wait_for_timeout(850)
                 state=await evaluate(page)
-                print('MOBILE_SCROLL',width,chapter,'active',state['current'],'nav',state['nav'])
+                details2=await page.evaluate("""chapter=>({windowY:window.scrollY,bodyScroll:document.body.scrollTop,viewportScroll:document.querySelector('.viewport').scrollTop,
+                  rect:document.getElementById(chapter).getBoundingClientRect().top,
+                  current:document.body.dataset.currentChapter})""",chapter)
+                print('MOBILE_SCROLL',width,chapter,'details',details,'after',details2,'active',state['current'],'nav',state['nav'])
                 assert state['current']==chapter,f'{width}: scrolling did not select {chapter}: {state["current"]}'
                 if chapter!='examples':
                   tab=next(x for x in state['nav'] if x['chapter']==chapter)
