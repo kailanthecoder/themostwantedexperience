@@ -28,6 +28,12 @@ jobs:
               print('TARGET',t,'POSITION',i,'CONTEXT',a.replace('\n',' ')[:2200])
           for el in n.find_all(string=re.compile('confidence|breathtakingly|re.envisioned|shape.up|auctioning',re.I)):
             print('MATCH_NODE',el.strip()[:90],str(el.parent.parent)[:3700])
+          print('CSS_RAW_LOOKUPS')
+          for term in ('.vision-card', 'vision-card-a', '.vision-grid', 'vision-card::before', 'vision-card:before'):
+            matches=list(re.finditer(re.escape(term),s))
+            print('CSS_RAW',term,'COUNT',len(matches))
+            for m in matches[-10:]:
+              print('RAW_CONTEXT',s[max(0,m.start()-400):m.start()+1050].replace('\\n',' ')[:1500])
           print('CSS')
           styles='\\n'.join(x.get_text() for x in d.find_all('style'))
           patterns=['vision-card','brand-card','brand-tile','transformation','future-card','vision-grid','outcome-card','strategy-card','gradient-card']
