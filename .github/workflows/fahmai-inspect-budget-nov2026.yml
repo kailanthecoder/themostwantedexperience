@@ -19,13 +19,15 @@ jobs:
           section=d.select_one('#budget')
           assert section
           print('PAGE_COUNT',len(d.select('.viewport>.sheet')))
-          print('BUDGET_ROOT',str(section)[:19000].replace('\n',' ')[:15000])
+          body=section.select_one('.sheet-body')
+          print('BUDGET_BODY',str(body)[:26000].replace('\n',' ')[:23000])
+          print('BUDGET_TEXT',body.get_text(' ',strip=True)[:8000])
           print('BUDGET_CHILDREN',[(e.name,e.get('class'),e.get('id')) for e in section.find_all(recursive=False)])
           print('BUDGET_LINKED_JS')
           for script in d.find_all('script'):
             code=script.get_text()
             if ('breakeven' in code or 'roi-calc' in code or 'budget' in code.lower() and 'calculator' in code.lower()):
-              print('SCRIPT_ID',script.get('id'),'LEN',len(code),'SNIP',code[:7500])
+              print('SCRIPT_ID',script.get('id'),'LEN',len(code),'SNIP',code[:7500].replace('\\n',' '))
           css='\n'.join(x.get_text() for x in d.find_all('style'))
           keys=['.budget','.roi-', '.sheet-body','.sheet-footer','.budget-fine','.budget-summary','.budget-hero','.budget-cards']
           for key in keys:
