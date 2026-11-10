@@ -147,11 +147,20 @@
 
   function scrollActivePage() {
     if (mode() !== "vertical" || Date.now() < programmaticScrollUntil) return;
-    const offset = (toolbar?.getBoundingClientRect().height || 0) + Math.min(110, window.innerHeight * 0.19);
-    let current = 0;
+    // The last mobile sheet may never reach the top of the viewport due to the
+    // browser's scroll limit. Track whichever page occupies most of the readable
+    // area, instead of requiring its top edge to cross a fixed threshold.
+    const viewTop = (toolbar?.getBoundingClientRect().height || 0) + 8;
+    const viewBottom = window.innerHeight - 68;
+    let current = pageIndex;
+    let mostVisible = -1;
     for (let i = 0; i < sheets.length; i++) {
-      if (sheets[i].getBoundingClientRect().top <= offset) current = i;
-      else break;
+      const rect = sheets[i].getBoundingClientRect();
+      const visible = Math.max(0, Math.min(rect.bottom, viewBottom) - Math.max(rect.top, viewTop));
+      if (visible > mostVisible + 0.5) {
+        mostVisible = visible;
+        current = i;
+      }
     }
     if (current !== pageIndex) { pageIndex = current; updateCounter(); }
   }
