@@ -1,0 +1,21 @@
+name: Inspect proposal print preview
+on:
+  push:
+    paths: ['.github/workflows/fahmai-inspect-print.yml']
+permissions:
+  contents: write
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          python - <<'PY'
+          import base64,pathlib
+          p=pathlib.Path("proposals/fah-mai/verified-header.png")
+          p.with_suffix(".png.b64.txt").write_text(base64.b64encode(p.read_bytes()).decode())
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add proposals/fah-mai/verified-header.png.b64.txt
+          git diff --cached --quiet || (git commit -m "Prepare preview for visual QA" && git push)
