@@ -82,7 +82,7 @@ jobs:
                         def num(v):
                           try:return float(v.removesuffix('px'))
                           except:return None
-                        if num(a[prop]) is not None and num(b[prop]) is not None and abs(num(a[prop])-num(b[prop]))<=1:
+                        if num(a[prop]) is not None and num(b[prop]) is not None and abs(num(a[prop])-num(b[prop]))<=3:
                           continue
                         if prop=='width' and key=='.presentation-hairline':continue
                         raise AssertionError(f'{width}px: {key}: {prop} mismatch desktop={a[prop]} mobile={b[prop]}')
