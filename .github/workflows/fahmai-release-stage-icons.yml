@@ -1,0 +1,85 @@
+name: Release aligned Overview stage icons
+on:
+  push:
+    paths: ['.github/workflows/fahmai-release-stage-icons.yml']
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install focused three-stage layout refinement
+        run: python proposals/fah-mai/align_stage_icons_2026.py
+      - name: Test icon alignment, typography, card bounds, mobile and PDF
+        run: |
+          python -m pip install playwright pypdf pillow -q
+          python -m playwright install chromium >/dev/null 2>&1
+          python - <<'PY'
+          import asyncio,io,base64
+          from pathlib import Path
+          from pypdf import PdfReader
+          from PIL import Image
+          from playwright.async_api import async_playwright
+          target=Path('proposals/fah-mai/index.html').resolve().as_uri()
+          async def check(page,w):
+            return await page.evaluate("""() => {
+              const rect=e=>{const r=e.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height,right:r.right,bottom:r.bottom}};
+              const stages=[...document.querySelectorAll('#overview .stage-runway .stage-card')];
+              const get=e=>{const s=getComputedStyle(e);return {display:s.display,background:s.backgroundColor,padding:s.padding,align:s.alignItems,shadow:s.boxShadow,after:getComputedStyle(e,'::after').content}};
+              const overview=document.querySelector('#overview');
+              const footer=overview.querySelector('.sheet-footer');
+              return {cards:stages.map(e=>({rect:rect(e),style:get(e),icon:rect(e.querySelector('.stage-icon')),svg:rect(e.querySelector('svg')),label:rect(e.querySelector('.stage-step-label')),text:rect(e.querySelector('p')),labelText:e.querySelector('.stage-step-label').textContent,paragraph:e.querySelector('p').textContent})),footer:rect(footer),overview:rect(overview),documentWidth:document.documentElement.scrollWidth,screen:innerWidth,storyCounter:document.querySelector('.fm-story-counter').textContent};
+            }""")
+          async def main():
+            async with async_playwright() as p:
+              browser=await p.chromium.launch()
+              for w in [1440,900,390,320]:
+                pg=await browser.new_page(viewport={'width':w,'height':980},device_scale_factor=1)
+                errors=[]
+                pg.on('pageerror',lambda e:errors.append(str(e)))
+                await pg.goto(target,wait_until='domcontentloaded',timeout=65000)
+                await pg.wait_for_timeout(120)
+                v=await check(pg,w)
+                print('STAGES',w,v)
+                stages=v['cards']
+                assert len(stages)==3
+                assert [x['labelText'] for x in stages]==['01 / CONSULT','02 / ACTIVATE','03 / PREVIEW']
+                assert [x['paragraph'] for x in stages]==[
+                    'We discuss the vision in person at your office or over Zoom.',
+                    'We confirm Phase 1, including funding for AI development credits.',
+                    'First drafts arrive within three days. The project deposit is then taken.'
+                ]
+                assert max(x['rect']['h'] for x in stages)-min(x['rect']['h'] for x in stages)<.6, f'Unequal card heights: {w}'
+                assert max(x['rect']['y'] for x in stages)-min(x['rect']['y'] for x in stages)<.6, f'Unequal card top positions: {w}'
+                assert max(x['icon']['y'] for x in stages)-min(x['icon']['y'] for x in stages)<.6, f'Icons vertically misaligned: {w}'
+                assert all(x['icon']['w']>9 and x['svg']['w']>5 for x in stages),f'Stage icons not visible: {w}'
+                assert all(abs(x['icon']['y']+x['icon']['h']/2-(x['label']['y']+x['label']['h']/2))<3 for x in stages), f'Stage label vertical alignment poor: {w}'
+                assert all(x['text']['y']>x['icon']['bottom'] for x in stages),f'Text overlaps icons: {w}'
+                assert all(x['text']['bottom']<=x['rect']['bottom']-3 for x in stages),f'Text extends beyond card: {w}'
+                assert all(x['style']['after']=='none' for x in stages),f'Old floating arrows remain: {w}'
+                assert stages[-1]['rect']['bottom']<v['footer']['y']-3,f'Stage cards run into footer: {w}'
+                assert not v['documentWidth']>w+2,f'Body overflows: {w}'
+                assert not errors,f'Javascript errors: {errors}'
+                if w==1440:
+                  region=pg.locator('#overview .stage-runway')
+                  img=await region.screenshot()
+                  thumbnail=Image.open(io.BytesIO(img)).convert('RGB')
+                  thumbnail.thumbnail((580,200))
+                  output=io.BytesIO();thumbnail.save(output,'JPEG',quality=79)
+                  print('STAGE_PREVIEW_BASE64',base64.b64encode(output.getvalue()).decode())
+                  await pg.evaluate("window.dispatchEvent(new Event('beforeprint'))")
+                  await pg.emulate_media(media='print')
+                  await pg.pdf(path='/tmp/fahmai-stage-layout.pdf',prefer_css_page_size=True,print_background=True)
+                  assert len(PdfReader('/tmp/fahmai-stage-layout.pdf').pages)==12,'PDF page count changed'
+                  print('PDF_PAGES',12)
+                await pg.close()
+              await browser.close()
+          asyncio.run(main())
+          PY
+      - name: Commit to the existing public URL
+        run: |
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add proposals/fah-mai/index.html
+          git diff --cached --quiet || (git commit -m "Align three-stage process icons and text in consistent cards" && git push)
