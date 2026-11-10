@@ -15,10 +15,11 @@ jobs:
           from pathlib import Path
           from bs4 import BeautifulSoup
           import asyncio,re
+          from playwright.async_api import async_playwright
           html=Path('proposals/fah-mai/index.html').read_text()
           soup=BeautifulSoup(html,'html.parser')
           for e in soup.select('#overview .stage-runway'):
-            print('MARKUP',str(e)[:6500])
+            print('MARKUP',str(e).replace('\\n',' ')[:3500])
           for k in ['stage-runway','stage-card','stage-no','stage-icon','three-stage']:
             print('STYLES',k)
             styles='\n'.join(e.get_text() for e in soup.select('style'))
