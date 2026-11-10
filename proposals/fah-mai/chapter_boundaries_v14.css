@@ -1,0 +1,183 @@
+/* Chapter identity: one consistent, readable system on every A4 sheet.
+   No floating arrows, decorative overlines, or changes to document copy. */
+html body .viewport > .sheet .chapter-banner {
+  position:absolute!important;
+  top:132px!important;
+  left:40px!important;
+  z-index:5!important;
+  width:max-content!important;
+  max-width:calc(100% - 85px)!important;
+  height:41px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:10px!important;
+  margin:0!important;
+  padding:5px 13px 5px 10px!important;
+  background:rgba(255,255,255,.95)!important;
+  border:1px solid rgba(206,165,187,.76)!important;
+  border-left:4px solid #c52877!important;
+  border-radius:3px!important;
+  box-shadow:0 2px 9px rgba(70,30,55,.045)!important;
+  pointer-events:none!important;
+  color:#30212b!important;
+  font-family:"Helvetica Neue",Helvetica,Arial,sans-serif!important;
+  line-height:1!important;
+  text-transform:none!important;
+  letter-spacing:normal!important;
+}
+html body .viewport > .sheet .chapter-banner-index{
+  font:850 21px/1 "Helvetica Neue",Helvetica,Arial,sans-serif!important;
+  letter-spacing:-.7px!important;
+  color:#bb2875!important;
+  flex:none!important;
+}
+html body .viewport > .sheet .chapter-banner-name{
+  font:800 16px/1.1 "Helvetica Neue",Helvetica,Arial,sans-serif!important;
+  letter-spacing:-.35px!important;
+  color:#34222e!important;
+  white-space:nowrap!important;
+}
+html body .viewport > .sheet .chapter-banner-count{
+  display:block!important;
+  margin-left:5px!important;
+  padding-left:10px!important;
+  border-left:1px solid #e7d5df!important;
+  color:#816575!important;
+  font:750 11px/1.2 "Helvetica Neue",Helvetica,Arial,sans-serif!important;
+  white-space:nowrap!important;
+  flex:none!important;
+}
+html body .viewport > .sheet[data-chapter-start="false"] .chapter-banner{
+  border-left-color:#d39ab9!important;
+  background:rgba(255,255,255,.94)!important;
+}
+html body .viewport > .sheet[data-chapter-start="false"] .chapter-banner-index{
+  color:#b76a90!important;
+}
+/* The footer is already reserved in the A4 sheet and otherwise empty.
+   Use it for a genuine section indicator, without reducing content space. */
+html body .viewport > .sheet footer.sheet-footer .chapter-footer-label{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:11px!important;
+  flex:1 1 auto!important;
+  width:100%!important;
+  height:100%!important;
+  padding:0 20px 0 39px!important;
+  margin:0!important;
+  color:#826a79!important;
+  visibility:visible!important;
+  font:670 10px/1 "Helvetica Neue",Helvetica,Arial,sans-serif!important;
+  letter-spacing:0!important;
+  text-transform:none!important;
+  white-space:nowrap!important;
+}
+html body .viewport > .sheet footer.sheet-footer .chapter-footer-label strong{
+  color:#af306f!important;
+  font-weight:830!important;
+}
+html body .viewport > .sheet footer.sheet-footer .chapter-footer-page{
+  margin-left:auto!important;
+  color:#8c7383!important;
+  font-weight:750!important;
+}
+/* The active chapter is unambiguous rather than a faint pink tab. */
+html body .toolbar nav.tabs.proposal-sections button.tab[aria-selected="true"],
+html body .toolbar nav.tabs.proposal-sections button#tab-proposed[aria-selected="true"],
+html body .toolbar nav.tabs.proposal-sections button.tab[data-chapter-current="true"],
+html body .toolbar nav.tabs.proposal-sections button#tab-proposed[data-chapter-current="true"]{
+  background:#bb2673!important;
+  background-image:none!important;
+  color:#fff!important;
+  border:1px solid #ac236b!important;
+  border-radius:7px!important;
+  box-shadow:0 2px 6px rgba(140,35,87,.15)!important;
+  font-weight:840!important;
+  text-shadow:none!important;
+}
+html body .toolbar nav.tabs.proposal-sections button.tab[data-chapter-current="true"]:hover,
+html body .toolbar nav.tabs.proposal-sections button#tab-proposed[data-chapter-current="true"]:hover{
+  background:#a92065!important;
+  color:#fff!important;
+}
+html body[data-chapter-tracking="vertical"] .toolbar nav.tabs.proposal-sections button.tab[aria-selected="true"]:not([data-chapter-current="true"]),
+html body[data-chapter-tracking="vertical"] .toolbar nav.tabs.proposal-sections button#tab-proposed[aria-selected="true"]:not([data-chapter-current="true"]){
+  background:transparent!important;
+  background-image:none!important;
+  color:#756571!important;
+  border:1px solid transparent!important;
+  box-shadow:none!important;
+}
+html body .toolbar #tab-examples[data-chapter-current="true"]{
+  box-shadow:inset 0 0 0 2px rgba(197,42,113,.34)!important;
+}
+/* In continuous vertical reading, chapter transitions are actual whitespace
+   with a text title. No extra A4 pages, no interruption inside each chapter. */
+html body .viewport > .chapter-divider{
+  display:none!important;
+}
+html body .viewport[data-reading-mode="vertical"] > .chapter-divider{
+  box-sizing:border-box!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:11px!important;
+  flex:0 0 auto!important;
+  width:min(calc(100% - 18px),210mm)!important;
+  max-width:210mm!important;
+  min-height:52px!important;
+  margin:36px auto 15px!important;
+  padding:0 8px!important;
+  background:transparent!important;
+  color:#2e202b!important;
+  text-align:left!important;
+  font-family:"Helvetica Neue",Helvetica,Arial,sans-serif!important;
+}
+html body .viewport[data-reading-mode="vertical"] .chapter-divider-index{
+  font:850 27px/1 "Helvetica Neue",Helvetica,Arial,sans-serif!important;
+  letter-spacing:-1.1px!important;
+  color:#be2775!important;
+}
+html body .viewport[data-reading-mode="vertical"] .chapter-divider strong{
+  font:800 19px/1 "Helvetica Neue",Helvetica,Arial,sans-serif!important;
+  letter-spacing:-.4px!important;
+  color:#30222c!important;
+  white-space:nowrap!important;
+}
+html body .viewport[data-reading-mode="vertical"] .chapter-divider-line{
+  flex:1 1 auto!important;
+  height:1px!important;
+  background:linear-gradient(90deg,#d9afc4,#eee1e8)!important;
+  margin-left:12px!important;
+}
+/* Contrast with the lighter separator between pages within one chapter. */
+@media (max-width:800px){
+  html body .viewport[data-reading-mode="vertical"] > .chapter-divider{
+    width:calc(100% - 18px)!important;
+    min-height:43px!important;
+    margin:22px auto 11px!important;
+    gap:9px!important;
+  }
+  html body .viewport[data-reading-mode="vertical"] .chapter-divider-index{
+    font-size:24px!important;
+  }
+  html body .viewport[data-reading-mode="vertical"] .chapter-divider strong{
+    font-size:17px!important;
+  }
+}
+@media print{
+  html body .viewport > .chapter-divider{
+    display:none!important;
+    height:0!important;
+    margin:0!important;
+    padding:0!important;
+  }
+  html body .viewport > .sheet .chapter-banner{
+    -webkit-print-color-adjust:exact!important;
+    print-color-adjust:exact!important;
+    box-shadow:none!important;
+  }
+  html body .toolbar{display:none!important}
+}
