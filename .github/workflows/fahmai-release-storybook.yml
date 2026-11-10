@@ -1,0 +1,114 @@
+name: Release Fah Mai two-page storybook
+on:
+  push:
+    paths: ['.github/workflows/fahmai-release-storybook.yml']
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install storybook controls without modifying the content
+        run: python proposals/fah-mai/install_storybook.py
+      - name: Test page turns, mobile, desktop, zoom and A4 print
+        run: |
+          python -m pip install playwright -q
+          python -m playwright install chromium >/dev/null 2>&1
+          python - <<'PY'
+          import asyncio
+          from pathlib import Path
+          from playwright.async_api import async_playwright
+          path=Path('proposals/fah-mai/index.html').resolve().as_uri()
+          async def state(page):
+            return await page.evaluate("""() => {
+              const shown=[...document.querySelectorAll('.viewport .sheet.is-active')];
+              const rect=e=>{const r=e.getBoundingClientRect();return {x:Math.round(r.x),y:Math.round(r.y),w:Math.round(r.width),h:Math.round(r.height),right:Math.round(r.right)}};
+              return {ids:shown.map(e=>e.id),sheets:shown.map(rect),
+                counter:document.querySelector('.fm-story-counter').textContent,
+                zoomRail:rect(document.querySelector('.fm-zoom')),
+                documentWidth:document.documentElement.scrollWidth,windowWidth:innerWidth,
+                viewport:rect(document.querySelector('.viewport')),
+                slider:document.querySelector('.fm-zoom-range').value,
+                nextDisabled:document.querySelector('.fm-story-next').disabled,
+                prevDisabled:document.querySelector('.fm-story-prev').disabled
+              }
+            }""")
+          async def check(page):
+            await page.goto(path,wait_until='domcontentloaded',timeout=60000)
+            await page.wait_for_timeout(200)
+            w=page.viewport_size['width']
+            s=await state(page)
+            print('INITIAL',w,s)
+            assert s['documentWidth']<=w+2,f'Body horizontal overflow at {w}'
+            assert s['zoomRail']['w']>240, f'No floating rail at {w}'
+            assert s['prevDisabled'],'First page should disable previous'
+            if w>800:
+              assert s['ids']==['overview','current'],f'Desktop not a two-page spread at {w}: {s}'
+              assert s['sheets'][1]['x']>s['sheets'][0]['x'],f'Page order invalid {s}'
+              assert s['counter']=='1–2 / 11',f'Incorrect desktop counter {s}'
+              await page.locator('.fm-story-next').click()
+              s=await state(page)
+              print('DESKTOP_NEXT',w,s['ids'],s['counter'])
+              assert s['ids']==['current-journeys','current-growth'],f'Spread turn failed {s}'
+              await page.locator('#tab-spec').click()
+              s=await state(page)
+              assert s['ids']==['spec','budget'],f'Section tab failed {s}'
+              await page.locator('#tab-examples').click()
+              s=await state(page)
+              assert s['ids']==['examples','examples-client'],f'Examples two-page spread failed {s}'
+              assert s['nextDisabled'],'Last spread next should be disabled'
+            else:
+              assert s['ids']==['overview'],f'Mobile must show one page at {w}: {s}'
+              assert s['counter']=='1 / 11',f'Incorrect mobile counter {s}'
+              await page.locator('.fm-story-next').click()
+              s=await state(page)
+              assert s['ids']==['current'],f'Next single page failed {s}'
+              await page.locator('#tab-current').click()
+              await page.locator('.fm-story-next').click()
+              s=await state(page)
+              assert s['ids']==['current-journeys'],f'Current detail page navigation failed {s}'
+              await page.locator('#tab-examples').click()
+              s=await state(page)
+              assert s['ids']==['examples'],f'Examples switch failed {s}'
+              await page.locator('.fm-story-next').click()
+              s=await state(page)
+              assert s['ids']==['examples-client'],f'Examples page 2 failed {s}'
+            await page.locator('.fm-zoom-range').fill('1.5')
+            s=await state(page)
+            assert s['slider']=='1.5',f'Zoom slider failed {s}'
+            assert (await page.locator('.fm-zoom-readout').inner_text())=='1.5×'
+            print('ZOOM',w,s['slider'],s['ids'])
+            # Verify all A4 sheets remain available to the PDF print engine.
+            await page.evaluate("window.dispatchEvent(new Event('beforeprint'))")
+            await page.emulate_media(media='print')
+            printable=await page.evaluate("""() => ({
+              count:[...document.querySelectorAll('.viewport .sheet')].filter(e=>getComputedStyle(e).display!=='none').length,
+              zoom:getComputedStyle(document.querySelector('.viewport .sheet')).zoom,
+              rail:getComputedStyle(document.querySelector('.fm-zoom')).display
+            })""")
+            print('PRINT',w,printable)
+            assert printable['count']==11,f'Not all pages printable {printable}'
+            assert printable['rail']=='none',f'Zoom toolbar printed {printable}'
+            await page.emulate_media(media='screen')
+            await page.evaluate("window.dispatchEvent(new Event('afterprint'))")
+            await page.screenshot(path='/tmp/storybook-'+str(w)+'.png')
+          async def main():
+            async with async_playwright() as p:
+              browser=await p.chromium.launch()
+              for w in (1200,900,768,390,320):
+                page=await browser.new_page(viewport={'width':w,'height':850},device_scale_factor=1)
+                errors=[]
+                page.on('pageerror',lambda e:errors.append(str(e)))
+                await check(page)
+                assert not errors,f'Javascript exceptions at {w}: {errors}'
+                await page.close()
+              await browser.close()
+          asyncio.run(main())
+          PY
+      - name: Publish original proposal with page-turning view
+        run: |
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add proposals/fah-mai/index.html
+          git diff --cached --quiet || (git commit -m "Publish two-page desktop storybook and mobile one-page turner" && git push)
