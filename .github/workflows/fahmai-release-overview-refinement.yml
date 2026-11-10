@@ -79,3 +79,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git add proposals/fah-mai/index.html
           git diff --cached --quiet || (git commit -m "Move Unbeatable Design to row two and refine Overview process cards" && git push)
+
+# Second release attempt: corrected markup guard
