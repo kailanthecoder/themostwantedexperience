@@ -1,0 +1,38 @@
+name: Inspect official Platinum Cask bottle photography
+on:
+  push:
+    paths: ['.github/workflows/fahmai-inspect-photo-v12.yml']
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Scan official brand imagery and home card styling
+        run: |
+          python -m pip install requests beautifulsoup4 pillow -q
+          python - <<'PY'
+          import requests,re,urllib.parse,json,io
+          from pathlib import Path
+          from bs4 import BeautifulSoup
+          from PIL import Image
+          s=Path('proposals/fah-mai/index.html').read_text()
+          print('HTML_BYTES',len(s),'CURRENT_STYLES',s.count('fahmai-overview-photo-refresh-v9'))
+          import re
+          for m in re.finditer(r'(?:.vision-card-a|.vision-card-b|.vision-card-c)[^{}]{0,300}\{[^}]{0,1000}\}',s):
+            t=m.group()
+            if any(x in t for x in ('background','opacity','z-index')):print('VISION_RULE',re.sub(r'url\(data:[^)]+\)','url(DATA)',t)[:1100].replace('\n',' '))
+          for url in ['https://fahmaiholdings.com/platinum-cask/','https://www.platinumcask.com/bottles','https://www.platinumcask.com/shop']:
+            try:
+              r=requests.get(url,timeout=30,headers={'User-Agent':'Mozilla/5.0'});r.raise_for_status()
+              html=r.text;doc=BeautifulSoup(html,'html.parser')
+              print('SITE',url,'status',r.status_code,'bytes',len(r.content),'title',doc.title.get_text(' ',strip=True) if doc.title else '', 'images',len(doc.find_all('img')))
+              for e in doc.find_all('img'):
+                alt=e.get('alt','');p=e.get('src') or e.get('data-src') or ''
+                more=e.get('srcset','')
+                a=' '.join([alt,p,more])
+                if any(x in a.lower() for x in ['hades','sophisticated','olympian','aphrodite','athena','zeus','bottle','platinum','artemis','wp-content/uploads']):
+                  print('CANDIDATE',url,'ALT',alt[:95],'SRC',urllib.parse.urljoin(url,p)[:450],'SRCSET',more[:350])
+              for u in re.findall(r'https?[^" ]+\.(?:jpg|jpeg|png|webp)',html,re.I)[:45]:
+                if 'platinum' in u.lower() or 'hades' in u.lower():print('STRING_CANDIDATE',u[:350])
+            except Exception as exc:print('SITE_ERR',url,repr(exc)[:350])
+          PY
