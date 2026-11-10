@@ -1,0 +1,35 @@
+name: Restore proposal and apply final layout fix
+on:
+  push:
+    paths: ['.github/workflows/fahmai-restore.yml']
+permissions:
+  contents: write
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Recover last full HTML and fix overview copy layout
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import subprocess
+          p=Path('proposals/fah-mai/index.html')
+          src=subprocess.check_output(['git','show','61cbf0310db68d043eee611dd178997aad5aec82^:proposals/fah-mai/index.html']).decode('utf-8')
+          assert len(src)>1_000_000 and src.startswith('<!doctype html>'), 'Source recovery verification failed'
+          css='''<style id="fahmai-overview-card-fix">
+          #overview .statement{display:block!important;min-height:158px!important;padding:26px 29px!important;line-height:1.43!important;font-size:21px!important;font-weight:700!important;box-shadow:inset 0 0 0 320px rgba(22,15,20,.74)!important}
+          #overview .statement strong{display:inline!important;color:#fff!important;font-weight:800!important}
+          </style>'''
+          assert '</head>' in src
+          p.write_text(src.replace('</head>',css+'</head>',1))
+          print('RESTORED',p.stat().st_size)
+          PY
+      - name: Push restored and corrected HTML
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add proposals/fah-mai/index.html
+          git diff --cached --quiet || (git commit -m "Recover refined proposal and fix overview text flow" && git push)
