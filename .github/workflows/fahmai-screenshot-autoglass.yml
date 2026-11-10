@@ -1,0 +1,41 @@
+name: Capture actual NW IL Autoglass website design
+on:
+  push:
+    paths: ['.github/workflows/fahmai-screenshot-autoglass.yml']
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Screenshot current official website for faithful example banner
+        run: |
+          python -m pip install playwright pillow -q
+          python -m playwright install chromium >/dev/null 2>&1
+          python - <<'PY'
+          import asyncio,base64,io
+          from PIL import Image,ImageStat
+          from playwright.async_api import async_playwright
+          async def main():
+            async with async_playwright() as p:
+              browser=await p.chromium.launch()
+              page=await browser.new_page(viewport={'width':1440,'height':900},device_scale_factor=1)
+              page.on('pageerror',lambda e:print('JSERROR',str(e)[:200]))
+              try:
+                resp=await page.goto('https://nwilautoglass.com/',wait_until='domcontentloaded',timeout=35000)
+                await page.wait_for_timeout(3000)
+                title=await page.title()
+                print('SITE_RESPONSE',resp.status if resp else 'none','TITLE',title,'URL',page.url)
+                print('SITE_TEXT',(await page.locator('body').inner_text())[:1100].replace('\n',' | '))
+                await page.screenshot(path='/tmp/nwil_actual_site.png',full_page=False)
+                im=Image.open('/tmp/nwil_actual_site.png').convert('RGB')
+                print('SCREENSHOT_ORIGINAL',im.size)
+                im=im.crop((0,0,1440,730))
+                im.thumbnail((460,240))
+                print('SCREENSHOT_SAMPLE',im.size,'MEAN',ImageStat.Stat(im).mean)
+                b=io.BytesIO();im.save(b,'JPEG',quality=68,optimize=True)
+                print('SITE_IMAGE_BASE64',base64.b64encode(b.getvalue()).decode())
+              except Exception as e:
+                print('CAPTURE_ERROR',type(e).__name__,str(e)[:700])
+              await browser.close()
+          asyncio.run(main())
+          PY
