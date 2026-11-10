@@ -1,0 +1,26 @@
+name: Inspect source logos
+on:
+  push:
+    paths: ['.github/workflows/fahmai-logo-inspect.yml']
+permissions:
+  contents: write
+jobs:
+  encode:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Make image review copies
+        run: |
+          python - <<'PY'
+          import pathlib,base64
+          p=pathlib.Path('proposals/fah-mai/brand-assets')
+          for f in sorted(p.iterdir()):
+           if f.suffix.lower() not in ('.png','.webp','.svg'):continue
+           if not (f.name.startswith('fmh_') or f.name.startswith('whiskybull_0') or f.name.startswith('mostwanted_0') or f.name.startswith('platinum_0')):continue
+           (p/(f.name+'.b64.txt')).write_text(base64.b64encode(f.read_bytes()).decode('ascii'))
+          PY
+      - run: |
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add proposals/fah-mai/brand-assets/*.b64.txt
+          git diff --cached --quiet || (git commit -m "Temporary review representations of official assets" && git push)
