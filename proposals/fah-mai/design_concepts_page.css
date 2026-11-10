@@ -1,0 +1,100 @@
+
+/* Design concept sheet, matching the A4 editorial system and retaining print fidelity. */
+#design .sheet-body{padding-top:18px!important;padding-bottom:8px!important}
+#design .design-concepts{display:flex;flex-direction:column;gap:0;min-width:0;width:100%;height:100%;color:#2b1a27;font-family:'Figtree',Arial,sans-serif}
+#design .design-opening{margin:0 0 14px}
+#design .design-eyebrow{display:flex;align-items:center;gap:8px;color:#cc2374;font-size:9px;font-weight:900;letter-spacing:1.5px;line-height:1.4}
+#design .design-eyebrow-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#e72982;box-shadow:0 0 0 3px #fde5f2}
+#design .design-opening h1{max-width:670px;margin:9px 0 6px;font-family:'Poppins',Arial,sans-serif;font-size:29px;font-weight:900;line-height:1.17;letter-spacing:-1.05px;color:#271723}
+#design .design-opening h1 em{font-style:normal;color:#d62c7f}
+#design .design-opening>p{max-width:664px;margin:0;font-size:11.2px;font-weight:600;line-height:1.5;color:#6b5a66}
+#design .design-concept-stack{display:flex;flex-direction:column;gap:13px;width:100%;min-height:0}
+#design .design-concept-card{box-sizing:border-box;border:1px solid #eee1e8;background:#fff;border-radius:12px;padding:9px 11px 10px;min-width:0;break-inside:avoid;overflow:hidden}
+#design .design-concept-label{display:flex;align-items:center;gap:9px;margin:0 0 7px;min-height:22px}
+#design .design-concept-index{display:grid;place-items:center;width:22px;height:22px;flex:0 0 22px;border:1px solid #f0cee0;background:#fff0f7;color:#b5226b;border-radius:6px;font:900 10px/1 'Poppins',sans-serif}
+#design .design-concept-label>strong{font-family:'Poppins',sans-serif;font-size:10px;font-weight:900;letter-spacing:.35px}
+#design .design-concept-tag{margin-left:auto;font-size:8px;letter-spacing:.8px;font-weight:900;color:#b56690;white-space:nowrap}
+#design .design-browser{width:100%;height:182px;overflow:hidden;border:1px solid #e6dce3;border-radius:7px;background:#fff}
+#design .design-browser-chrome{height:23px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 10px;background:#f5f1f3;border-bottom:1px solid #e9e0e4;font-size:8px;font-weight:750;color:#8b7984;letter-spacing:.15px}
+#design .design-chrome-dots{display:flex;align-items:center;gap:4px}
+#design .design-chrome-dots i{width:5px;height:5px;border-radius:50%;background:#d4c4cd;display:block}
+#design .design-chrome-dots i:first-child{background:#e987a8}
+#design .design-chrome-right{font-size:7px;letter-spacing:.8px;color:#aa8295}
+#design .design-site{height:158px;width:100%;overflow:hidden}
+#design .design-site-nav{height:36px;display:flex;align-items:center;gap:9px;padding:0 17px}
+#design .design-wordmark{display:flex;flex-direction:column;gap:2px;font-family:'Poppins',Arial,sans-serif;font-weight:900;font-size:10px;line-height:1;letter-spacing:.1px;white-space:nowrap}
+#design .design-wordmark small{font-size:6px;letter-spacing:1.4px;font-weight:700}
+#design .design-nav-links{margin-left:auto;font-size:7.5px;letter-spacing:.08px;font-weight:750;white-space:nowrap}
+#design .design-nav-action{display:inline-flex;align-items:center;gap:6px;padding:7px 9px;font-size:7.5px;font-weight:900;white-space:nowrap;border-radius:3px}
+#design .design-site-hero{height:122px;display:grid;grid-template-columns:minmax(0,1.28fr) minmax(0,.95fr);overflow:hidden}
+#design .design-copy{padding:13px 16px 11px 24px;position:relative;z-index:1}
+#design .design-mini-label{display:block;font-size:7.2px;line-height:1.1;font-weight:900;letter-spacing:1.15px;margin-bottom:6px}
+#design .design-copy h2{margin:0 0 5px;max-width:330px;font-family:'Poppins',sans-serif;font-size:19px;font-weight:900;line-height:1.18;letter-spacing:-.7px}
+#design .design-copy h2 em{font-style:normal}
+#design .design-copy p{margin:0 0 8px;max-width:295px;font-size:8.3px;font-weight:650;line-height:1.4}
+#design .design-cta{display:inline-flex;align-items:center;justify-content:center;padding:7px 11px;border-radius:3px;font-size:7.7px;line-height:1;font-weight:900;white-space:nowrap}
+#design .design-site-fmh{background:#211321;color:#fff}
+#design .design-site-fmh .design-site-nav{background:#211321;border-bottom:1px solid rgba(255,255,255,.13)}
+#design .design-fmh-mark{display:grid;place-items:center;flex:0 0 25px;width:25px;height:25px;border:1px solid #eaa5c6;border-radius:50%;color:#f5b4d2;font-family:Georgia,serif;font-size:9px;font-weight:900}
+#design .design-site-fmh .design-wordmark{color:#fff}
+#design .design-site-fmh .design-wordmark small{color:#e0a5c2}
+#design .design-site-fmh .design-nav-links{color:#d9bed0}
+#design .design-site-fmh .design-nav-action{background:#e72c83;color:white}
+#design .design-site-fmh .design-site-hero{background:radial-gradient(ellipse at 80% 100%,#75345f 0%,transparent 52%),linear-gradient(135deg,#211321,#3b1b37)}
+#design .design-site-fmh .design-mini-label{color:#f5aace}
+#design .design-site-fmh .design-copy h2{color:#fff}
+#design .design-site-fmh .design-copy h2 em{color:#f291be}
+#design .design-site-fmh .design-copy p{color:#e9d9e4}
+#design .design-site-fmh .design-cta{border:1px solid rgba(255,255,255,.5);color:#fff}
+#design .design-fmh-visual{position:relative;display:grid;place-items:center;overflow:hidden;background:radial-gradient(circle at center,rgba(232,86,155,.4),transparent 66%)}
+#design .design-fmh-visual-ring{position:absolute;width:142px;height:142px;border:1px solid rgba(245,178,210,.35);border-radius:50%;box-shadow:0 0 0 22px rgba(244,164,207,.055),0 0 0 44px rgba(244,164,207,.04)}
+#design .design-fmh-visual-initials{font-family:Georgia,serif;font-size:44px;letter-spacing:-7px;color:#ffd4e8;opacity:.82;margin-right:8px}
+#design .design-visual-note{position:absolute;bottom:11px;font-weight:800;letter-spacing:.9px;font-size:6px;color:#e8b5cf}
+#design .design-site-bull{background:#17191b;color:#fff}
+#design .design-site-bull .design-site-nav{background:#1c1b1a;border-bottom:1px solid rgba(255,255,255,.13)}
+#design .design-bull-mark{font-family:Georgia,serif;font-size:22px;color:#c99b55;line-height:1;letter-spacing:-2px}
+#design .design-bull-mark span{font-size:8px;vertical-align:top;letter-spacing:0}
+#design .design-site-bull .design-wordmark small{color:#b6a085}
+#design .design-site-bull .design-nav-links{color:#cfcdc9}
+#design .design-site-bull .design-nav-action{border:1px solid #b58e55;color:#e8c89b}
+#design .design-site-bull .design-site-hero{background:linear-gradient(110deg,#17191b 45%,#352a25 78%,#68462f 100%)}
+#design .design-site-bull .design-mini-label{color:#d7b27b}
+#design .design-site-bull .design-copy h2 em{color:#d3aa70}
+#design .design-site-bull .design-copy p{color:#cdc7c1}
+#design .design-site-bull .design-cta{background:#c49a62;color:#191512}
+#design .design-bull-visual{display:flex;justify-content:center;align-items:center;position:relative;overflow:hidden}
+#design .design-bull-glow{position:absolute;width:145px;height:145px;border-radius:50%;background:radial-gradient(circle,#b5733d 0%,#6c422f 30%,transparent 67%);opacity:.45}
+#design .design-bull-bottle{position:absolute;top:16px;width:53px;height:100px;border:2px solid rgba(232,170,99,.7);border-bottom:7px solid #9e672e;border-radius:13px 13px 8px 8px;background:linear-gradient(90deg,#1a100d 0%,#512716 40%,#2e140d 75%,#110c0b 100%);box-shadow:9px 5px 21px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center}
+#design .design-bull-bottle:before{content:"";position:absolute;top:-16px;width:19px;height:18px;border:2px solid #9b7043;border-bottom:0;border-radius:3px;background:#2a1a14}
+#design .design-bull-bottle span{display:grid;place-items:center;width:32px;height:42px;background:#e2ccaa;border:1px solid #bba47c;color:#322119;font-family:Georgia,serif;font-size:17px;font-weight:800;line-height:.85;letter-spacing:-1px}
+#design .design-bull-caption{position:absolute;right:10px;bottom:12px;font-size:6.5px;letter-spacing:.6px;font-weight:800;color:#f1cc9a}
+#design .design-bull-caption b{margin-left:7px;font-size:10px}
+#design .design-site-cask{background:#f9f7f1;color:#332b2a}
+#design .design-site-cask .design-site-nav{background:#fffefa;border-bottom:1px solid #e5ddcf}
+#design .design-cask-monogram{font-family:Georgia,serif;font-size:17px;letter-spacing:-2px;color:#8b7458;font-weight:900}
+#design .design-cask-monogram span{font-size:8px;vertical-align:top;letter-spacing:0}
+#design .design-site-cask .design-wordmark{color:#43392f}
+#design .design-site-cask .design-wordmark small{color:#997e62}
+#design .design-site-cask .design-nav-links{color:#70645a}
+#design .design-site-cask .design-nav-action{background:#47372b;color:#fff}
+#design .design-site-cask .design-site-hero{background:linear-gradient(120deg,#f7f3e9,#f2e9da 78%,#e3d2b8)}
+#design .design-site-cask .design-mini-label{color:#997a52}
+#design .design-site-cask .design-copy h2{color:#3d352e}
+#design .design-site-cask .design-copy h2 em{color:#a17c50}
+#design .design-site-cask .design-copy p{color:#5c5148}
+#design .design-site-cask .design-cta{background:#48372b;color:#fff}
+#design .design-cask-visual{position:relative;display:grid;place-items:center;overflow:hidden}
+#design .design-cask-halo{position:absolute;width:176px;height:176px;border:1px solid rgba(155,122,78,.24);border-radius:50%;background:radial-gradient(circle at center,rgba(195,151,92,.12),transparent 63%)}
+#design .design-cask-barrel{width:97px;height:104px;border-radius:28px 28px 19px 19px;border-left:7px solid #765030;border-right:7px solid #765030;background:linear-gradient(90deg,#8c6238 0%,#bd986d 48%,#855933 100%);box-shadow:0 11px 22px rgba(78,50,24,.20),inset 0 2px 0 #d5ae79,inset 0 -4px 0 #6c492b;position:relative;display:grid;place-items:center;transform:perspective(100px) rotateY(-8deg)}
+#design .design-cask-barrel:before,#design .design-cask-barrel:after{content:"";position:absolute;left:-8px;right:-8px;height:5px;background:#463d35;border:1px solid #b3a99a;border-radius:2px}
+#design .design-cask-barrel:before{top:17px}
+#design .design-cask-barrel:after{bottom:16px}
+#design .design-cask-barrel span{font-family:Georgia,serif;font-size:8px;line-height:1.6;text-align:center;color:#fdf6e8;text-shadow:0 1px 2px #4f331c}
+#design .design-cask-caption{position:absolute;bottom:8px;right:9px;font-size:6px;font-weight:900;letter-spacing:.65px;color:#a08464}
+#design .design-bottom-note{display:flex;align-items:center;gap:9px;margin-top:14px;padding:9px 11px;border-top:1px solid #efdee7;border-bottom:1px solid #efdee7;background:#fdf9fb;color:#765e6c;font-size:9px;font-weight:700;line-height:1.4}
+#design .design-note-mark{font-size:15px;color:#dc2a7d;line-height:1}
+#design .design-note-marker{margin-left:auto;white-space:nowrap;font-size:7px;letter-spacing:.5px;color:#ad6688;font-weight:900}
+@media print{
+ #design .design-concept-card,#design .design-browser,#design .design-site,#design .design-site *{print-color-adjust:exact!important;-webkit-print-color-adjust:exact!important}
+ #design .design-browser{box-shadow:none!important}
+}
