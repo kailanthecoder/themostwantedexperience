@@ -149,3 +149,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git add proposals/fah-mai/index.html
           git diff --cached --quiet || (git commit -m "Make Current visual-first and minimal, refine brand audit, typography and arrows" && git push)
+
+# QA rerun: carousel indexing now respects scaled A4 page widths
