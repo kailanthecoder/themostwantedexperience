@@ -104,3 +104,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git add proposals/fah-mai/index.html
           git diff --cached --quiet || (git commit -m "Keep the two Examples pages together as their own spread" && git push)
+
+# QA revision: count the most visible mobile page, including the final sheet
