@@ -1,0 +1,33 @@
+name: Inspect current Fah Mai mobile menu
+on:
+  push:
+    paths: ['.github/workflows/fahmai-inspect-menu-2026.yml']
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect computed styles and positions
+        run: |
+          python -m pip install playwright -q
+          python -m playwright install chromium >/dev/null 2>&1
+          python - <<'PY'
+          import asyncio
+          from pathlib import Path
+          from playwright.async_api import async_playwright
+          async def main():
+            async with async_playwright() as p:
+              browser=await p.chromium.launch()
+              for width in (320,390,540,768,900,1200):
+                page=await browser.new_page(viewport={'width':width,'height':800})
+                await page.goto(Path('proposals/fah-mai/index.html').resolve().as_uri(),wait_until='domcontentloaded')
+                print('WIDTH',width,await page.evaluate("""() => {
+                  return [...document.querySelectorAll('.proposal-sections .tab')].map(el=>{
+                    const s=getComputedStyle(el),r=el.getBoundingClientRect();
+                    return {id:el.id,text:el.textContent.trim(),sel:el.getAttribute('aria-selected'),x:Math.round(r.x),y:Math.round(r.y),w:Math.round(r.width),h:Math.round(r.height),font:s.fontSize,weight:s.fontWeight,padding:s.padding,margin:s.margin,background:s.backgroundColor,color:s.color,border:s.border,shadow:s.boxShadow,transform:s.transform}
+                  })
+                }"""))
+                await page.close()
+              await browser.close()
+          asyncio.run(main())
+          PY
