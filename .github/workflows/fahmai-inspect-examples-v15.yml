@@ -1,0 +1,40 @@
+name: Inspect Fah Mai examples typography and N W IL preview
+on:
+  push:
+    paths: ['.github/workflows/fahmai-inspect-examples-v15.yml']
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect examples HTML, screenshot paths and text size overrides
+        run: |
+          python -m pip install beautifulsoup4 -q
+          python - <<'PY'
+          from bs4 import BeautifulSoup
+          from pathlib import Path
+          import re
+          s=Path('proposals/fah-mai/index.html').read_text()
+          d=BeautifulSoup(s,'html.parser')
+          print('LENGTH',len(s),'INLINE_STYLE_COUNT',len(d.find_all('style')))
+          for sec in ['examples','examples-client','current','spec','budget','implementation','proposed']:
+            a=d.find(id=sec)
+            print('SECTION',sec,'DIRECT',[(e.name,e.get('class'),e.get('id')) for e in a.find_all(recursive=False)])
+            body=a.select_one('.sheet-body')
+            if sec.startswith('examples'):
+              output=str(body)
+              output=re.sub(r'data:image/[^" ]+','[embedded image]',output)
+              output=re.sub(r'<svg[\s\S]*?</svg>','[SVG]',output)
+              print('EXAMPLES_HTML',sec,output[:26000].replace('\n',' '))
+            print('SECTION_TEXT',sec,a.get_text(' ',strip=True)[:1300])
+          for term in ['N W IL','NW IL','Autoglass','N W I L','autoglass','autogla','nwil','image-mock','example-card']:
+            for m in list(re.finditer(re.escape(term),s,re.I))[:8]:
+              print('TERM',term,'POSITION',m.start(),'EXCERPT',re.sub(r'data:image/[^" ]+','[embedded image]',s[max(0,m.start()-470):m.start()+730]).replace('\n',' ')[:1250])
+          css='\n'.join(st.get_text() for st in d.find_all('style'))
+          for term in ['.example-card','.example-list','.example-tile','.example-','.showcase-','.work-card','.preview-']:
+            patterns=[m for m in re.finditer(r'([^{}]{0,200})\{([^{}]{0,780})\}',css) if term in m.group(1)]
+            print('STYLE_COUNT',term,len(patterns))
+            for m in patterns[-25:]:
+              print('RULE',m.group(1).strip().replace('\n',' ')[:160],'BODY',m.group(2).strip().replace('\n',' ')[:750])
+          print('FILES',[(x.name,x.stat().st_size) for x in Path('proposals/fah-mai').iterdir() if x.is_file() and re.search(r'autoglass|example|nwil|preview|screen',x.name,re.I)][:70])
+          PY
