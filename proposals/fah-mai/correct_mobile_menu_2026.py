@@ -26,7 +26,7 @@ css=r"""
     background:#f9e4ee!important;background-image:none!important;
     color:#ab1b67!important;border:0!important;box-shadow:none!important;font-weight:800!important;
   }
-  html body .toolbar .tabs.proposal-sections button#tab-proposed:hover{
+  html body .toolbar .tabs.proposal-sections button#tab-proposed:not([aria-selected="true"]):hover{
     background:#fff0f7!important;background-image:none!important;color:#b41f6b!important;
   }
   html body .toolbar .tabs.proposal-sections button#tab-proposed::before,
