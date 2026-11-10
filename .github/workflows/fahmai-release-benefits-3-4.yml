@@ -1,0 +1,57 @@
+name: Publish 3 above 4 benefit icons
+on:
+  push:
+    paths: ['.github/workflows/fahmai-release-benefits-3-4.yml']
+permissions:
+  contents: write
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply minimal Overview grid correction
+        run: python proposals/fah-mai/layout_benefits_three_four.py
+      - name: Verify 3 upper, 4 lower on desktop and mobile
+        run: |
+          python -m pip install playwright -q
+          python -m playwright install chromium >/dev/null 2>&1
+          python - <<'PY'
+          import asyncio
+          from pathlib import Path
+          from playwright.async_api import async_playwright
+          target=Path('proposals/fah-mai/index.html').resolve().as_uri()
+          expected_top={'Fast Execution','Right First Time','Future Proofed'}
+          expected_bottom={'Competitive Pricing','Unbeatable Design','Unlimited Features','Ongoing Support'}
+          async def main():
+            async with async_playwright() as p:
+              browser=await p.chromium.launch()
+              for width in (320,390,900,1440):
+                page=await browser.new_page(viewport={'width':width,'height':860})
+                await page.goto(target,wait_until='domcontentloaded')
+                await page.wait_for_timeout(120)
+                result=await page.evaluate("""() => [...document.querySelectorAll('#overview .promise-grid .promise')].map(el=>{
+                  const r=el.getBoundingClientRect();
+                  return {name:el.textContent.trim(),x:Math.round(r.x),y:Math.round(r.y),w:Math.round(r.width),h:Math.round(r.height),gridRow:getComputedStyle(el).gridRowStart}
+                })""")
+                top={x['name'] for x in result if x['gridRow']=='1'}
+                bottom={x['name'] for x in result if x['gridRow']=='2'}
+                print('GRID',width,'TOP',sorted(top),'BOTTOM',sorted(bottom),result)
+                assert top==expected_top, f'{width}: expected 3 top, got {top}'
+                assert bottom==expected_bottom, f'{width}: expected 4 bottom, got {bottom}'
+                assert max(x['y'] for x in result if x['gridRow']=='1') < min(x['y'] for x in result if x['gridRow']=='2'),f'{width}: no row separation'
+                assert len({x['y'] for x in result if x['gridRow']=='1'})==1,f'{width}: first row misaligned'
+                assert len({x['y'] for x in result if x['gridRow']=='2'})==1,f'{width}: second row misaligned'
+                await page.screenshot(path=f'/tmp/fahmai-3-4-{width}.png')
+                await page.emulate_media(media='print')
+                rows=await page.evaluate("""() => [...document.querySelectorAll('#overview .promise-grid .promise')].map(el=>getComputedStyle(el).gridRowStart)""")
+                assert rows.count('1')==3 and rows.count('2')==4, f'{width}: print mismatch: {rows}'
+                await page.close()
+              await browser.close()
+          asyncio.run(main())
+          PY
+      - name: Publish to existing public URL
+        run: |
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add proposals/fah-mai/index.html
+          git diff --cached --quiet || (git commit -m "Arrange Overview icons three on top and four below" && git push)
