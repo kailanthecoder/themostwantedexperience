@@ -60,3 +60,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git add proposals/fah-mai/index.html
           git diff --cached --quiet || (git commit -m "Fix inconsistent Proposed tab on mobile without redesign" && git push)
+
+# Revision 2: preserve active state when hovered
