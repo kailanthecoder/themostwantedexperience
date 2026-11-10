@@ -1,0 +1,25 @@
+name: Inspect Fah Mai navigation
+on:
+  push:
+    paths: ['.github/workflows/fahmai-nav-inspect-2026.yml']
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect header HTML and CSS
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path('proposals/fah-mai/index.html').read_text()
+          print('LENGTH',len(s))
+          print('FIRST_16000',s[:16000])
+          for key in ['Proposal','Examples','Export PDF','Implementation','Proposed','topbar','proposal-switch','main-nav','tabs','navigation','tablist']:
+              print('KEY',key,'COUNT',s.lower().count(key.lower()))
+              for m in list(re.finditer(re.escape(key),s,re.I))[:5]:
+                  print('SNIP',s[max(0,m.start()-260):min(len(s),m.end()+400)].replace('\n',' '))
+          print('LAST_12000',s[-12000:])
+          PY
