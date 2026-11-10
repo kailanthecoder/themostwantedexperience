@@ -27,7 +27,7 @@ jobs:
           for script in d.find_all('script'):
             code=script.get_text()
             if ('breakeven' in code or 'roi-calc' in code or 'budget' in code.lower() and 'calculator' in code.lower()):
-              print('SCRIPT_ID',script.get('id'),'LEN',len(code),'SNIP',code[:7500].replace('\\n',' '))
+              print('SCRIPT_ID',script.get('id'),'LEN',len(code),'SNIP',repr(code[:7500]))
           css='\n'.join(x.get_text() for x in d.find_all('style'))
           keys=['.budget','.roi-', '.sheet-body','.sheet-footer','.budget-fine','.budget-summary','.budget-hero','.budget-cards']
           for key in keys:
