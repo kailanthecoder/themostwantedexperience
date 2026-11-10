@@ -45,6 +45,7 @@ jobs:
             assert all(abs(a['tabs'][0]['y']-t['y'])<2 for t in a['tabs']), f'Section tabs wrapped: {width}'
             assert len(a['tabs'])==6, f'Six section tabs required: {width}'
             assert a['nav']['w']>50, f'Not enough viewport for section navigation at {width}'
+            if width<=390: assert a['navScrollLeft']<15, f'Initial Overview tab should be in view: {a}'
             if width>=1200:
               assert a['navScrollWidth']<=a['navClientWidth']+3,f'Unexpected horizontal scroll on desktop {width}'
             if width<=390:
@@ -67,7 +68,7 @@ jobs:
             await page.locator('#tab-examples').click()
             assert await page.locator('#examples').is_visible(), 'Examples switch broken'
             await page.locator('#nav-proposal').click()
-            assert await page.locator('#overview').is_visible(), 'Proposal switch broken'
+            assert await page.locator('#proposed').is_visible(), 'Proposal switch did not restore last selected tab'
             await page.screenshot(path=f'/tmp/fahmai-one-row-{width}.png')
             assert not errs, f'Javascript errors: {errs}'
           async def main():
