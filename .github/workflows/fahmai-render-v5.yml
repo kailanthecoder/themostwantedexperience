@@ -71,3 +71,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git add proposals/fah-mai/Fah-Mai-Proposal-Refined.pdf proposals/fah-mai/Fah-Mai-Refined-Preview.jpg proposals/fah-mai/Fah-Mai-Refined-Preview.b64.txt
           git diff --cached --quiet || (git commit -m "Publish visual QA and compressed A4 PDF" && git push)
+
+# Rerun after corrected hero text layout
