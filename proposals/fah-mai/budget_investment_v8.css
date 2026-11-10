@@ -317,7 +317,7 @@
 }
 @media screen and (max-width:800px){
   /* The existing storybook scales the fixed A4 sheet. Preserve internal layout. */
-  #budget .sheet-body.budgetv8-body{padding:17px 37px 12px!important}
+  #budget .sheet-body.budgetv8-body{padding:15px 37px 12px!important}
 }
 @media print {
   #budget .budgetv8-body,
