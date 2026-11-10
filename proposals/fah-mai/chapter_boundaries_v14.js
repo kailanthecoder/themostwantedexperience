@@ -16,7 +16,9 @@
     if(!isVertical()){
       return sheets.find(s=>s.classList.contains("is-active"))||sheets[0];
     }
-    const toolbarBottom=toolbar?.getBoundingClientRect().bottom||0;
+    // The toolbar can scroll above the viewport in the long mobile reader.
+    // Negative toolbar coordinates must not move our reading focus offscreen.
+    const toolbarBottom=Math.max(0,Math.min(window.innerHeight*.25,toolbar?.getBoundingClientRect().bottom||0));
     const focusY=toolbarBottom+Math.min(220,(window.innerHeight-toolbarBottom)*.42);
     let closest=sheets[0],closestDistance=Infinity;
     for(const sheet of sheets){
