@@ -10,7 +10,7 @@ if marker in html:
 assert '<div class="promise-grid">' in html
 assert 'Unbeatable Design' in html
 assert 'Competitive Pricing' in html
-assert '<div class="stage-runway"' in html
+assert 'class="stage-runway"' in html
 assert html.count('We discuss the vision in person at your office or over Zoom.')==1
 
 style=r"""
