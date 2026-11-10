@@ -55,8 +55,8 @@ with sync_playwright() as p:
     print("MOBILE",json.dumps(m),flush=True)
     if width==390:
       page.screenshot(path=str(d/"Fah-Mai-Glass-Mobile.jpg"),type="jpeg",quality=79,full_page=False)
-    assert m["sheetLeft"]>=-3 and m["sheetRight"]<=width+7, f"A4 sheet exceeds mobile viewport: {m}"
-    assert m["scroll"]<=width+20, f"horizontal overflow at {width}: {m}"
+    assert m["sheetLeft"]>=-3 and m["sheetRight"]<=m["w"]+7, f"A4 sheet exceeds mobile viewport: {m}"
+    assert m["scroll"]<=m["w"]+20, f"horizontal overflow at {width}: {m}"
     page.close()
   # Print PDF at desktop width to ensure seven physical A4 pages.
   desktop.pdf(path=str(d/"Fah-Mai-Proposal-Glass.pdf"),format="A4",print_background=True,
