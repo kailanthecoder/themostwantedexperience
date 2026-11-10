@@ -43,7 +43,7 @@ for rgx in [r'<div class="page-index">[\s\S]*?</div>',r'<div class="tagline">[\s
 # Original header title is replaced verbatim with the user's requested copy.
 headline="Fah Mai's Re-Envision: A Revenue Focused Ferrari-Design Brand Rehaul For All 3 Sectors"
 heading_reg=r'(<article class="sheet is-active" id="overview"[\s\S]*?<h1>)[\s\S]*?(</h1>)'
-html, count=re.subn(heading_reg,lambda m:m.group(1)+escape(headline)+m.group(2),html,count=1)
+html, count=re.subn(heading_reg,lambda m:m.group(1)+escape(headline,quote=False)+m.group(2),html,count=1)
 assert count==1 and headline in html
 
 # Amend navigation, interactive URLs, and visible document metadata to seven tabs.
