@@ -1,0 +1,39 @@
+name: Publish Fah Mai proposal to GitHub Pages
+on:
+  push:
+    branches: [main]
+    paths:
+      - proposals/fah-mai/index.html
+      - proposals/fah-mai/brand-assets/**
+      - .github/workflows/fahmai-publish-pages.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: fahmai-pages
+  cancel-in-progress: true
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}proposals/fah-mai/
+    steps:
+      - uses: actions/checkout@v4
+      - name: Stage the original proposal without modifying its HTML
+        run: |
+          mkdir -p public/proposals/fah-mai
+          cp proposals/fah-mai/index.html public/proposals/fah-mai/index.html
+          cp proposals/fah-mai/*.pdf public/proposals/fah-mai/ || true
+          cp proposals/fah-mai/*.jpg public/proposals/fah-mai/ || true
+          cp proposals/fah-mai/*.png public/proposals/fah-mai/ || true
+          if [ -d proposals/fah-mai/brand-assets ]; then cp -R proposals/fah-mai/brand-assets public/proposals/fah-mai/; fi
+          printf '%s\n' '<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=proposals/fah-mai/"><title>Fah Mai proposal</title><a href="proposals/fah-mai/">Open proposal</a>' > public/index.html
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+      - id: deployment
+        uses: actions/deploy-pages@v4
