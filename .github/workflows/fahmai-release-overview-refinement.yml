@@ -1,0 +1,81 @@
+name: Release refined Overview benefits and next steps
+on:
+  push:
+    paths: ['.github/workflows/fahmai-release-overview-refinement.yml']
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Refine only the Overview benefit positions and next-step cards
+        run: python proposals/fah-mai/refine_overview_benefits_and_stages.py
+      - name: Test benefit rows, redesigned cards and responsive proposal
+        run: |
+          python -m pip install playwright -q
+          python -m playwright install chromium >/dev/null 2>&1
+          python - <<'PY'
+          import asyncio
+          from pathlib import Path
+          from playwright.async_api import async_playwright
+          src=Path('proposals/fah-mai/index.html').resolve().as_uri()
+          async def inspect(page):
+            return await page.evaluate("""() => {
+              const box=e=>{const r=e.getBoundingClientRect();return{x:r.x,y:r.y,w:r.width,h:r.height,bottom:r.bottom,right:r.right}};
+              const promise=[...document.querySelectorAll('#overview .promise-grid .promise')];
+              const stages=[...document.querySelectorAll('#overview .stage-runway .stage-card')];
+              return {
+                benefits:promise.map(e=>({label:e.textContent.trim(),box:box(e),order:getComputedStyle(e).order})),
+                stages:stages.map(e=>{
+                  const s=getComputedStyle(e),num=e.querySelector('.stage-no'),p=e.querySelector('p');
+                  return {box:box(e),paragraph:box(p),number:box(num),text:p.textContent.trim(),
+                    border:s.borderRadius,background:s.backgroundImage,before:getComputedStyle(e,'::before').content,after:getComputedStyle(e,'::after').content}
+                }),
+                pages:[...document.querySelectorAll('.viewport .sheet.is-active')].map(e=>e.id),
+                toolbarHeight:document.querySelector('.toolbar').getBoundingClientRect().height,
+                pageOverflow:document.documentElement.scrollWidth>innerWidth+2,
+              };
+            }""")
+          async def main():
+            async with async_playwright() as p:
+              browser=await p.chromium.launch()
+              for width in (1440,1200,900,390,320):
+                page=await browser.new_page(viewport={'width':width,'height':960},device_scale_factor=1)
+                js_errors=[]
+                page.on('pageerror',lambda err:js_errors.append(str(err)))
+                await page.goto(src,wait_until='domcontentloaded',timeout=60000)
+                await page.wait_for_timeout(150)
+                d=await inspect(page)
+                print('OVERVIEW',width,d)
+                ben={x['label']:x for x in d['benefits']}
+                assert len(d['benefits'])==7, 'Missing promise benefits'
+                assert ben['Unbeatable Design']['box']['y']>ben['Fast Execution']['box']['y']+6,'Unbeatable Design not on row 2'
+                assert abs(ben['Competitive Pricing']['box']['y']-ben['Fast Execution']['box']['y'])<3,'Competitive Pricing not on row 1'
+                assert len(d['stages'])==3,'Expected three next-step cards'
+                assert all(abs(d['stages'][0]['box']['y']-x['box']['y'])<3 for x in d['stages']),'Next-step cards are misaligned'
+                assert all(x['border'].startswith('12px') for x in d['stages']),'Refined corners missing'
+                assert all(x['paragraph']['bottom']<=x['box']['bottom']+3 for x in d['stages']),'Stage text overflows card'
+                assert all(x['number']['w']>=10 for x in d['stages']),'Stage numbers missing'
+                assert d['stages'][0]['box']['right']<d['stages'][1]['box']['x'],'Stage cards overlap'
+                assert not d['pageOverflow'],'Unwanted horizontal page overflow'
+                assert len(d['pages'])==(1 if width<=800 else 2),'Storybook views changed'
+                assert not js_errors,f'Unexpected JavaScript error {js_errors}'
+                if width==1440:
+                  await page.locator('.fm-story-next').click()
+                  assert await page.locator('#current-journeys').is_visible(),'Storybook next broken'
+                await page.locator('#tab-overview').click()
+                await page.screenshot(path=f'/tmp/fahmai-overview-refined-{width}.png')
+                await page.emulate_media(media='print')
+                all_page_count=await page.evaluate("""() => [...document.querySelectorAll('.viewport .sheet')].filter(el=>getComputedStyle(el).display!=='none').length""")
+                assert all_page_count==11,'A4 PDF pagination broken'
+                await page.close()
+              await browser.close()
+          asyncio.run(main())
+          PY
+      - name: Publish to existing public proposal
+        run: |
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add proposals/fah-mai/index.html
+          git diff --cached --quiet || (git commit -m "Move Unbeatable Design to row two and refine Overview process cards" && git push)
