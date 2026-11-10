@@ -1,0 +1,108 @@
+name: Publish Fah Mai design concept page
+on:
+  push:
+    paths: ['.github/workflows/fahmai-release-design-concept-page.yml']
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Insert A4 Design page and navigation after Spec
+        run: python -m pip install beautifulsoup4 -q && python proposals/fah-mai/install_design_concepts_page.py
+      - name: Test design cards, nav, desktop/mobile reading and 12-page PDF
+        run: |
+          python -m pip install playwright pypdf pillow -q
+          python -m playwright install chromium >/dev/null 2>&1
+          python - <<'PY'
+          from pathlib import Path
+          import asyncio,base64,io
+          from PIL import Image
+          from pypdf import PdfReader
+          from playwright.async_api import async_playwright
+          uri=Path('proposals/fah-mai/index.html').resolve().as_uri()
+          async def inspect(page):
+            return await page.evaluate("""() => {
+              const box=e=>{if(!e)return null;const r=e.getBoundingClientRect();return {top:r.top,bottom:r.bottom,left:r.left,right:r.right,w:r.width,h:r.height}};
+              const sheets=[...document.querySelectorAll('.viewport>.sheet')];
+              const design=document.getElementById('design');
+              return {
+                ids:sheets.map(s=>s.id),
+                nav:[...document.querySelectorAll('nav.proposal-sections [role=tab]')].map(x=>x.dataset.target),
+                mode:document.querySelector('.viewport')?.dataset.readingMode,
+                visible:sheets.filter(x=>x.classList.contains('is-active')).map(x=>x.id),
+                docCount:sheets.length,
+                designSheet:box(design),
+                header:box(design?.querySelector('.presentation-header')),
+                body:box(design?.querySelector('.sheet-body')),
+                note:box(design?.querySelector('.design-bottom-note')),
+                footer:box(design?.querySelector('.sheet-footer')),
+                cards:[...design.querySelectorAll('.design-concept-card')].map(e=>box(e)),
+                mockups:[...design.querySelectorAll('.design-site')].length,
+                labels:[...design.querySelectorAll('.design-concept-label strong')].map(x=>x.textContent.trim()),
+                bodyWidth:document.documentElement.scrollWidth,viewportWidth:innerWidth,
+                counter:document.querySelector('.fm-story-counter')?.textContent
+              }
+            }""")
+          async def main():
+            async with async_playwright() as p:
+              browser=await p.chromium.launch()
+              for width in (1440,900,390,320):
+                page=await browser.new_page(viewport={'width':width,'height':900},device_scale_factor=1)
+                errors=[]
+                page.on('pageerror',lambda err:errors.append(str(err)))
+                await page.goto(uri,wait_until='domcontentloaded',timeout=70000)
+                await page.wait_for_timeout(130)
+                d=await inspect(page)
+                print('INITIAL',width,{'mode':d['mode'],'ids':d['ids'],'visible':d['visible'],'counter':d['counter']})
+                assert d['docCount']==12, 'Expected 12 sheets'
+                assert d['ids'].index('design')==d['ids'].index('spec')+1,'Design is not immediately after Spec'
+                assert d['nav'].index('design')==d['nav'].index('spec')+1,'Design tab is not after Spec'
+                assert d['mockups']==3,'Missing design mockups'
+                assert d['labels']==['FAH MAI HOLDINGS','WHISKY BULL AUCTIONS','PLATINUM CASK'], f'Incorrect mockup sequence: {d["labels"]}'
+                assert d['bodyWidth']<=width+2,f'Body overflow at {width}'
+                await page.locator('#tab-design').click()
+                await page.wait_for_timeout(140)
+                d=await inspect(page)
+                print('DESIGN',width,{'mode':d['mode'],'visible':d['visible'],'sheet':d['designSheet'],'body':d['body'],'cards':d['cards'],'note':d['note'],'footer':d['footer'],'counter':d['counter']})
+                assert 'design' in d['visible'],'Design page hidden on activation'
+                assert d['cards'][0]['top'] < d['cards'][1]['top'] < d['cards'][2]['top'], 'Design cards overlap vertically'
+                assert d['note']['bottom']<=d['footer']['top']-2, f'Design note overlaps/clips into footer at {width}: note {d["note"]}, footer {d["footer"]}'
+                assert d['cards'][-1]['bottom'] < d['note']['top'],'Third design card overlaps note'
+                if width>800:
+                  assert d['mode']=='spread' and d['visible']==['design','budget'], f'Wrong desktop spread: {d["visible"]}'
+                  assert abs(d['cards'][0]['top']-d['designSheet']['top'])<450,'Design content not visible'
+                else:
+                  assert d['mode']=='vertical' and d['visible']==d['ids'], f'Mobile must display all pages for scrolling'
+                  await page.locator('#tab-budget').click()
+                  s=await inspect(page)
+                  assert 'budget' in s['visible'],'Budget tab navigation broken on mobile'
+                  await page.locator('#tab-design').click()
+                assert not errors,f'Javascript errors: {errors}'
+                if width==1440:
+                  await page.locator('#tab-design').click()
+                  await page.locator('#design').screenshot(path='/tmp/design-new-a4.png')
+                  im=Image.open('/tmp/design-new-a4.png').convert('RGB')
+                  im.thumbnail((420,600))
+                  b=io.BytesIO();im.save(b,'JPEG',quality=70,optimize=True)
+                  print('DESIGN_A4_SAMPLE_BASE64',base64.b64encode(b.getvalue()).decode())
+                  await page.evaluate("window.dispatchEvent(new Event('beforeprint'))")
+                  await page.emulate_media(media='print')
+                  total=await page.evaluate("""() => [...document.querySelectorAll('.viewport>.sheet')].filter(e=>getComputedStyle(e).display!=='none').length""")
+                  assert total==12,'Printing hides some pages'
+                  file='/tmp/fahmai-design-12-pages.pdf'
+                  await page.pdf(path=file,print_background=True,prefer_css_page_size=True)
+                  pdfcount=len(PdfReader(file).pages)
+                  print('PDF_PAGES',pdfcount)
+                  assert pdfcount==12, f'PDF output has {pdfcount} pages'
+                await page.close()
+              await browser.close()
+          asyncio.run(main())
+          PY
+      - name: Commit updated public proposal
+        run: |
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add proposals/fah-mai/index.html
+          git diff --cached --quiet || (git commit -m "Add bespoke three-brand Design concepts page after Spec" && git push)
