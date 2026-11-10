@@ -1,0 +1,32 @@
+name: Inspect legacy implementation payment references
+on:
+  push:
+    paths: ['.github/workflows/fahmai-inspect-implementation-for-budget.yml']
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract Implementation section text and structure, excluding images
+        run: |
+          python -m pip install beautifulsoup4 -q
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          from bs4 import BeautifulSoup
+          s=Path('proposals/fah-mai/index.html').read_text(encoding='utf8')
+          d=BeautifulSoup(s,'html.parser')
+          for id in ['implementation','implementation-evidence']:
+            a=d.find(id=id)
+            body=a.select_one('.sheet-body')
+            txt=body.get_text(' ',strip=True)
+            print('SHEET',id,'TEXT',txt[:11000])
+            output=str(body)
+            output=re.sub(r'\b(src|href)="data:[^"]+"',r'\1="[embedded]"',output)
+            output=re.sub(r'<svg[\s\S]*?</svg>','[SVG]',output)
+            print('MARKUP',id,output[:18000].replace('\n',' '))
+            for key in ['$305','50%','non-refundable','initial payment','Payment','remaining','subscribe']:
+              if key.lower() in txt.lower():
+                ix=txt.lower().find(key.lower())
+                print('MATCH',id,key,txt[max(0,ix-80):ix+240])
+          PY
