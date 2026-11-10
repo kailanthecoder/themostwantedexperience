@@ -1,0 +1,29 @@
+name: Verify public Fah Mai site URLs
+on:
+  push:
+    paths: ['.github/workflows/fahmai-verify-public-link.yml']
+  workflow_dispatch:
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check public HTML hosts
+        shell: bash
+        run: |
+          set +e
+          for name in githack githubraw githubpages; do
+            case "$name" in
+              githack) url='https://raw.githack.com/kailanthecoder/themostwantedexperience/main/proposals/fah-mai/index.html' ;;
+              githubraw) url='https://githubraw.com/kailanthecoder/themostwantedexperience/main/proposals/fah-mai/index.html' ;;
+              githubpages) url='https://kailanthecoder.github.io/themostwantedexperience/proposals/fah-mai/' ;;
+            esac
+            echo "::group::$name $url"
+            curl -L --max-time 25 -sS -o "/tmp/${name}.html" -w 'HTTP %{http_code} CONTENT_TYPE %{content_type} SIZE %{size_download} FINAL %{url_effective}\n' "$url"
+            if test -f "/tmp/${name}.html"; then
+              head -c 180 "/tmp/${name}.html" | tr '\n' ' '
+              echo
+              grep -oi -m1 'FAH MAI' "/tmp/${name}.html" | head -c 70 || true
+              echo
+            fi
+            echo "::endgroup::"
+          done
