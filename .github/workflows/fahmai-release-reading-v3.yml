@@ -1,0 +1,166 @@
+name: Publish Fah Mai reader, aligned spreads, and actual NW IL banner
+on:
+  push:
+    paths: ['.github/workflows/fahmai-release-reading-v3.yml']
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Capture actual N W IL Auto Glass homepage as a self-contained image
+        run: |
+          python -m pip install playwright pillow pypdf -q
+          python -m playwright install chromium >/dev/null 2>&1
+          python - <<'PY'
+          import asyncio
+          from pathlib import Path
+          from PIL import Image
+          from playwright.async_api import async_playwright
+          async def run():
+            async with async_playwright() as p:
+              browser=await p.chromium.launch()
+              pg=await browser.new_page(viewport={'width':1440,'height':900},device_scale_factor=1)
+              resp=await pg.goto('https://nwilautoglass.com/',wait_until='domcontentloaded',timeout=45000)
+              assert resp and resp.status==200,'Official NW IL Auto Glass site unavailable'
+              await pg.wait_for_timeout(2200)
+              title=await pg.title()
+              body=(await pg.locator('body').inner_text())[:750]
+              assert 'Auto Glass' in title and 'Auto Glass' in body, f'Wrong capture: {title}'
+              img=Path('/tmp/fahmai_nwil_original.png')
+              await pg.screenshot(path=str(img),full_page=False)
+              shot=Image.open(img).convert('RGB')
+              # Exact website viewport: navigation, red branding and automotive hero.
+              cropped=shot.crop((0,0,1440,760))
+              cropped=cropped.resize((760,401),resample=Image.Resampling.LANCZOS)
+              dest=Path('/tmp/fahmai_nwil_original.webp')
+              cropped.save(dest,'WEBP',quality=84,method=6)
+              print('ACTUAL_NWIL_SITE',title,'CAPTURE',cropped.size,'BYTES',dest.stat().st_size)
+              await browser.close()
+          asyncio.run(run())
+          PY
+      - name: Install reading-flow improvements and brand-accurate banner
+        run: python proposals/fah-mai/release_reading_v3.py
+      - name: Test centered menu, page order, zoomed reading, mobile scroll and PDF
+        run: |
+          python - <<'PY'
+          import asyncio
+          from pathlib import Path
+          from pypdf import PdfReader
+          from playwright.async_api import async_playwright
+          uri=Path('proposals/fah-mai/index.html').resolve().as_uri()
+          async def state(p):
+            return await p.evaluate("""() => {
+              const geom=e=>{if(!e)return null;const r=e.getBoundingClientRect();return {x:r.x,y:r.y,right:r.right,bottom:r.bottom,w:r.width,h:r.height,centerX:(r.left+r.right)/2}};
+              const pages=[...document.querySelectorAll('.viewport .sheet.is-active')];
+              const vp=document.querySelector('.viewport'), head=document.querySelector('.toolbar');
+              const brand=document.querySelector('#examples-client a[href*="nwilautoglass.com"] img.example-screenshot');
+              return {mode:vp.dataset.readingMode,active:pages.map(p=>p.id),
+                dims:pages.map(geom),screen:innerWidth,scrollHeight:document.documentElement.scrollHeight,scrollWidth:document.documentElement.scrollWidth,
+                viewport:geom(vp),header:geom(head),nav:geom(document.querySelector('.proposal-sections')),
+                switcher:geom(document.querySelector('.view-switcher')),pdf:geom(document.querySelector('.tool-actions')),
+                zoom:document.querySelector('.fm-zoom-readout')?.textContent,counter:document.querySelector('.fm-story-counter')?.textContent,
+                banner:brand?{src:brand.currentSrc.slice(0,50),naturalWidth:brand.naturalWidth,complete:brand.complete}:null}
+            }""")
+          async def desktop(browser,width):
+            p=await browser.new_page(viewport={'width':width,'height':860},device_scale_factor=1)
+            failures=[];p.on('pageerror',lambda e:failures.append(str(e)))
+            await p.goto(uri,wait_until='domcontentloaded',timeout=70000)
+            await p.wait_for_timeout(110)
+            st=await state(p)
+            print('DESKTOP_COVER',width,st)
+            assert st['mode']=='spread' and st['active']==['overview'],'Opening page must be alone on desktop'
+            assert st['zoom']=='0.85×','Desktop default zoom is not 0.85x'
+            assert abs((st['switcher']['x']+st['pdf']['right'])/2-width/2)<38,'Toolbar controls not centrally grouped'
+            assert st['pdf']['x']-st['nav']['right']<=16,'Export too far from navigation'
+            assert st['scrollWidth']<=width+2,'Unexpected horizontal document overflow'
+            await p.locator('.fm-story-next').click()
+            st=await state(p)
+            print('DESKTOP_SPREAD',width,st['active'],st['counter'],st['dims'])
+            assert st['active']==['current','current-journeys'] and st['counter']=='2–3 / 11','Second desktop spread incorrect'
+            assert abs(st['dims'][0]['y']-st['dims'][1]['y'])<1,'Desktop spread misaligned'
+            await p.locator('.fm-story-next').click()
+            st=await state(p)
+            assert st['active']==['current-growth','spec'] and st['counter']=='4–5 / 11','Third desktop spread incorrect'
+            await p.locator('#tab-examples').click()
+            await p.wait_for_timeout(160)
+            st=await state(p)
+            print('EXAMPLES_SPREAD',width,st['active'],st['dims'],st['banner'])
+            assert st['active']==['examples','examples-client'],'Examples must be adjacent'
+            assert abs(st['dims'][0]['y']-st['dims'][1]['y'])<1,'Examples sheets are still on two levels'
+            assert st['banner'] and st['banner']['src'].startswith('data:image/webp;base64,') and st['banner']['naturalWidth']>=700,'Autoglass banner is not a real embedded website screenshot'
+            assert st['pdf']['x']-st['switcher']['right']<=16,'Export is too far away in Examples'
+            await p.locator('.fm-zoom-range').fill('1.25')
+            await p.wait_for_timeout(120)
+            st=await state(p)
+            print('DESKTOP_ZOOMED',width,st['mode'],st['active'],st['zoom'],st['dims'][-2:])
+            assert st['mode']=='vertical' and len(st['active'])==11,'Desktop zoom should display a vertical sequence of single pages'
+            assert st['dims'][1]['y']>st['dims'][0]['bottom']+7,'Desktop zoom page 2 not below page 1'
+            assert st['scrollHeight']>st['viewport']['h']-2,'Zoomed desktop must permit vertical reading'
+            await p.locator('.fm-zoom-range').fill('0.85')
+            await p.wait_for_timeout(100)
+            st=await state(p)
+            assert st['mode']=='spread' and len(st['active'])==2,'Returning to 0.85x must restore spread mode'
+            assert abs(st['dims'][0]['y']-st['dims'][1]['y'])<1,'Returned spread misaligned'
+            assert not failures,f'JS errors at {width}: {failures}'
+            if width==1440:
+              await p.evaluate("window.dispatchEvent(new Event('beforeprint'))")
+              await p.emulate_media(media='print')
+              cnt=await p.evaluate("""() => [...document.querySelectorAll('.viewport .sheet')].filter(x=>getComputedStyle(x).display!=='none').length""")
+              assert cnt==11,'All 11 A4 sheets must be printable'
+              pdf='/tmp/fahmai-reading-v3.pdf'
+              await p.pdf(path=pdf,print_background=True,prefer_css_page_size=True)
+              pdfPages=len(PdfReader(pdf).pages)
+              print('PDF_PRINTED_PAGES',pdfPages)
+              assert pdfPages==11,f'PDF unexpectedly has {pdfPages} pages rather than 11'
+              await p.emulate_media(media='screen')
+            await p.screenshot(path=f'/tmp/fahmai-reading-desktop-{width}.png')
+            await p.close()
+          async def phone(browser,width):
+            p=await browser.new_page(viewport={'width':width,'height':860},device_scale_factor=1)
+            failures=[];p.on('pageerror',lambda e:failures.append(str(e)))
+            await p.goto(uri,wait_until='domcontentloaded',timeout=70000)
+            await p.wait_for_timeout(140)
+            st=await state(p)
+            print('PHONE_STACK',width,st['mode'],st['active'],st['dims'][:3],st['counter'],st['scrollHeight'])
+            assert st['mode']=='vertical' and len(st['active'])==11,'Mobile must show all pages in a vertical flow'
+            assert st['dims'][1]['y']>st['dims'][0]['bottom']+8,'Mobile next page must be directly below current page'
+            assert st['scrollHeight']>3500,'Mobile should scroll through the entire document'
+            assert st['scrollWidth']<=width+2,'Mobile body horizontally overflows'
+            assert st['zoom']=='1×','Mobile default zoom must remain 1x'
+            await p.evaluate("""() => {
+              const el=document.querySelector('#current');const top=el.getBoundingClientRect().top+scrollY-75;
+              window.scrollTo({top,behavior:'instant'})
+            }""")
+            await p.wait_for_timeout(180)
+            st=await state(p)
+            print('PHONE_SCROLL',width,st['counter'])
+            assert st['counter']=='2 / 11','Mobile page counter failed to follow vertical scrolling'
+            await p.locator('.fm-story-next').click()
+            await p.wait_for_timeout(850)
+            st=await state(p)
+            assert st['counter']=='3 / 11',f'Next page arrow did not advance reader: {st["counter"]}'
+            await p.locator('#tab-examples').click()
+            await p.wait_for_timeout(650)
+            st=await state(p)
+            assert st['mode']=='vertical' and len(st['active'])==11,'Mobile Examples tab hid preceding pages'
+            assert st['banner'] and st['banner']['naturalWidth']>=700,'Mobile Autoglass banner missing'
+            assert st['pdf']['x']-st['switcher']['right']<=16,'Mobile export too far in Examples'
+            assert not failures,f'JS errors on mobile {width}: {failures}'
+            await p.screenshot(path=f'/tmp/fahmai-reading-phone-{width}.png')
+            await p.close()
+          async def main():
+            async with async_playwright() as p:
+              browser=await p.chromium.launch()
+              for w in (1440,1200,900):await desktop(browser,w)
+              for w in (390,320):await phone(browser,w)
+              await browser.close()
+          asyncio.run(main())
+          PY
+      - name: Commit the existing public proposal HTML in place
+        run: |
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add proposals/fah-mai/index.html
+          git diff --cached --quiet || (git commit -m "Center menu, align examples, show actual autoglass design and enable cover-first stacked reader" && git push)
