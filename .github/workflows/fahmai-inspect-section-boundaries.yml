@@ -1,0 +1,49 @@
+name: Inspect Fah Mai section boundaries
+on:
+  push:
+    paths: ['.github/workflows/fahmai-inspect-section-boundaries.yml']
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect sections, active tabs, page headings and reader CSS
+        run: |
+          python -m pip install beautifulsoup4 playwright -q
+          python -m playwright install chromium >/dev/null 2>&1
+          python - <<'PY'
+          from pathlib import Path
+          from bs4 import BeautifulSoup
+          from playwright.async_api import async_playwright
+          import asyncio,re
+          s=Path('proposals/fah-mai/index.html').read_text()
+          d=BeautifulSoup(s,'html.parser')
+          print('PAGE_IDS', [(x.get('id'), x.get('data-proposal-section'), x.get('aria-labelledby'), x.get('class')) for x in d.select('.viewport>.sheet')])
+          print('NAV_HTML',str(d.select_one('nav.proposal-sections'))[:7500])
+          print('TOOLBAR_HTML',str(d.select_one('.toolbar'))[:6000])
+          for sec in d.select('.viewport>.sheet'):
+            b=sec.select_one('.sheet-body')
+            t=sec.get_text(' ',strip=True)[:230]
+            header=sec.select_one('h1,h2')
+            footer=sec.select_one('.sheet-footer')
+            print('SECTION',sec.get('id'),'heading',header.get_text(' ',strip=True)[:100] if header else '', 'body_first',t,'footer',str(footer)[:400])
+          for query in ['.sheet::before','.sheet::after','.sheet-footer','.sheet-body','.toolbar','.proposal-sections','.proposal-sections button','.proposal-sections [aria-selected]','.section-header','.sheet-header','.fm-story-counter','.viewport','.sheet.is-active','[data-target]']:
+            print('STYLE_MATCH',query)
+            m=[x for x in re.finditer(r'([^{}]{0,300})\{([^{}]{0,750})\}',s) if query in x.group(1)]
+            for x in m[-9:]:
+              print('CSS',x.group(1).strip().replace('\n',' ')[:260],' => ',x.group(2).strip().replace('\n',' ')[:740])
+          async def run():
+            async with async_playwright() as p:
+              browser=await p.chromium.launch()
+              for width in (1440,390):
+                page=await browser.new_page(viewport={'width':width,'height':900})
+                await page.goto(Path('proposals/fah-mai/index.html').resolve().as_uri(),wait_until='domcontentloaded')
+                data=await page.evaluate("""() => {
+                  const fields=e=>{const s=getComputedStyle(e),r=e.getBoundingClientRect();return {text:e.textContent?.trim().slice(0,55),classes:e.className,back:s.backgroundColor,color:s.color,border:s.border,display:s.display,width:r.width,height:r.height,x:r.x,y:r.y,position:s.position,overflow:s.overflow,zIndex:s.zIndex};};
+                  return {width:innerWidth,tabs:[...document.querySelectorAll('nav.proposal-sections button')].map(x=>({...fields(x),ariaSelected:x.getAttribute('aria-selected'),ariaCurrent:x.getAttribute('aria-current'),ariaPressed:x.getAttribute('aria-pressed')})),firstSheet:fields(document.querySelector('.viewport>.sheet')),toolbar:fields(document.querySelector('.toolbar')),viewport:fields(document.querySelector('.viewport')),counter:fields(document.querySelector('.fm-story-counter'))};
+                }""")
+                print('COMPUTED',width,data)
+                await page.close()
+              await browser.close()
+          asyncio.run(run())
+          PY
