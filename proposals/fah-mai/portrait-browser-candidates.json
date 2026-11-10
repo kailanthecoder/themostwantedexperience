@@ -1,0 +1,22 @@
+[
+  {
+    "i": 0,
+    "url": "https://book.usemostwanted.com/kailan-profile-cutout.png",
+    "why": "resource",
+    "dimensions": [
+      384,
+      384
+    ],
+    "bytes": 175290
+  },
+  {
+    "i": 1,
+    "url": "https://book.usemostwanted.com/booking-review-crest.webp",
+    "why": "resource",
+    "dimensions": [
+      450,
+      253
+    ],
+    "bytes": 137814
+  }
+]
