@@ -1,0 +1,140 @@
+name: Publish Fah Mai cleanup without Design page
+on:
+  push:
+    paths: ['.github/workflows/fahmai-release-cleanup-v7.yml']
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Remove Design, em dashes and Examples text
+        run: python proposals/fah-mai/remove_design_em_dash_disclaimer_v7.py
+      - name: Verify 12 pages, all navigation and mobile/PDF
+        run: |
+          python -m pip install playwright pypdf -q
+          python -m playwright install chromium >/dev/null 2>&1
+          python - <<'PY'
+          import asyncio
+          from pathlib import Path
+          from pypdf import PdfReader
+          from playwright.async_api import async_playwright
+
+          file=Path('proposals/fah-mai/index.html')
+          raw=file.read_text(encoding='utf-8')
+          assert '—' not in raw,'Em dash survives in source'
+          assert 'These live websites may have been updated since my involvement.' not in raw
+          assert 'id="design"' not in raw
+          assert 'id="tab-design"' not in raw
+          uri=file.resolve().as_uri()
+
+          async def page_info(page):
+            return await page.evaluate("""()=>{
+              const rect=x=>{let r=x.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height}};
+              const active=[...document.querySelectorAll('.viewport>.sheet.is-active')];
+              return {ids:[...document.querySelectorAll('.viewport>.sheet')].map(x=>x.id),
+                active:active.map(x=>x.id),positions:active.map(rect),
+                mode:document.querySelector('.viewport').dataset.readingMode,
+                counter:document.querySelector('.fm-story-counter').textContent,
+                pageOverflow:document.documentElement.scrollWidth>innerWidth+2,
+                designTab:!!document.querySelector('#tab-design'),designSheet:!!document.querySelector('#design'),
+                disclaimer:document.body.innerText.includes('These live websites may have been updated'),
+                containsEmDash:document.body.innerText.includes('—')}
+            }""")
+
+          async def check_desktop(browser,width):
+            page=await browser.new_page(viewport={'width':width,'height':900})
+            errs=[]
+            page.on('pageerror',lambda e:errs.append(str(e)))
+            await page.goto(uri,wait_until='domcontentloaded',timeout=80000)
+            await page.wait_for_timeout(120)
+            s=await page_info(page)
+            print('DESKTOP_START',width,s)
+            assert len(s['ids'])==12
+            assert s['ids']==['overview','current','current-journeys','current-growth','spec','spec-delivery',
+                'budget','implementation','implementation-evidence','proposed','examples','examples-client']
+            assert s['active']==['overview'] and s['mode']=='spread'
+            assert not s['designTab'] and not s['designSheet']
+            assert not s['containsEmDash'] and not s['disclaimer'] and not s['pageOverflow']
+            expected=[
+              ['overview'],
+              ['current','current-journeys'],
+              ['current-growth'],
+              ['spec','spec-delivery'],
+              ['budget'],
+              ['implementation','implementation-evidence'],
+              ['proposed'],
+              ['examples','examples-client']]
+            for group in expected[1:]:
+              await page.locator('.fm-story-next').click()
+              s=await page_info(page)
+              print('SPREAD_NEXT',width,s['active'],s['counter'])
+              assert s['active']==group,f'Unexpected spread {s["active"]}, expected {group}'
+              if len(group)==2:
+                assert abs(s['positions'][0]['y']-s['positions'][1]['y'])<1.5,'Spread page heights misaligned'
+            assert await page.locator('.fm-story-next').is_disabled()
+            await page.locator('.fm-story-prev').click()
+            assert (await page_info(page))['active']==['proposed']
+            await page.locator('.fm-story-next').click()
+            assert (await page_info(page))['active']==['examples','examples-client']
+            await page.locator('#nav-proposal').click()
+            await page.locator('#tab-spec').click()
+            assert (await page_info(page))['active']==['spec','spec-delivery']
+            await page.locator('#tab-budget').click()
+            assert (await page_info(page))['active']==['budget']
+            await page.locator('#tab-implementation').click()
+            assert (await page_info(page))['active']==['implementation','implementation-evidence']
+            await page.locator('#tab-examples').click()
+            assert (await page_info(page))['active']==['examples','examples-client']
+            await page.locator('.fm-zoom-range').fill('1.25')
+            s=await page_info(page)
+            print('ZOOMED_DESKTOP',width,s['mode'],len(s['active']))
+            assert s['mode']=='vertical' and len(s['active'])==12,'Zoomed desktop reader changed'
+            if width==1440:
+              await page.evaluate("window.dispatchEvent(new Event('beforeprint'))")
+              await page.emulate_media(media='print')
+              visible=await page.evaluate("""()=>[...document.querySelectorAll('.viewport>.sheet')].filter(x=>getComputedStyle(x).display!=='none').length""")
+              assert visible==12,'PDF hides some pages'
+              await page.pdf(path='/tmp/fahmai-final-v7.pdf',print_background=True,prefer_css_page_size=True)
+              count=len(PdfReader('/tmp/fahmai-final-v7.pdf').pages)
+              print('PRINTED_PAGES',count)
+              assert count==12,'PDF page count mismatch'
+            assert not errs,f'Unexpected JS error: {errs}'
+            await page.close()
+
+          async def check_mobile(browser,width):
+            page=await browser.new_page(viewport={'width':width,'height':860})
+            errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
+            await page.goto(uri,wait_until='domcontentloaded',timeout=80000)
+            await page.wait_for_timeout(140)
+            s=await page_info(page)
+            print('MOBILE_START',width,{'active':s['active'],'mode':s['mode'],'counter':s['counter']})
+            assert len(s['ids'])==12
+            assert s['mode']=='vertical' and len(s['active'])==12
+            assert s['positions'][1]['y']>s['positions'][0]['y']+15,'Mobile vertical reading broken'
+            assert not s['pageOverflow'] and not s['containsEmDash'] and not s['disclaimer']
+            assert not s['designTab'] and not s['designSheet']
+            await page.locator('#tab-spec').click()
+            s=await page_info(page)
+            assert 'spec-delivery' in s['active'],'Spec continuation missing'
+            await page.locator('#tab-examples').click()
+            s=await page_info(page)
+            assert 'examples' in s['active'] and 'examples-client' in s['active']
+            assert not errors,f'Unexpected JS error: {errors}'
+            await page.close()
+
+          async def main():
+            async with async_playwright() as p:
+              browser=await p.chromium.launch()
+              for width in (1440,900): await check_desktop(browser,width)
+              for width in (390,320): await check_mobile(browser,width)
+              await browser.close()
+          asyncio.run(main())
+          PY
+      - name: Publish change at existing public URL
+        run: |
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add proposals/fah-mai/index.html
+          git diff --cached --quiet || (git commit -m "Remove Design page, all em dashes and live-sites disclaimer" && git push)
