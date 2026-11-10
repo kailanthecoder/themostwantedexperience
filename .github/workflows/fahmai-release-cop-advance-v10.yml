@@ -50,9 +50,17 @@ jobs:
                 assert 'unused' in data['evidenceText'].lower() or 'unspent' in data['evidenceText'].lower()
                 assert '£10,550' in data['budgetText'] and '£400' in data['budgetText']
                 assert data['count']==12 and not data['documentOverflow'],f'Broken document at width {width}'
-                print('A4_BOUNDS',width,{k:v for k,v in data.items() if k.endswith('Footer') or k.endswith('Last')})
-                for part in ('budget','implementation','evidence'):
-                  assert data[part+'Last']['bottom']<=data[part+'Footer']['y']-2, f'{width}: {part} content overlaps footer'
+                if width>800:
+                  await page.locator('#tab-budget').click()
+                  b=await page.evaluate("""()=>{const root=document.getElementById('budget');return {last:root.querySelector('.budgetv8-footer-notes').getBoundingClientRect().bottom,footer:root.querySelector('.sheet-footer').getBoundingClientRect().top}}""")
+                  await page.locator('#tab-implementation').click()
+                  g=await page.evaluate("""()=>['implementation','implementation-evidence'].map((id)=>{const root=document.getElementById(id);const last=root.querySelector(id==='implementation'?'.launch-signoff':'.launch-proof-terms');return {id,last:last.getBoundingClientRect().bottom,footer:root.querySelector('.sheet-footer').getBoundingClientRect().top}})""")
+                  bounds=[{'id':'budget',**b}]+g
+                else:
+                  bounds=[{'id':k,'last':data[k+'Last']['bottom'],'footer':data[k+'Footer']['y']} for k in ('budget','implementation','evidence')]
+                print('A4_BOUNDS',width,bounds)
+                for g in bounds:
+                  assert g['last']<=g['footer']-2, f'{width}: {g["id"]} content overlaps footer by {g["last"]-g["footer"]}px'
                 if width>800:
                   await page.locator('#tab-implementation').click()
                   visible=await page.evaluate("""()=>[...document.querySelectorAll('.viewport>.sheet.is-active')].map(x=>x.id)""")
