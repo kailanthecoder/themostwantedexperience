@@ -1,0 +1,143 @@
+/* Reading flow v3. Preserves fixed-size A4 pages and print export. */
+@media screen {
+  html body .toolbar .toolbar-inner{
+    justify-content:center!important;
+    max-width:1240px!important;
+    gap:11px!important;
+  }
+  html body .toolbar nav.tabs.proposal-sections{
+    flex:0 1 auto!important;
+    width:max-content!important;
+    max-width:min(735px,100%)!important;
+    min-width:0!important;
+    justify-content:center!important;
+  }
+  html body .toolbar nav.tabs.proposal-sections:has(.tab[aria-selected="true"]){
+    scroll-padding-inline:10px!important;
+  }
+  html body .toolbar .tool-actions{
+    margin:0!important;
+    align-self:center!important;
+  }
+  html body .viewport{
+    box-sizing:border-box!important;
+    max-width:100%!important;
+    min-width:0!important;
+    padding:24px 16px 110px!important;
+    overflow-x:auto!important;
+    overflow-y:visible!important;
+    scrollbar-width:none!important;
+    -webkit-overflow-scrolling:touch!important;
+  }
+  html body .viewport::-webkit-scrollbar{display:none!important}
+  html body .viewport[data-reading-mode="spread"]{
+    display:flex!important;
+    flex-direction:row!important;
+    flex-wrap:nowrap!important;
+    align-items:flex-start!important;
+    justify-content:center!important;
+    gap:16px!important;
+  }
+  html body .viewport[data-reading-mode="vertical"]{
+    display:flex!important;
+    flex-direction:column!important;
+    flex-wrap:nowrap!important;
+    align-items:safe center!important;
+    justify-content:flex-start!important;
+    gap:20px!important;
+  }
+  html body .viewport .sheet{
+    box-sizing:border-box!important;
+    flex:0 0 auto!important;
+    width:210mm!important;
+    min-width:210mm!important;
+    max-width:none!important;
+    height:297mm!important;
+    min-height:297mm!important;
+    max-height:none!important;
+    transform:none!important;
+    box-shadow:0 12px 36px rgba(49,23,41,.095)!important;
+  }
+  html body .viewport[data-reading-mode="spread"] .sheet.is-active{
+    display:flex!important;
+    margin:0!important;
+    align-self:flex-start!important;
+  }
+  html body .viewport[data-reading-mode="vertical"] .sheet.is-active{
+    display:flex!important;
+    margin:0 auto!important;
+  }
+  html body .viewport .sheet:not(.is-active){display:none!important}
+  html body .viewport .sheet.examples-detail.is-active,
+  html body .viewport .sheet#examples-client.is-active{
+    margin-top:0!important;
+    top:0!important;
+    translate:none!important;
+    align-self:flex-start!important;
+  }
+  html body .viewport[data-reading-mode="vertical"] .sheet#examples-client.is-active{align-self:auto!important}
+}
+@media screen and (max-width:1000px){
+  html body .toolbar .toolbar-inner{justify-content:center!important;gap:8px!important}
+  html body .toolbar nav.tabs.proposal-sections{
+    justify-content:flex-start!important;
+    flex:0 1 auto!important;
+    min-width:0!important;
+    max-width:100%!important;
+  }
+}
+@media screen and (max-width:800px){
+  html body .toolbar .toolbar-inner{
+    justify-content:center!important;
+    gap:6px!important;
+  }
+  html body .toolbar nav.tabs.proposal-sections{
+    flex:1 1 auto!important;
+    width:auto!important;
+    justify-content:flex-start!important;
+  }
+  html body .viewport{
+    padding:12px 9px 110px!important;
+    overflow-x:auto!important;
+    overflow-y:visible!important;
+    min-height:calc(100dvh - 56px)!important;
+  }
+  html body .viewport[data-reading-mode="vertical"]{
+    gap:15px!important;
+  }
+  html body .viewport .sheet.is-active{
+    margin:0 auto!important;
+  }
+}
+@media print {
+  html body .viewport,
+  html body .viewport[data-reading-mode="spread"],
+  html body .viewport[data-reading-mode="vertical"]{
+    display:block!important;
+    overflow:visible!important;
+    max-width:none!important;
+    padding:0!important;
+    margin:0!important;
+    gap:0!important;
+  }
+  html body .viewport .sheet,
+  html body .viewport .sheet:not(.is-active),
+  html body .viewport .sheet.is-active{
+    display:flex!important;
+    width:210mm!important;
+    min-width:210mm!important;
+    height:297mm!important;
+    min-height:297mm!important;
+    margin:0!important;
+    padding:0!important;
+    zoom:1!important;
+    transform:none!important;
+    box-shadow:none!important;
+    break-after:page!important;
+    page-break-after:always!important;
+  }
+  html body .viewport .sheet:last-child{
+    break-after:auto!important;
+    page-break-after:auto!important;
+  }
+}
