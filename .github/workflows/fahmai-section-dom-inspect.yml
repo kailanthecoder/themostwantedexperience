@@ -1,0 +1,29 @@
+name: Inspect section header geometry
+on:
+  push:
+    paths: ['.github/workflows/fahmai-section-dom-inspect.yml']
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Examine sheet first-level nodes and selected tab CSS
+        run: |
+          python -m pip install beautifulsoup4 -q
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          from bs4 import BeautifulSoup
+          s=Path('proposals/fah-mai/index.html').read_text()
+          d=BeautifulSoup(s,'html.parser')
+          for sid in ('overview','current','spec','budget','implementation','examples'):
+            sheet=d.find('article',id=sid)
+            children=[]
+            for node in sheet.find_all(recursive=False):
+              children.append((node.name,node.get('class'),node.get('id'),node.get_text(' ',strip=True)[:55]))
+            print('CHILDREN',sid,children)
+          for cls in ('.presentation-header','.page-top','.presented','.sheet','nav.tabs','.toolbar-inner','.tab[aria-selected="true"]','.fm-story-rail'):
+            found=[m for m in re.finditer(r'([^{}]{0,230})\{([^{}]{0,650})\}',s) if cls in m.group(1)]
+            for m in found[-8:]:
+              print('RULE',cls, m.group(1).strip().replace('\n',' ')[:160],m.group(2).strip().replace('\n',' ')[:600])
+          PY
