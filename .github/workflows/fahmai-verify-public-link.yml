@@ -7,23 +7,16 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
-      - name: Check public HTML hosts
-        shell: bash
+      - name: Check browser HTML output and look for interstitials
         run: |
           set +e
-          for name in githack githubraw githubpages; do
-            case "$name" in
-              githack) url='https://raw.githack.com/kailanthecoder/themostwantedexperience/main/proposals/fah-mai/index.html' ;;
-              githubraw) url='https://githubraw.com/kailanthecoder/themostwantedexperience/main/proposals/fah-mai/index.html' ;;
-              githubpages) url='https://kailanthecoder.github.io/themostwantedexperience/proposals/fah-mai/' ;;
-            esac
-            echo "::group::$name $url"
-            curl -L --max-time 25 -sS -o "/tmp/${name}.html" -w 'HTTP %{http_code} CONTENT_TYPE %{content_type} SIZE %{size_download} FINAL %{url_effective}\n' "$url"
-            if test -f "/tmp/${name}.html"; then
-              head -c 180 "/tmp/${name}.html" | tr '\n' ' '
-              echo
-              grep -oi -m1 'FAH MAI' "/tmp/${name}.html" | head -c 70 || true
-              echo
-            fi
-            echo "::endgroup::"
+          for name in githubraw githack; do
+            if [ "$name" = "githubraw" ]; then url='https://githubraw.com/kailanthecoder/themostwantedexperience/main/proposals/fah-mai/index.html'; else url='https://raw.githack.com/kailanthecoder/themostwantedexperience/main/proposals/fah-mai/index.html'; fi
+            echo "BEGIN $name"
+            curl -L -sS --max-time 25 -A 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36' -H 'Sec-Fetch-Dest: document' -H 'Sec-Fetch-Mode: navigate' -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' -o /tmp/"$name".html -w 'HTTP %{http_code} TYPE %{content_type} SIZE %{size_download}\n' "$url"
+            head -c 450 /tmp/"$name".html
+            echo
+            grep -o -m1 -i 'one more step\|phishing\|security warning\|Fah Mai Holdings' /tmp/"$name".html | head -c 80 || true
+            echo
+            echo "END $name"
           done
