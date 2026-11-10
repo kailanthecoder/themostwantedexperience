@@ -1,0 +1,92 @@
+name: Publish curated high-resolution brand card photography
+on:
+  push:
+    paths: ['.github/workflows/fahmai-release-editorial-overview-v12.yml']
+permissions:
+  contents: write
+jobs:
+  update-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Curate real photographs and build the high-resolution card asset
+        run: |
+          python -m pip install requests pillow -q
+          python proposals/fah-mai/install_editorial_overview_v12.py
+      - name: Verify image crops, brand placements, typography, responsive behaviour and PDF
+        run: |
+          python -m pip install playwright pypdf -q
+          python -m playwright install chromium >/dev/null 2>&1
+          python - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          from pypdf import PdfReader
+          from playwright.async_api import async_playwright
+          import asyncio,io,base64
+          root=Path('proposals/fah-mai')
+          image_file=root/'overview-photo-editorial-v12.webp'
+          assert image_file.exists() and Image.open(image_file).size==(2400,800)
+          uri=(root/'index.html').resolve().as_uri()
+          async def run():
+            async with async_playwright() as p:
+              browser=await p.chromium.launch()
+              for width in (1440,900,390,320):
+                page=await browser.new_page(viewport={'width':width,'height':930},device_scale_factor=1)
+                errors=[]
+                page.on('pageerror',lambda err:errors.append(str(err)))
+                await page.goto(uri,wait_until='domcontentloaded',timeout=80000)
+                await page.wait_for_timeout(180)
+                data=await page.evaluate("""async()=>{
+                  const test=new Image();
+                  test.src=new URL('./overview-photo-editorial-v12.webp',location.href).href;
+                  await test.decode();
+                  const cards=[...document.querySelectorAll('#overview .vision-card')];
+                  const metrics=cards.map(el=>{
+                    const e=getComputedStyle(el),photo=getComputedStyle(el,'::before');
+                    const r=el.getBoundingClientRect();
+                    const text=el.querySelector('h2,h3,.vision-card-title') || el;
+                    return {cls:el.className,bg:photo.backgroundImage,opacity:photo.opacity,size:photo.backgroundSize,pos:photo.backgroundPosition,
+                      original:e.backgroundImage,cardRect:[r.x,r.y,r.width,r.height],title:text.textContent.trim().slice(0,110)};
+                  });
+                  return {image:[test.naturalWidth,test.naturalHeight],cards:metrics,
+                    sheets:document.querySelectorAll('.viewport>.sheet').length,
+                    active:[...document.querySelectorAll('.viewport>.sheet.is-active')].map(e=>e.id),
+                    mode:document.querySelector('.viewport').dataset.readingMode,
+                    overflow:document.documentElement.scrollWidth>innerWidth+2,
+                    noDesign:!document.getElementById('design')}
+                }""")
+                print('CARD_QA',width,{'image':data['image'],'cards':data['cards'],'pageCount':data['sheets'],'mode':data['mode'],'active':data['active'],'overflow':data['overflow']})
+                assert data['image']==[2400,800] and len(data['cards'])==3
+                assert data['sheets']==12 and not data['overflow'] and data['noDesign']
+                for i,c in enumerate(data['cards']):
+                  assert 'overview-photo-editorial-v12.webp' in c['bg'], f'photo not applied to card {i}'
+                  assert c['pos']==['0% 50%','50% 50%','100% 50%'][i], f'photo assignment wrong: {c}'
+                  assert c['size']=='300% 100%', f'wrong image scale: {c}'
+                  assert c['opacity']=='0.78',f'photo invisible: {c}'
+                  assert 'linear-gradient' in c['original'] and 'radial-gradient' in c['original'],f'original pink gradient replaced: {c}'
+                if width>800:
+                  assert data['mode']=='spread' and data['active']==['overview']
+                else:
+                  assert data['mode']=='vertical' and len(data['active'])==12
+                assert not errors, f'JS errors: {errors}'
+                if width==1440:
+                  shot=await page.locator('#overview .vision-grid').screenshot()
+                  im=Image.open(io.BytesIO(shot)).convert('RGB')
+                  im.thumbnail((960,420),Image.Resampling.LANCZOS)
+                  io2=io.BytesIO();im.save(io2,'JPEG',quality=76,optimize=True)
+                  print('CARDS_PREVIEW_BASE64',base64.b64encode(io2.getvalue()).decode('ascii'))
+                  await page.evaluate("window.dispatchEvent(new Event('beforeprint'))")
+                  await page.emulate_media(media='print')
+                  await page.pdf(path='/tmp/fahmai-editorial-v12.pdf',prefer_css_page_size=True,print_background=True)
+                  print('PDF_PAGES',len(PdfReader('/tmp/fahmai-editorial-v12.pdf').pages))
+                  assert len(PdfReader('/tmp/fahmai-editorial-v12.pdf').pages)==12
+                await page.close()
+              await browser.close()
+          asyncio.run(run())
+          PY
+      - name: Publish at existing public website URL
+        run: |
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add proposals/fah-mai/index.html proposals/fah-mai/overview-photo-editorial-v12.webp
+          git diff --cached --quiet || (git commit -m "Upgrade homepage with curated bottle-wall, oak cask and official Platinum Cask product photo" && git push)
