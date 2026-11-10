@@ -108,9 +108,17 @@ jobs:
                 }""",chapter)
                 await page.wait_for_timeout(850)
                 state=await evaluate(page)
-                details2=await page.evaluate("""chapter=>({windowY:window.scrollY,bodyScroll:document.body.scrollTop,viewportScroll:document.querySelector('.viewport').scrollTop,
-                  rect:document.getElementById(chapter).getBoundingClientRect().top,
-                  current:document.body.dataset.currentChapter})""",chapter)
+                details2=await page.evaluate("""chapter=>{
+                  const toolbar=document.querySelector('.toolbar'),top=toolbar?.getBoundingClientRect().bottom||0,focus=top+Math.min(220,(innerHeight-top)*.42);
+                  return {windowY:window.scrollY,bodyScroll:document.body.scrollTop,viewportScroll:document.querySelector('.viewport').scrollTop,
+                    rect:document.getElementById(chapter).getBoundingClientRect().top,
+                    current:document.body.dataset.currentChapter,
+                    mode:document.querySelector('.viewport').dataset.readingMode,focus,
+                    rects:[...document.querySelectorAll('.viewport>.sheet')].slice(0,6).map(el=>({id:el.id,
+                      top:Math.round(el.getBoundingClientRect().top),bottom:Math.round(el.getBoundingClientRect().bottom),
+                      inFocus:el.getBoundingClientRect().top<=focus&&el.getBoundingClientRect().bottom>=focus}))
+                  };
+                }""",chapter)
                 print('MOBILE_SCROLL',width,chapter,'details',details,'after',details2,'active',state['current'],'nav',state['nav'])
                 assert state['current']==chapter,f'{width}: scrolling did not select {chapter}: {state["current"]}'
                 if chapter!='examples':
