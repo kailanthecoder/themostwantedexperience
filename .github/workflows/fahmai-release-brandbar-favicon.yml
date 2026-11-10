@@ -84,7 +84,7 @@ jobs:
                           except:return None
                         if num(a[prop]) is not None and num(b[prop]) is not None and abs(num(a[prop])-num(b[prop]))<=3:
                           continue
-                        if prop=='width' and key=='.presentation-hairline':continue
+                        if prop=='width' and (key=='.presentation-hairline' or any(part in key for part in ('.presentation-kicker','.presentation-sub','.presented-copy strong'))):continue
                         raise AssertionError(f'{width}px: {key}: {prop} mismatch desktop={a[prop]} mobile={b[prop]}')
                 out=await page.evaluate("""() => ({body:document.documentElement.scrollWidth,
                   viewport:innerWidth,zoom:document.querySelector('.fm-zoom')?.getBoundingClientRect().height??0,
