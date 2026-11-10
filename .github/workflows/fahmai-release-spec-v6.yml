@@ -1,0 +1,121 @@
+name: Publish detailed Spec and remove eyebrow headings
+on:
+  push:
+    paths: ['.github/workflows/fahmai-release-spec-v6.yml']
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install two-page Spec and branded engineering icons
+        run: python -m pip install requests -q && python proposals/fah-mai/install_spec_editorial_v6.py
+      - name: Browser QA for content, 13-page storybook, responsive layout, logos, no eyebrows and PDF
+        run: |
+          python -m pip install playwright pypdf -q
+          python -m playwright install chromium >/dev/null 2>&1
+          python - <<'PY'
+          import asyncio
+          from pathlib import Path
+          from pypdf import PdfReader
+          from playwright.async_api import async_playwright
+          uri=Path('proposals/fah-mai/index.html').resolve().as_uri()
+          async def state(page):
+            return await page.evaluate("""()=>{
+              const r=e=>{let a=e.getBoundingClientRect();return {top:a.top,bottom:a.bottom,left:a.left,right:a.right,w:a.width,h:a.height}};
+              let ids=[...document.querySelectorAll('.viewport>.sheet')].map(e=>e.id);
+              let a=[...document.querySelectorAll('.viewport>.sheet.is-active')];
+              let spec=document.getElementById('spec'),tech=document.getElementById('spec-delivery');
+              let labels=[...document.querySelectorAll('.sheet .audit-v5-eyebrow,.sheet .design-eyebrow,.sheet .design-mini-label,.sheet .design-concept-tag,.sheet .design-note-marker,.sheet .small-label,.sheet .footer-kicker')];
+              return {
+                ids,mode:document.querySelector('.viewport').dataset.readingMode,
+                active:a.map(e=>e.id),positions:a.map(r),
+                counter:document.querySelector('.fm-story-counter').textContent,
+                htmlOverflow:document.documentElement.scrollWidth>innerWidth+2,
+                scopeBody:r(spec.querySelector('.sheet-body')),scopeFooter:r(spec.querySelector('.sheet-footer')),
+                scopeNote:r(spec.querySelector('.specv6-scope-note')),
+                techBody:r(tech.querySelector('.sheet-body')),techFooter:r(tech.querySelector('.sheet-footer')),
+                techEngagement:r(tech.querySelector('.specv6-engagement')),
+                brandCount:spec.querySelectorAll('.specv6-brand').length,
+                capabilities:tech.querySelectorAll('.specv6-capability').length,
+                engagement:tech.querySelectorAll('.specv6-engagement-grid>div').length,
+                logos:[...tech.querySelectorAll('.specv6-technologies img')].map(e=>({slug:e.getAttribute('data-tech-logo'),valid:e.complete&&e.naturalWidth>0,src:e.currentSrc.slice(0,32)})),
+                brows:labels.map(e=>({text:e.textContent.trim().slice(0,45),display:getComputedStyle(e).display})),
+                specContents:spec.textContent,
+                techContents:tech.textContent
+              }
+            }""")
+          async def check(page,width):
+            errors=[]
+            page.on('pageerror',lambda e:errors.append(str(e)))
+            await page.goto(uri,wait_until='domcontentloaded',timeout=85000)
+            await page.wait_for_timeout(160)
+            s=await state(page)
+            print('BASE',width,{'ids':s['ids'],'mode':s['mode'],'active':s['active'],'counter':s['counter']})
+            assert len(s['ids'])==13,f'{width}: Should have 13 A4 sheets'
+            assert s['ids'].index('spec-delivery')==s['ids'].index('spec')+1, 'Technical Spec page not immediately after scope'
+            assert not s['htmlOverflow'],f'{width}: horizontal document overflow'
+            assert s['brandCount']==3 and s['capabilities']==7 and s['engagement']==3
+            assert all(x['display']=='none' for x in s['brows']),f'{width}: decorative eyebrow still displayed {s["brows"]}'
+            assert 'VISUAL DIRECTIONS / EXPLORATORY CONCEPTS' not in (await page.locator('body').inner_text())
+            assert len(s['logos'])==6 and all(x['valid'] and x['src'].startswith('data:image/svg+xml;base64') for x in s['logos']),f'Brand logos failed: {s["logos"]}'
+            spec=s['specContents'].lower()
+            tech=s['techContents'].lower()
+            for term in ('distilleries','brokers','stored','bottling','case studies','historical auction','10–15','stock in transit','awaiting invoicing','customer allocations'):
+              assert term in spec,f'Missing brand scope: {term}'
+            for term in ('stripe','airwallex','90+/100','seo','ai-search','case studies','postgresql','50%','zoom/meet','retainer','localisation','discovery'):
+              assert term in tech,f'Missing technical proposal: {term}'
+            # Browser may ignore hidden pages' geometry: make the requested Spec spread active.
+            await page.locator('#tab-spec').click()
+            await page.wait_for_timeout(130)
+            s=await state(page)
+            print('SPEC',width,{k:s[k] for k in ('mode','active','counter','scopeNote','scopeFooter','techEngagement','techFooter')})
+            assert s['scopeNote']['bottom']<=s['scopeFooter']['top']-3, f'{width}: first Spec page clipped'
+            assert s['techEngagement']['bottom']<=s['techFooter']['top']-3, f'{width}: technical Spec page clipped'
+            if width>800:
+              assert s['active']==['spec','spec-delivery'],f'Wrong Spec spread {s["active"]}'
+              assert abs(s['positions'][0]['top']-s['positions'][1]['top'])<1.5, 'Spec pages not aligned'
+              await page.locator('#tab-current').click()
+              await page.locator('.fm-story-next').click()
+              await page.locator('.fm-story-next').click()
+              assert (await state(page))['active']==['current-growth'],'Last Current page should be solo before Spec'
+              await page.locator('.fm-story-next').click()
+              assert (await state(page))['active']==['spec','spec-delivery'],'Page turn after Current goes to Spec'
+              await page.locator('#tab-design').click()
+              assert (await state(page))['active']==['design','budget'], 'Design/Budget spread broken'
+              await page.locator('#tab-examples').click()
+              assert (await state(page))['active']==['examples','examples-client'],'Examples grouping broken'
+            else:
+              assert s['mode']=='vertical' and len(s['active'])==13, 'Mobile continuous scroll broken'
+              assert s['positions'][0]['top']<s['positions'][1]['top'], 'Mobile pages no longer vertical'
+            if width==1440:
+              await page.locator('#nav-proposal').click()
+              await page.locator('#tab-spec').click()
+              await page.locator('#spec').screenshot(path='/tmp/fahmai-spec-scope-v6.png')
+              await page.locator('#spec-delivery').screenshot(path='/tmp/fahmai-spec-technical-v6.png')
+              await page.evaluate("window.dispatchEvent(new Event('beforeprint'))")
+              await page.emulate_media(media='print')
+              pages=await page.evaluate("""()=>[...document.querySelectorAll('.viewport>.sheet')].filter(e=>getComputedStyle(e).display!=='none').length""")
+              assert pages==13,'A4 print hides a page'
+              await page.pdf(path='/tmp/fahmai-spec-v6.pdf',prefer_css_page_size=True,print_background=True)
+              n=len(PdfReader('/tmp/fahmai-spec-v6.pdf').pages)
+              print('PDF_PAGE_COUNT',n)
+              assert n==13,f'Unexpected PDF page count: {n}'
+            assert not errors,f'{width}: JS errors: {errors}'
+            await page.close()
+          async def main():
+            async with async_playwright() as p:
+              browser=await p.chromium.launch()
+              for width in (1440,900,390,320):
+                page=await browser.new_page(viewport={'width':width,'height':950},device_scale_factor=1)
+                await check(page,width)
+              await browser.close()
+          asyncio.run(main())
+          PY
+      - name: Publish updated proposal at existing public URL
+        run: |
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add proposals/fah-mai/index.html
+          git diff --cached --quiet || (git commit -m "Replace Spec with brand-specific roadmap and seven full-stack capabilities; remove eyebrows" && git push)
