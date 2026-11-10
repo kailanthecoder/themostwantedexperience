@@ -78,7 +78,6 @@ jobs:
               assert abs(s['positions'][0]['top']-s['positions'][1]['top'])<1.5, 'Spec pages not aligned'
               await page.locator('#tab-current').click()
               await page.locator('.fm-story-next').click()
-              await page.locator('.fm-story-next').click()
               assert (await state(page))['active']==['current-growth'],'Last Current page should be solo before Spec'
               await page.locator('.fm-story-next').click()
               assert (await state(page))['active']==['spec','spec-delivery'],'Page turn after Current goes to Spec'
