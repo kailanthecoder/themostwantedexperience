@@ -10,7 +10,7 @@ if 'id="fahmai-spec-editorial-v6"' in html:
     print('SPEC_V6_ALREADY_INSTALLED')
     raise SystemExit(0)
 
-assert '<article aria-labelledby="tab-spec" class="sheet" id="spec" role="tabpanel">' in html
+assert re.search(r'<article\\b[^>]*\\bid="spec"[^>]*>',html), 'Spec article missing'
 assert 'id="spec-delivery"' not in html
 assert 'const spreadGroups = (() => {' in html, 'Updated storybook spread grouper missing'
 
