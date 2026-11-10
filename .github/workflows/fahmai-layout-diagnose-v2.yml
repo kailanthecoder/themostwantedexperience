@@ -1,0 +1,78 @@
+name: Diagnose Fah Mai storybook layout and Autoglass example
+on:
+  push:
+    paths: ['.github/workflows/fahmai-layout-diagnose-v2.yml']
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect source, styles, Autoglass banner
+        run: |
+          python -m pip install beautifulsoup4 -q
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          from bs4 import BeautifulSoup
+          p=Path('proposals/fah-mai/index.html')
+          text=p.read_text(encoding='utf-8')
+          soup=BeautifulSoup(text,'html.parser')
+          for ph in ['N W IL Auto','NW IL','Autoglass','Auto Glass','nwilautoglass']:
+            matches=soup.find_all(string=re.compile(ph,re.I))[:8]
+            print('SEARCH',ph,'COUNT',len(matches))
+            for m in matches:
+              e=m.parent
+              for level in range(3):
+                if not e:break
+                a=str(e)
+                a=re.sub(r'(src|href)="data:[^"]+"',r'\1="[embedded image]"',a)
+                print('MATCH',level,'TAG',e.name,'CLASS',e.get('class'),'HTML',a[:2900])
+                e=e.parent
+          for e in soup.select('#examples-client .client-example-card,#examples .example-card'):
+            h=e.find(['h2','h3','strong']);img=e.find('img');n=e.get_text(' ',strip=True)[:110]
+            print('EXAMPLE_CARD',repr(n),'href',e.get('href'),'class',e.get('class'),'image',img.get('src')[:180] if img and img.get('src') else None,'html',re.sub(r'(src|href)="data:[^"]+"',r'\1="[embedded]"',str(e))[:1400])
+          css='\n'.join(e.get_text() for e in soup.select('style'))
+          for key in ['.viewport','.sheet','examples-client','.examples-detail','.example-card','.client-example-card','.example-media','.example-preview-place','.example-banner']:
+            print('CSS_FOR',key)
+            matches=list(re.finditer(r'([^{}]{0,210})\{([^{}]{0,620})\}',css))
+            hits=[m for m in matches if key in m.group(1)]
+            for m in hits[-14:]:
+              print('STYLE',m.group(1).strip().replace('\n',' ')[:230],m.group(2).strip().replace('\n',' ')[:530])
+          PY
+      - name: Render two-page spread and mobile scrolling diagnostics
+        run: |
+          python -m pip install playwright -q
+          python -m playwright install chromium >/dev/null 2>&1
+          python - <<'PY'
+          import asyncio
+          from pathlib import Path
+          from playwright.async_api import async_playwright
+          path=Path('proposals/fah-mai/index.html').resolve().as_uri()
+          async def info(page):
+            return await page.evaluate("""() => {
+              const sel=s=>{let e=document.querySelector(s);if(!e)return null;let b=e.getBoundingClientRect(),c=getComputedStyle(e);return {x:b.x,y:b.y,w:b.width,h:b.height,margin:c.margin,padding:c.padding,zoom:c.zoom,transform:c.transform,position:c.position,top:c.top,display:c.display,align:c.alignItems,overflowX:c.overflowX,overflowY:c.overflowY,scrollHeight:e.scrollHeight,scrollWidth:e.scrollWidth,scrollTop:e.scrollTop,scrollLeft:e.scrollLeft}}
+              return {
+                viewport:sel('.viewport'),examples:sel('#examples'),examplesClient:sel('#examples-client'),overview:sel('#overview'),current:sel('#current'),header:sel('.toolbar'),nav:sel('nav.proposal-sections'),pdf:sel('.tool-actions'),switcher:sel('.view-switcher'),rail:sel('.fm-zoom'),
+                currentActive:[...document.querySelectorAll('.sheet.is-active')].map(e=>e.id),
+                totalScrollHeight:document.documentElement.scrollHeight,totalScrollWidth:document.documentElement.scrollWidth,
+                screen:{w:innerWidth,h:innerHeight,scrollY}, slider:document.querySelector('.fm-zoom-range').value
+              }
+            }""")
+          async def main():
+            async with async_playwright() as p:
+              browser=await p.chromium.launch()
+              for width in (390,800,1000,1440,1920):
+                page=await browser.new_page(viewport={'width':width,'height':900})
+                await page.goto(path,wait_until='domcontentloaded')
+                await page.wait_for_timeout(90)
+                print('START',width,await info(page))
+                await page.locator('#tab-examples').click()
+                await page.wait_for_timeout(50)
+                print('EXAMPLES',width,await info(page))
+                await page.locator('.fm-zoom-range').fill('1.5')
+                await page.wait_for_timeout(50)
+                print('ZOOMED',width,await info(page))
+                await page.close()
+              await browser.close()
+          asyncio.run(main())
+          PY
