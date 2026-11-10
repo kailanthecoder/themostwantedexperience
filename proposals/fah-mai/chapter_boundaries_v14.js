@@ -73,6 +73,8 @@
   }
 
   window.addEventListener("scroll",schedule,{passive:true});
+  document.addEventListener("scroll",schedule,{passive:true,capture:true});
+  document.scrollingElement?.addEventListener("scroll",schedule,{passive:true});
   window.addEventListener("resize",schedule,{passive:true});
   document.addEventListener("click",schedule,true);
   viewport.addEventListener("scroll",schedule,{passive:true});
@@ -80,5 +82,21 @@
   const observer=new MutationObserver(schedule);
   observer.observe(viewport,{attributes:true,attributeFilter:["data-reading-mode"]});
   sheets.forEach(sheet=>observer.observe(sheet,{attributes:true,attributeFilter:["class"]}));
+  if("IntersectionObserver" in window){
+    const seen=new IntersectionObserver(schedule,{root:null,threshold:[0,.18,.4,.7]});
+    sheets.forEach(sheet=>seen.observe(sheet));
+  }
+  // Some in-app browsers do not consistently dispatch root-document scroll
+  // events. A lightweight scroll-position check makes mobile tracking reliable
+  // without repeatedly calculating all twelve sheet layouts.
+  let lastScrollY=window.scrollY;
+  window.setInterval(()=>{
+    if(!isVertical())return;
+    const nextY=window.scrollY;
+    if(Math.abs(nextY-lastScrollY)>1){
+      lastScrollY=nextY;
+      schedule();
+    }
+  },180);
   schedule();
 })();
