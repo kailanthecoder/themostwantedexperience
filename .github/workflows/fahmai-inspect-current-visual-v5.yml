@@ -1,0 +1,43 @@
+name: Inspect Fah Mai Current pages and design system
+on:
+  push:
+    paths: ['.github/workflows/fahmai-inspect-current-visual-v5.yml']
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect Current, brand opportunity, screenshots, fonts and arrow styles
+        run: |
+          python -m pip install beautifulsoup4 -q
+          python - <<'PY'
+          from pathlib import Path
+          from bs4 import BeautifulSoup
+          import re
+          s=Path('proposals/fah-mai/index.html').read_text()
+          doc=BeautifulSoup(s,'html.parser')
+          print('LENGTH',len(s),'SHEETS',len(doc.select('.sheet')))
+          print('FONTS',re.findall(r'<link[^>]*fonts.googleapis.com[^>]*>',s[:200000])[:6])
+          print('FONT_FACE',re.findall(r'font-family\s*:\s*[^;}\n]{1,130}',s[:250000])[:45])
+          for id in ['current','current-journeys','current-growth','overview','spec','design']:
+            e=doc.select_one('#'+id)
+            if not e:continue
+            t=str(e)
+            t=re.sub(r'(src|href)="data:[^"]+"',r'\1="[base64 image]"',t)
+            t=re.sub(r'data:image\/[^"]+', '[embedded]',t)
+            print('SHEET',id,'CHARACTERS',len(t))
+            print('SHEET_HTML',id,t[:22000].replace('\n',' ')[:16000])
+          for e in doc.select('img'):
+            if e.find_parent(id=re.compile('current')):
+              print('CURRENT_IMG',str(e)[:1000])
+          for term in ['What each brand can do better','significantly slower','carousel','screenshot','mobile experience','arrow','chevron']:
+            occurrences=list(re.finditer(re.escape(term),s,re.I))
+            print('WORD',term,'COUNT',len(occurrences))
+            for m in occurrences[:12]:
+              snippet=s[max(0,m.start()-230):m.end()+300].replace('\n',' ')
+              snippet=re.sub(r'(src|href)="data:[^"]+"',r'\1="[base64]"',snippet)
+              print('MATCH',term,m.start(),snippet[:650])
+          for node in doc.select('[class*="arrow"],[class*="chevron"]'):
+            print('ARROW_ELEMENT',node.name,node.get('class'),node.get_text(' ',strip=True)[:65])
+          print('CSS_SUFFIXES',[(e.get('id'),len(e.get_text())) for e in doc.select('style')][-35:])
+          PY
