@@ -58,6 +58,7 @@ jobs:
                 assert s['pages']==['proposed'] and s['counter']=='10 / 12'
                 await page.locator('.fm-story-next').click()
                 assert (await current(page))['pages']==['examples','examples-client']
+                await page.locator('#nav-proposal').click()
                 await page.locator('#tab-proposed').click()
                 s=await current(page)
                 print('PROPOSED_TAB',width,s)
