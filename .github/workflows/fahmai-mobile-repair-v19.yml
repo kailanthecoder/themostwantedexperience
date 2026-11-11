@@ -45,11 +45,7 @@ jobs:
                'const readingMode = mode();\n    const previousReadingMode = previousMode;')
           # Stop the earlier tab controller from vertically moving the full browser
           # while the later page controller is choosing a new A4 page.
-          old=''' document.querySelectorAll('nav.tabs button.tab').forEach(function(tab){
-  tab.addEventListener('click',function(){
-   if(window.innerWidth<1190){tab.scrollIntoView({block:'nearest',inline:'center',behavior:'smooth'})}
-  });
- });'''
+          old=" document.querySelectorAll('nav.tabs button.tab').forEach(function(tab){\n  tab.addEventListener('click',function(){\n   if(window.innerWidth<1190){tab.scrollIntoView({block:'nearest',inline:'center',behavior:'smooth'})}\n  });\n });"
           must(old,' // Chapter tab reveal is handled horizontally by the tab-strip controller.')
           # The Examples continuation button should advance to the next A4 page
           # instead of trying to scroll a hidden second page into view.
