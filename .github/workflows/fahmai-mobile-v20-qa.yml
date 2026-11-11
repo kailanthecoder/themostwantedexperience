@@ -1,0 +1,106 @@
+name: Verify Fah Mai mobile reader design v20
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/fahmai-mobile-v20-qa.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Chromium and WebKit
+        run: |
+          python -m pip install -q playwright pypdf
+          python -m playwright install --with-deps chromium webkit >/dev/null 2>&1
+      - name: Browser QA and mobile screenshots
+        run: |
+          python - <<'PY'
+          import asyncio,base64,io,json
+          from pathlib import Path
+          from pypdf import PdfReader
+          from playwright.async_api import async_playwright
+          src=Path('proposals/fah-mai/index.html').resolve().as_uri()
+          async def main():
+            async with async_playwright() as p:
+              for engine in (p.chromium,p.webkit):
+                browser=await engine.launch()
+                for w,h in [(320,700),(360,780),(375,812),(390,844),(430,932),(590,900),(768,1024),(800,900),(820,1180),(1024,768),(1440,900)]:
+                  page=await browser.new_page(viewport={'width':w,'height':h},device_scale_factor=2,is_mobile=w<=430,has_touch=w<=430)
+                  errors=[]
+                  page.on('pageerror',lambda e:errors.append(str(e)))
+                  await page.goto(src+'#budget',wait_until='domcontentloaded',timeout=90000)
+                  await page.wait_for_timeout(350)
+                  async def state():
+                    return await page.evaluate("""() => {
+                      const shell=document.querySelector('.toolbar');
+                      const d=document.querySelector('.fm-zoom');
+                      const s=document.querySelector('.viewport>.sheet.is-active');
+                      const pageRect=s?.getBoundingClientRect(),r=d?.getBoundingClientRect(),bar=shell?.getBoundingClientRect();
+                      return {hash:location.hash,scroll:scrollY,overflow:document.documentElement.scrollWidth-innerWidth,
+                        mode:document.querySelector('.viewport').dataset.readingMode,
+                        active:[...document.querySelectorAll('.viewport>.sheet')].filter(x=>getComputedStyle(x).display!=='none').map(x=>x.id),
+                        tab:document.querySelector('.proposal-sections [aria-selected="true"]')?.dataset.target,
+                        counter:document.querySelector('.fm-story-counter')?.textContent.trim(),
+                        footerBg:getComputedStyle(d).backgroundColor, dockHeight:r?.height,
+                        dockLeft:r?.left,dockRight:r?.right,
+                        pageWidth:pageRect?.width,pageHeight:pageRect?.height,
+                        sheetOverflow:getComputedStyle(s).overflowY,
+                        toolbarHeight:bar?.height,toolbarTop:bar?.top,
+                        fitButton:!!document.querySelector('.fm-zoom-fit'),
+                        zoomText:document.querySelector('.fm-zoom-fit')?.textContent.trim()
+                      };
+                    }""")
+                  st=await state()
+                  print('START',engine.name,w,json.dumps(st,separators=(',',':')))
+                  assert st['hash']=='' and st['tab']=='overview' and st['counter'].startswith('1 / '),f'{engine.name} {w} wrong initial page: {st}'
+                  assert st['scroll']<8 and st['overflow']<=2 and st['fitButton'],f'{engine.name} {w} startup overflow/control: {st}'
+                  if w<=800:
+                    assert st['mode']=='paged' and st['active']==['overview'],f'{engine.name} {w} not one page: {st}'
+                    assert st['pageWidth']<=w-5 and st['sheetOverflow']=='auto',f'{engine.name} {w} clipped paper: {st}'
+                    assert 48<=st['dockHeight']<=64 and st['dockLeft']>=0 and st['dockRight']<=w,f'{engine.name} {w} dock overflow: {st}'
+                    assert st['toolbarTop']<=2 and st['toolbarHeight']>48,f'{engine.name} {w} toolbar missing: {st}'
+                    await page.locator('.fm-story-next').click()
+                    p2=await state()
+                    assert p2['active']==['current'] and p2['counter'].startswith('2 / '),f'{engine.name} {w} next page failure {p2}'
+                    await page.locator('.fm-story-prev').click()
+                    p1=await state()
+                    assert p1['active']==['overview'],f'{engine.name} {w} prev page failure {p1}'
+                    await page.locator('.fm-zoom-plus').click()
+                    z=await state()
+                    assert z['zoomText'].startswith('1.25'),f'{engine.name} {w} zoom failed: {z}'
+                    await page.locator('.fm-zoom-fit').click()
+                    z=await state()
+                    assert z['zoomText'].startswith('1'),f'{engine.name} {w} fit failed: {z}'
+                    await page.locator('#tab-budget').click()
+                    await page.wait_for_timeout(100)
+                    bz=await state()
+                    assert bz['active']==['budget'] and bz['tab']=='budget',f'{engine.name} {w} budget navigation failed: {bz}'
+                    await page.reload(wait_until='domcontentloaded')
+                    await page.wait_for_timeout(250)
+                    rst=await state()
+                    assert rst['active']==['overview'] and rst['scroll']<8,f'{engine.name} {w} refresh restored wrong page: {rst}'
+                    if w==390:
+                      img=await page.screenshot(type='jpeg',quality=55)
+                      print('SCREENSHOT_'+engine.name.upper()+'_OVERVIEW='+base64.b64encode(img).decode())
+                      await page.locator('#tab-budget').click()
+                      await page.wait_for_timeout(100)
+                      img=await page.screenshot(type='jpeg',quality=55)
+                      print('SCREENSHOT_'+engine.name.upper()+'_BUDGET='+base64.b64encode(img).decode())
+                  else:
+                    assert st['mode'] in ('vertical','spread'),f'{engine.name} {w} desktop mode missing: {st}'
+                  assert not errors,f'{engine.name} {w} JS errors: {errors}'
+                  await page.close()
+                await browser.close()
+              page=await (await p.chromium.launch()).new_page(viewport={'width':390,'height':844})
+              await page.goto(src,wait_until='domcontentloaded')
+              await page.emulate_media(media='print')
+              data=await page.pdf(format='A4',prefer_css_page_size=True,print_background=True)
+              count=len(PdfReader(io.BytesIO(data)).pages)
+              print('PDF_PAGES',count)
+              assert count==11,f'Unexpected PDF page count: {count}'
+          asyncio.run(main())
+          PY
