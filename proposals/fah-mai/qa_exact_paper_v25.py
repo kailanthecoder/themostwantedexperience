@@ -70,8 +70,18 @@ async def run(browser,device):
                     continue
                 for prop,value in values.items():
                     if prop=='color' and selector=='.page-heading':continue
-                    if other[prop]!=value:
-                        differences.append((w,p,selector,prop,value,other[prop]))
+                    if other[prop]==value:
+                        continue
+                    # WebKit's fractional CSS zoom rounds computed pixel
+                    # values slightly differently by viewport (e.g. 14px vs
+                    # 13.999999px or 10.992647 vs 10.972195). These are NOT
+                    # different layout declarations.
+                    import re
+                    a=re.fullmatch(r'(-?[0-9.]+)px',value)
+                    b=re.fullmatch(r'(-?[0-9.]+)px',other[prop])
+                    if a and b and abs(float(a.group(1))-float(b.group(1)))<0.3:
+                        continue
+                    differences.append((w,p,selector,prop,value,other[prop]))
     if differences:
         print('DIFFERENCES',browser.browser_type.name,json.dumps(differences[:100]),flush=True)
     assert not differences,f'{browser.browser_type.name}: {len(differences)} A4 design differences on mobile'
