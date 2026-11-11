@@ -4211,6 +4211,115 @@ body,.viewport{overflow-anchor:none!important}
  }
 }
 </style>
+
+<style id="fahmai-one-row-nav-and-pricing-v26">
+@media screen {
+  /* Explicit colours for both arrow states; avoid white-on-white inherited hover. */
+  html body .fm-zoom .fm-story-next:not(:disabled):hover,
+  html body .fm-zoom .fm-story-next:not(:disabled):focus-visible{
+    color:#fff!important;-webkit-text-fill-color:#fff!important;
+    background:#a71e66!important;border-color:#a71e66!important;
+  }
+  html body .fm-zoom .fm-story-prev:not(:disabled):hover,
+  html body .fm-zoom .fm-story-prev:not(:disabled):focus-visible{
+    color:#3a2031!important;-webkit-text-fill-color:#3a2031!important;
+    background:#f1dbe7!important;border-color:#ecd0df!important;
+  }
+  html body .fm-zoom .fm-zoom-minus:not(:disabled):hover,
+  html body .fm-zoom .fm-zoom-plus:not(:disabled):hover,
+  html body .fm-zoom .fm-zoom-fit:not(:disabled):hover{
+    background:#f4e1ec!important;color:#42263a!important;
+    -webkit-text-fill-color:#42263a!important;
+  }
+}
+@media screen and (max-width:1024px){
+  html body .toolbar{
+    position:fixed!important;top:0!important;left:0!important;right:0!important;
+    z-index:1500!important;
+  }
+  html body .toolbar .toolbar-inner{
+    display:flex!important;flex-flow:row nowrap!important;
+    align-items:center!important;justify-content:space-between!important;
+    width:100%!important;max-width:100%!important;
+    box-sizing:border-box!important;
+    height:52px!important;min-height:52px!important;max-height:52px!important;
+    padding:0 8px!important;margin:0!important;
+    gap:5px!important;overflow:visible!important;
+  }
+  html body .toolbar .nav-toprow{display:contents!important}
+  html body .toolbar .view-switcher{
+    order:0!important;grid-row:auto!important;grid-column:auto!important;
+    display:inline-flex!important;align-items:center!important;
+    flex:0 0 auto!important;width:auto!important;max-width:none!important;
+    min-width:0!important;min-height:0!important;
+    gap:0!important;padding:2px!important;margin:0!important;
+    white-space:nowrap!important;
+  }
+  html body .toolbar .view-switch{
+    display:inline-flex!important;justify-content:center!important;align-items:center!important;
+    flex:0 0 auto!important;height:32px!important;min-height:32px!important;
+    font:750 10px/1 "Source Sans 3",sans-serif!important;
+    padding:0 9px!important;margin:0!important;
+    white-space:nowrap!important;
+  }
+  html body .toolbar nav.tabs.proposal-sections{
+    order:1!important;grid-row:auto!important;grid-column:auto!important;
+    display:flex!important;flex:1 1 auto!important;
+    width:auto!important;min-width:0!important;max-width:none!important;
+    height:38px!important;min-height:38px!important;max-height:38px!important;
+    align-items:center!important;justify-content:flex-start!important;
+    flex-flow:row nowrap!important;flex-wrap:nowrap!important;
+    gap:2px!important;padding:1px 0!important;margin:0!important;
+    overflow-x:auto!important;overflow-y:hidden!important;
+    scroll-snap-type:none!important;scrollbar-width:none!important;
+    overscroll-behavior-x:contain!important;-webkit-overflow-scrolling:touch!important;
+    white-space:nowrap!important;
+  }
+  html body .toolbar nav.tabs.proposal-sections[hidden]{display:none!important}
+  html body .toolbar nav.tabs.proposal-sections button.tab,
+  html body .toolbar nav.tabs.proposal-sections button#tab-proposed{
+    flex:0 0 auto!important;
+    height:32px!important;min-height:32px!important;
+    padding:0 7px!important;margin:0!important;
+    font:750 10px/1 "Source Sans 3",sans-serif!important;
+    letter-spacing:0!important;
+    white-space:nowrap!important;border-radius:8px!important;
+  }
+  html body .toolbar .tool-actions{
+    order:2!important;grid-row:auto!important;grid-column:auto!important;
+    display:flex!important;flex:0 0 auto!important;
+    justify-self:auto!important;align-items:center!important;
+    width:auto!important;min-width:0!important;
+    padding:0!important;margin:0!important;
+  }
+  html body .toolbar .pdf-btn{
+    flex:0 0 auto!important;
+    height:34px!important;min-height:34px!important;
+    font:750 10px/1 "Source Sans 3",sans-serif!important;
+    padding:0 9px!important;margin:0!important;
+    white-space:nowrap!important;border-radius:10px!important;
+  }
+  /* The document reader measures the actual menu height; its page layout stays untouched. */
+}
+@media screen and (max-width:540px){
+  html body .toolbar .toolbar-inner{gap:3px!important;padding:0 5px!important}
+  html body .toolbar .view-switch{font-size:9px!important;padding:0 6px!important}
+  html body .toolbar nav.tabs.proposal-sections button.tab,
+  html body .toolbar nav.tabs.proposal-sections button#tab-proposed{
+    font-size:9px!important;padding:0 5px!important;
+  }
+  html body .toolbar .pdf-btn{font-size:9px!important;padding:0 6px!important}
+}
+@media screen and (max-width:360px){
+  html body .toolbar .toolbar-inner{gap:2px!important;padding:0 4px!important}
+  html body .toolbar .view-switch{font-size:8px!important;padding:0 4px!important}
+  html body .toolbar nav.tabs.proposal-sections button.tab,
+  html body .toolbar nav.tabs.proposal-sections button#tab-proposed{
+    font-size:8px!important;padding:0 4px!important;
+  }
+  html body .toolbar .pdf-btn{font-size:8px!important;padding:0 5px!important}
+}
+</style>
 </head><body>
 <div class="toolbar"><div class="toolbar-inner">
  <div class="nav-toprow">
@@ -4631,9 +4740,9 @@ body,.viewport{overflow-anchor:none!important}
 </section>
 <section class="budgetv8-benchmark" aria-label="Itemised development valuation in GBP">
 <div class="budgetv8-section-heading"><h2>What the development includes</h2><span>Individual standard values in GBP</span></div>
-<div class="budgetv8-rate-tables">
-<table aria-label="Website and search setup item prices">
-<thead><tr><th>Website and search setup</th><th>GBP</th></tr></thead>
+<div class="budgetv8-rate-tables" aria-label="Separate one-time and monthly costs">
+<table aria-label="One-time development cost breakdown" data-cost-type="one-time">
+<thead><tr><th scope="col">One-time development</th><th scope="col">GBP</th></tr></thead>
 <tbody>
 <tr><td>Fah Mai Holdings website</td><td>£1,500</td></tr>
 <tr><td>Whisky Bull website</td><td>£1,500</td></tr>
@@ -4641,20 +4750,23 @@ body,.viewport{overflow-anchor:none!important}
 <tr><td>Fah Mai SEO / AI SEO setup</td><td>£750</td></tr>
 <tr><td>Whisky Bull SEO / AI SEO setup</td><td>£750</td></tr>
 <tr><td>Platinum Cask SEO / AI SEO setup</td><td>£750</td></tr>
-<tr class="budgetv8-rate-total"><td>Websites and search subtotal</td><td>£6,750</td></tr>
-</tbody></table>
-<table aria-label="Custom system and ongoing service pricing">
-<thead><tr><th>Backend and ongoing services</th><th>GBP</th></tr></thead>
-<tbody>
 <tr><td>Custom backend, CRM and integrations</td><td>£1,875</td></tr>
 <tr class="budgetv8-rate-total"><td>Standard development total</td><td>£8,625</td></tr>
-<tr><td>Hosting and maintenance — each brand</td><td>£75/mo</td></tr>
-<tr><td>Ongoing SEO / AI SEO — each brand</td><td>£75/mo</td></tr>
+</tbody></table>
+<table aria-label="Ongoing monthly service cost breakdown" data-cost-type="monthly">
+<thead><tr><th scope="col">Monthly ongoing services</th><th scope="col">GBP</th></tr></thead>
+<tbody>
+<tr><td>Fah Mai hosting and maintenance</td><td>£75/mo</td></tr>
+<tr><td>Whisky Bull hosting and maintenance</td><td>£75/mo</td></tr>
+<tr><td>Platinum Cask hosting and maintenance</td><td>£75/mo</td></tr>
+<tr><td>Fah Mai ongoing SEO / AI SEO</td><td>£75/mo</td></tr>
+<tr><td>Whisky Bull ongoing SEO / AI SEO</td><td>£75/mo</td></tr>
+<tr><td>Platinum Cask ongoing SEO / AI SEO</td><td>£75/mo</td></tr>
 <tr><td>Backend maintenance and support</td><td>£150/mo</td></tr>
-<tr class="budgetv8-rate-total"><td>Standard monthly service total</td><td>£600/mo</td></tr>
+<tr class="budgetv8-rate-total"><td>Standard monthly total</td><td>£600/mo</td></tr>
 </tbody></table>
 </div>
-<div class="budgetv8-comparison"><span><b>One-time standard value</b><strong>£8,625</strong></span><span><b>One-time partnership quote</b><strong>£5,750</strong></span></div>
+<div class="budgetv8-comparison"><span><b>Your one-time development quote</b><strong>£5,750</strong></span><span><b>Your ongoing monthly quote</b><strong>£400/mo</strong></span></div>
 <p class="budgetv8-fx">These are quoted GBP commercial values, not live foreign-exchange conversions. Item prices are standard standalone valuations; the complete package is offered at the discounted total.</p>
 </section>
 <section class="budgetv8-seo" aria-label="International SEO and AI-search strategy">
