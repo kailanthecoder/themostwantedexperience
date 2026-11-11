@@ -1,0 +1,65 @@
+name: Fah Mai v28 — enforce zero overlapping text or cropped pages
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/fahmai-zero-overlap-v28.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fahmai-zero-overlap-v28
+  cancel-in-progress: false
+
+jobs:
+  verify-and-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fix overlapping icon benefit grid and fixed one-line menu
+        run: python proposals/fah-mai/fix_overview_toolbar_v28.py
+      - name: Install headless browser engines
+        run: |
+          python -m pip install -q playwright
+          python -m playwright install --with-deps chromium webkit >/dev/null
+      - name: Detect actual visual text overlaps, sign-off clipping and two-row nav
+        run: python proposals/fah-mai/qa_no_clipping_v28.py
+      - name: Regression — all pages, mobile menus, budget and arrows
+        run: python proposals/fah-mai/qa_price_nav_v26.py
+      - name: Regression — all mobile A4 sheets fit the viewport
+        run: python proposals/fah-mai/qa_mobile_reader_v23.py
+      - name: Regression — identical A4 page typography across devices
+        run: python proposals/fah-mai/qa_exact_paper_v25.py
+      - name: Commit only fully tested HTML
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- proposals/fah-mai/index.html
+          if git diff --cached --quiet; then echo "NO_CHANGE"; exit 0; fi
+          git commit -m "Correct Overview benefit collisions and one-row mobile navigation"
+          for i in 1 2 3 4; do
+            git fetch origin main
+            git rebase origin/main
+            if git push origin HEAD:main; then
+              echo "FAHMAI_V28_COMMITTED"
+              exit 0
+            fi
+            sleep 3
+          done
+          exit 1
+      - name: Check GitHubraw fresh version availability
+        shell: bash
+        continue-on-error: true
+        run: |
+          set -e
+          SHA="$(git rev-parse HEAD)"
+          URL="https://githubraw.com/kailanthecoder/themostwantedexperience/main/proposals/fah-mai/index.html?rev=$SHA"
+          curl -L --max-time 30 -sS -o /tmp/fahmai-public.html -w 'PREVIEW_STATUS=%{http_code} PREVIEW_BYTES=%{size_download}\n' "$URL"
+          if grep -q 'fahmai-zero-overlap-v28' /tmp/fahmai-public.html; then
+            echo "PUBLIC_PREVIEW_HAS_V28"
+          else
+            echo "PUBLIC_PREVIEW_MISSING_V28"
+          fi
