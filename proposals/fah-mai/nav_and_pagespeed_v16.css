@@ -23,8 +23,12 @@ html body .toolbar nav.tabs.proposal-sections {
   scrollbar-width:none!important;
   -ms-overflow-style:none!important;
   /* Fade a truncated tab rather than letting its lettering visibly run into Export PDF. */
-  -webkit-mask-image:linear-gradient(90deg,#000 0%,#000 calc(100% - 25px),transparent 100%)!important;
-  mask-image:linear-gradient(90deg,#000 0%,#000 calc(100% - 25px),transparent 100%)!important;
+  -webkit-mask-image:none!important;
+  mask-image:none!important;
+}
+html body .toolbar nav.tabs.proposal-sections.has-overflow{
+  -webkit-mask-image:linear-gradient(90deg,#000 0%,#000 calc(100% - 22px),transparent 100%)!important;
+  mask-image:linear-gradient(90deg,#000 0%,#000 calc(100% - 22px),transparent 100%)!important;
 }
 html body .toolbar nav.tabs.proposal-sections::-webkit-scrollbar{
   display:none!important;
