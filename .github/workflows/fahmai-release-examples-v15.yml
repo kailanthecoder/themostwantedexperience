@@ -115,7 +115,8 @@ jobs:
             # Non-print pages retain clearance; test only visible pages in desktop spread.
             last=data['cards'][3]['card']['bottom']
             assert data['examplesContinue']['top']>=last+8, f'First Examples page cue overlaps cards: {data["examplesContinue"]["top"]} vs {last}'
-            assert data['cards'][7]['card']['bottom']<data['footer']['top']+25, 'Client Example card does not fit A4'
+            clientFooter=await page.locator('#examples-client .sheet-footer').evaluate('(e)=>e.getBoundingClientRect().top')
+            assert data['cards'][7]['card']['bottom']<clientFooter-5, 'Client Example card does not fit A4'
             n=next(c for c in data['cards'] if c['title']=='N W IL Autoglass')
             assert n['image']=='./nwil-autoglass-preview-v15.webp'
             if width>800:
