@@ -44,3 +44,5 @@ jobs:
             sleep 3
           done
           exit 1
+
+# Diagnostic rerun: inspect exact Examples sheet box positions before changing layout
