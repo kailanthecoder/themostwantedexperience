@@ -4500,6 +4500,43 @@ body,.viewport{overflow-anchor:none!important}
  }
 }
 </style>
+
+<style id="fahmai-mobile-facsimile-v29">
+/* Static artwork is genuinely hidden on desktop/print (existing HTML keeps
+   the original accessible & print-ready document). */
+html body .viewport>.sheet>.fm-page-fidelity{
+ display:none!important;
+}
+@media screen and (max-width:1024px){
+ html body .viewport[data-reading-mode="paged"]>.sheet.is-active{
+   position:relative!important;isolation:isolate!important;
+   overflow:hidden!important;
+ }
+ html body .viewport[data-reading-mode="paged"]>.sheet.is-active:is(#overview,#current,#current-journeys,#current-growth,#spec,#spec-delivery,#budget,#implementation,#implementation-evidence,#examples,#examples-client)>:not(.fm-page-fidelity){
+   display:none!important;
+ }
+ html body .viewport[data-reading-mode="paged"]>.sheet>.fm-page-fidelity,
+ html body .viewport[data-reading-mode="paged"]>.sheet.is-active>.fm-page-fidelity{
+   position:absolute!important;display:block!important;
+   box-sizing:border-box!important;inset:0!important;
+   width:100%!important;min-width:100%!important;max-width:100%!important;
+   height:100%!important;min-height:100%!important;max-height:100%!important;
+   margin:0!important;padding:0!important;border:0!important;
+   object-fit:fill!important;object-position:center center!important;
+   pointer-events:none!important;user-select:none!important;
+   z-index:2!important;overflow:hidden!important;
+   -webkit-user-drag:none!important;
+ }
+ /* Reliable page dimensions are independent of font loading, browser engines
+    and screen orientation. Existing zoom / Next / Previous controls stay live. */
+ html body .viewport[data-reading-mode="paged"]>.sheet.is-active{
+   contain:layout paint!important;
+ }
+}
+@media print {
+ html body .viewport>.sheet>.fm-page-fidelity{display:none!important}
+}
+</style>
 </head><body>
 <div class="toolbar"><div class="toolbar-inner">
  <div class="nav-toprow">
@@ -4559,7 +4596,7 @@ body,.viewport{overflow-anchor:none!important}
 </div>
 </div></div>
 <footer class="sheet-footer"><div><span class="footer-kicker">FAH MAI HOLDINGS × MOST WANTED</span><span>Website development proposal · Confidential draft</span></div><div class="footer-right"><span class="footer-page"></span><span class="footer-rule"></span><span>2026</span></div><div class="chapter-footer-label" aria-hidden="true"><strong>Overview</strong><span>Section 1 of 6</span><span class="chapter-footer-page">1/1</span></div></footer>
-</article><div class="chapter-divider" data-chapter-divider="current" role="separator" aria-label="Start of section 2, Current"><span class="chapter-divider-index">02</span><strong>Current</strong><span class="chapter-divider-line" aria-hidden="true"></span></div>
+<img class="fm-page-fidelity" src="./assets/page-fidelity-01.webp" alt="Overview — full A4 proposal page" width="1588" height="2246" decoding="async" loading="eager" draggable="false" aria-hidden="true"/></article><div class="chapter-divider" data-chapter-divider="current" role="separator" aria-label="Start of section 2, Current"><span class="chapter-divider-index">02</span><strong>Current</strong><span class="chapter-divider-line" aria-hidden="true"></span></div>
 <article class="sheet" id="current" role="tabpanel" aria-labelledby="tab-current" data-chapter="current" data-chapter-start="true" data-chapter-page="1">
   <div class="sheet-cap"></div>
 <div class="identity presentation-header">
@@ -4639,7 +4676,7 @@ body,.viewport{overflow-anchor:none!important}
   <p class="audit-v5-source">Source: Google PageSpeed Insights, single mobile lab tests, 11 Nov 2026. LCP is the time until the largest visible element appears, not total page-load time. Whisky Bull's test returned an error; no score is implied.</p>
 </div>
 <footer class="sheet-footer"><div><span class="footer-kicker">FAH MAI HOLDINGS × MOST WANTED</span><span>Website development proposal · Confidential draft</span></div><div class="footer-right"><span class="footer-page"></span><span class="footer-rule"></span><span>2026</span></div><div class="chapter-footer-label" aria-hidden="true"><strong>Current</strong><span>Section 2 of 6</span><span class="chapter-footer-page">1/3</span></div></footer>
- </article></article>
+ <img class="fm-page-fidelity" src="./assets/page-fidelity-02.webp" alt="Current — full A4 proposal page" width="1588" height="2246" decoding="async" loading="lazy" draggable="false" aria-hidden="true"/></article></article>
 <article class="sheet current-detail" data-proposal-section="current" id="current-journeys" role="region" aria-label="Current audit: brand opportunities" data-chapter="current" data-chapter-start="false" data-chapter-page="2">
   <div class="sheet-cap"></div>
 <div class="identity presentation-header">
@@ -4705,7 +4742,7 @@ body,.viewport{overflow-anchor:none!important}
   <p class="audit-v5-source">Observations concern publicly visible pages, not internal processes. Detailed scope follows consultation with each team.</p>
 </div>
 <footer class="sheet-footer"><div><span class="footer-kicker">FAH MAI HOLDINGS × MOST WANTED</span><span>Website development proposal · Confidential draft</span></div><div class="footer-right"><span class="footer-page"></span><span class="footer-rule"></span><span>2026</span></div><div class="chapter-footer-label" aria-hidden="true"><strong>Current</strong><span>Section 2 of 6</span><span class="chapter-footer-page">2/3</span></div></footer>
- </article></article>
+ <img class="fm-page-fidelity" src="./assets/page-fidelity-03.webp" alt="Current Journeys — full A4 proposal page" width="1588" height="2246" decoding="async" loading="lazy" draggable="false" aria-hidden="true"/></article></article>
 <article class="sheet current-detail" data-proposal-section="current" id="current-growth" role="region" aria-label="Current audit: commercial growth opportunities" data-chapter="current" data-chapter-start="false" data-chapter-page="3">
   <div class="sheet-cap"></div>
 <div class="identity presentation-header">
@@ -4750,7 +4787,7 @@ body,.viewport{overflow-anchor:none!important}
   <p class="audit-v5-source">These are execution objectives, not rankings or revenue guarantees. Establish baselines first, then measure, iterate and report. SEO specialist support is subject to the agreed ongoing scope.</p>
 </div>
 <footer class="sheet-footer"><div><span class="footer-kicker">FAH MAI HOLDINGS × MOST WANTED</span><span>Website development proposal · Confidential draft</span></div><div class="footer-right"><span class="footer-page"></span><span class="footer-rule"></span><span>2026</span></div><div class="chapter-footer-label" aria-hidden="true"><strong>Current</strong><span>Section 2 of 6</span><span class="chapter-footer-page">3/3</span></div></footer>
- </article></article><div class="chapter-divider" data-chapter-divider="spec" role="separator" aria-label="Start of section 3, Spec"><span class="chapter-divider-index">03</span><strong>Spec</strong><span class="chapter-divider-line" aria-hidden="true"></span></div>
+ <img class="fm-page-fidelity" src="./assets/page-fidelity-04.webp" alt="Current Growth — full A4 proposal page" width="1588" height="2246" decoding="async" loading="lazy" draggable="false" aria-hidden="true"/></article></article><div class="chapter-divider" data-chapter-divider="spec" role="separator" aria-label="Start of section 3, Spec"><span class="chapter-divider-index">03</span><strong>Spec</strong><span class="chapter-divider-line" aria-hidden="true"></span></div>
 <article class="sheet" id="spec" role="tabpanel" aria-labelledby="tab-spec" data-chapter="spec" data-chapter-start="true" data-chapter-page="1">
   <div class="sheet-cap"></div>
 <div class="identity presentation-header">
@@ -4820,7 +4857,7 @@ body,.viewport{overflow-anchor:none!important}
   <div class="specv6-scope-note"><strong>Built around real operations.</strong> Existing systems, data quality, permissions and integration requirements are confirmed in discovery, not assumed from the public websites.</div>
 </div>
 <footer class="sheet-footer"><div><span class="footer-kicker">FAH MAI HOLDINGS × MOST WANTED</span><span>Website development proposal · Confidential draft</span></div><div class="footer-right"><span class="footer-page"></span><span class="footer-rule"></span><span>2026</span></div><div class="chapter-footer-label" aria-hidden="true"><strong>Spec</strong><span>Section 3 of 6</span><span class="chapter-footer-page">1/2</span></div></footer>
- </article>
+ <img class="fm-page-fidelity" src="./assets/page-fidelity-05.webp" alt="Spec — full A4 proposal page" width="1588" height="2246" decoding="async" loading="lazy" draggable="false" aria-hidden="true"/></article>
 <article class="sheet specv6-detail" data-proposal-section="spec" id="spec-delivery" role="region" aria-label="Spec: technical delivery" data-chapter="spec" data-chapter-start="false" data-chapter-page="2">
   <div class="sheet-cap"></div>
 <div class="identity presentation-header">
@@ -4884,7 +4921,7 @@ body,.viewport{overflow-anchor:none!important}
   </div>
 </div>
 <footer class="sheet-footer"><div><span class="footer-kicker">FAH MAI HOLDINGS × MOST WANTED</span><span>Website development proposal · Confidential draft</span></div><div class="footer-right"><span class="footer-page"></span><span class="footer-rule"></span><span>2026</span></div><div class="chapter-footer-label" aria-hidden="true"><strong>Spec</strong><span>Section 3 of 6</span><span class="chapter-footer-page">2/2</span></div></footer>
- </article>
+ <img class="fm-page-fidelity" src="./assets/page-fidelity-06.webp" alt="Spec Delivery — full A4 proposal page" width="1588" height="2246" decoding="async" loading="lazy" draggable="false" aria-hidden="true"/></article>
 <div class="chapter-divider" data-chapter-divider="budget" role="separator" aria-label="Start of section 4, Budget"><span class="chapter-divider-index">04</span><strong>Budget</strong><span class="chapter-divider-line" aria-hidden="true"></span></div>
 <article class="sheet" id="budget" role="tabpanel" aria-labelledby="tab-budget" data-chapter="budget" data-chapter-start="true" data-chapter-page="1">
   <div class="sheet-cap"></div>
@@ -4978,7 +5015,7 @@ body,.viewport{overflow-anchor:none!important}
 </div>
 </div>
 <footer class="sheet-footer"><div><span class="footer-kicker">FAH MAI HOLDINGS × MOST WANTED</span><span>Website development proposal · Confidential draft</span></div><div class="footer-right"><span class="footer-page"></span><span class="footer-rule"></span><span>2026</span></div><div class="chapter-footer-label" aria-hidden="true"><strong>Budget</strong><span>Section 4 of 6</span><span class="chapter-footer-page">1/1</span></div></footer>
- </article><div class="chapter-divider" data-chapter-divider="implementation" role="separator" aria-label="Start of section 5, Implementation"><span class="chapter-divider-index">05</span><strong>Implementation</strong><span class="chapter-divider-line" aria-hidden="true"></span></div>
+ <img class="fm-page-fidelity" src="./assets/page-fidelity-07.webp" alt="Budget — full A4 proposal page" width="1588" height="2246" decoding="async" loading="lazy" draggable="false" aria-hidden="true"/></article><div class="chapter-divider" data-chapter-divider="implementation" role="separator" aria-label="Start of section 5, Implementation"><span class="chapter-divider-index">05</span><strong>Implementation</strong><span class="chapter-divider-line" aria-hidden="true"></span></div>
 <article class="sheet" id="implementation" role="tabpanel" aria-labelledby="tab-implementation" data-chapter="implementation" data-chapter-start="true" data-chapter-page="1">
   <div class="sheet-cap"></div>
 <div class="identity presentation-header">
@@ -5028,7 +5065,7 @@ body,.viewport{overflow-anchor:none!important}
   <div class="launch-signoff">Project timing, acceptance criteria and scope dependencies will be documented in the final statement of work. Optional external subscriptions and changes outside the agreed scope are separately approved.</div>
 </div>
 <footer class="sheet-footer"><div><span class="footer-kicker">FAH MAI HOLDINGS × MOST WANTED</span><span>Website development proposal · Confidential draft</span></div><div class="footer-right"><span class="footer-page"></span><span class="footer-rule"></span><span>2026</span></div><div class="chapter-footer-label" aria-hidden="true"><strong>Implementation</strong><span>Section 5 of 6</span><span class="chapter-footer-page">1/2</span></div></footer>
- </article>
+ <img class="fm-page-fidelity" src="./assets/page-fidelity-08.webp" alt="Implementation — full A4 proposal page" width="1588" height="2246" decoding="async" loading="lazy" draggable="false" aria-hidden="true"/></article>
 <article class="sheet implementation-detail" data-proposal-section="implementation" id="implementation-evidence" role="region" aria-label="Implementation funding and AI development evidence" data-chapter="implementation" data-chapter-start="false" data-chapter-page="2">
   <div class="sheet-cap"></div>
 <div class="identity presentation-header">
@@ -5072,7 +5109,7 @@ body,.viewport{overflow-anchor:none!important}
   <div class="launch-proof-terms">Third-party processing charges, optional external subscriptions, taxes and additional work outside the agreed statement of work are not included unless expressly agreed. All changes requiring extra spend will be approved first.</div>
 </div>
 <footer class="sheet-footer"><div><span class="footer-kicker">FAH MAI HOLDINGS × MOST WANTED</span><span>Website development proposal · Confidential draft</span></div><div class="footer-right"><span class="footer-page"></span><span class="footer-rule"></span><span>2026</span></div><div class="chapter-footer-label" aria-hidden="true"><strong>Implementation</strong><span>Section 5 of 6</span><span class="chapter-footer-page">2/2</span></div></footer>
- </article><div class="chapter-divider" data-chapter-divider="examples" role="separator" aria-label="Start of section 6, Examples"><span class="chapter-divider-index">06</span><strong>Examples</strong><span class="chapter-divider-line" aria-hidden="true"></span></div>
+ <img class="fm-page-fidelity" src="./assets/page-fidelity-09.webp" alt="Implementation Evidence — full A4 proposal page" width="1588" height="2246" decoding="async" loading="lazy" draggable="false" aria-hidden="true"/></article><div class="chapter-divider" data-chapter-divider="examples" role="separator" aria-label="Start of section 6, Examples"><span class="chapter-divider-index">06</span><strong>Examples</strong><span class="chapter-divider-line" aria-hidden="true"></span></div>
 <article class="sheet" id="examples" role="tabpanel" aria-labelledby="tab-examples" data-chapter="examples" data-chapter-start="true" data-chapter-page="1">
  <div class="sheet-cap"></div><div class="identity presentation-header">
  <section class="presented-group presented-to" aria-label="Presented to Louis on behalf of">
@@ -5119,7 +5156,7 @@ body,.viewport{overflow-anchor:none!important}
   </div>
  </div>
  <footer class="sheet-footer"><div class="chapter-footer-label" aria-hidden="true"><strong>Examples</strong><span>Section 6 of 6</span><span class="chapter-footer-page">1/2</span></div></footer>
-</article>
+<img class="fm-page-fidelity" src="./assets/page-fidelity-10.webp" alt="Examples — full A4 proposal page" width="1588" height="2246" decoding="async" loading="lazy" draggable="false" aria-hidden="true"/></article>
 <article class="sheet examples-detail" id="examples-client" data-proposal-section="examples" role="region" aria-label="Selected client website projects" data-chapter="examples" data-chapter-start="false" data-chapter-page="2">
  <div class="sheet-cap"></div><div class="identity presentation-header">
  <section class="presented-group presented-to" aria-label="Presented to Louis on behalf of">
@@ -5170,7 +5207,7 @@ body,.viewport{overflow-anchor:none!important}
    </div>
  </div>
  <footer class="sheet-footer"><div class="chapter-footer-label" aria-hidden="true"><strong>Examples</strong><span>Section 6 of 6</span><span class="chapter-footer-page">2/2</span></div></footer>
-</article></main><script>
+<img class="fm-page-fidelity" src="./assets/page-fidelity-11.webp" alt="Examples Client — full A4 proposal page" width="1588" height="2246" decoding="async" loading="lazy" draggable="false" aria-hidden="true"/></article></main><script>
 (()=>{
  const tabs=[...document.querySelectorAll('.proposal-sections [role="tab"]')];
  const sheets=[...document.querySelectorAll('.sheet')];
