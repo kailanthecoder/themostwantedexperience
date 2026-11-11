@@ -1,0 +1,56 @@
+name: Inspect PageSpeed gallery and proposal pronouns
+on:
+  push:
+    paths: ['.github/workflows/fahmai-inspect-gallery-pronouns-v17.yml']
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Examine current gallery, source image resolution and language
+        run: |
+          python -m pip install beautifulsoup4 pillow -q
+          python - <<'PY'
+          from pathlib import Path
+          from bs4 import BeautifulSoup
+          from PIL import Image
+          import re
+          p=Path('proposals/fah-mai/index.html')
+          html=p.read_text(encoding='utf8')
+          d=BeautifulSoup(html,'html.parser')
+          print('HTML_BYTES',len(html),'STYLES',len(d.find_all('style')),'SCRIPTS',len(d.find_all('script')))
+          section=d.find(id='current')
+          print('CURRENT_PAGE',section.select_one('.sheet-body').get_text(' ',strip=True)[:1700])
+          evidence=section.select_one('.ps-evidence')
+          print('EVIDENCE_HTML',str(evidence)[:7000])
+          gallery_css=[st.get_text() for st in d.find_all('style') if 'ps-evidence' in st.get_text()]
+          for i,style in enumerate(gallery_css):
+            print('STYLE_NUMBER',i,'LEN',len(style))
+            for t in ['#current .ps-evidence','#current .ps-report-image','#current .ps-carousel-detail','#current .ps-carousel-controls','#current .ps-report-dots','#current .ps-print-evidence']:
+              ms=[m for m in re.finditer(r'([^{}]{0,250})\{([^{}]{0,1100})\}',style) if t in m.group(1)]
+              for m in ms[-2:]:print('CSS',t,m.group(1).replace('\n',' ')[:180],'=>',m.group(2).replace('\n',' ')[:900])
+          for script in d.find_all('script'):
+            if script.get('id') and ('pagespeed' in script.get('id','') or 'audit' in script.get('id','')):
+              print('JS_SCRIPT',script.get('id'),script.get_text()[:5400])
+          folder=Path('proposals/fah-mai')
+          for name in ['pagespeed-evidence-v11.avif','pagespeed-evidence-v11.webp','overview-photo-editorial-v12.webp']:
+            x=folder/name
+            if x.exists():
+              im=Image.open(x)
+              print('ASSET',name,'size',im.size,'bytes',x.stat().st_size,'format',im.format)
+          print('PRONOUNS')
+          pattern=re.compile(r"\b(?:we|we're|we've|we'll|we'd|our|ours|us|ourselves)\b",re.I)
+          for sec in d.select('.viewport>.sheet'):
+            ss=sec.select_one('.sheet-body')
+            if not ss:continue
+            txt=ss.get_text(' ',strip=True)
+            for m in list(pattern.finditer(txt))[:16]:
+              print('PRONOUN',sec.get('id'),repr(txt[max(0,m.start()-100):m.end()+150]))
+            print('PRONOUN_COUNT',sec.get('id'),len(pattern.findall(txt)))
+          print('BODY_OTHER_PRONOUNS')
+          for t in d.find_all(['p','li','h1','h2','h3','small','strong','span']):
+            if t.find_parent('style') or t.find_parent('script'):continue
+            ss=t.get_text(' ',strip=True)
+            if len(ss)<400 and pattern.search(ss) and not t.find_parent(class_='sheet'):
+              print('OTHER',t.name,repr(ss[:370]))
+          PY
