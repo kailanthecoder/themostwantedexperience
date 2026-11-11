@@ -4512,7 +4512,7 @@ html body .viewport>.sheet>.fm-page-fidelity{
    position:relative!important;isolation:isolate!important;
    overflow:hidden!important;
  }
- html body .viewport[data-reading-mode="paged"]>.sheet.is-active:is(#overview,#current,#current-journeys,#current-growth,#spec,#spec-delivery,#budget,#implementation,#implementation-evidence,#examples,#examples-client)>:not(.fm-page-fidelity){
+ html body .viewport[data-reading-mode="paged"]>.sheet.is-active:is(#overview,#current,#current-journeys,#current-growth,#spec,#spec-delivery,#budget,#implementation,#implementation-evidence,#examples,#examples-client)>:not(.fm-page-fidelity):not(.fm-fidelity-hit){
    display:none!important;
  }
  html body .viewport[data-reading-mode="paged"]>.sheet>.fm-page-fidelity,
@@ -4536,6 +4536,26 @@ html body .viewport>.sheet>.fm-page-fidelity{
 @media print {
  html body .viewport>.sheet>.fm-page-fidelity{display:none!important}
 }
+</style>
+
+<style id="fm-fidelity-link-hit-v30">
+ html body .viewport>.sheet>.fm-fidelity-hit{display:none!important}
+ @media screen and (max-width:1024px){
+  html body .viewport[data-reading-mode="paged"]>.sheet.is-active>.fm-fidelity-hit{
+    box-sizing:border-box!important;display:block!important;position:absolute!important;
+    z-index:8!important;margin:0!important;padding:0!important;
+    border:0!important;border-radius:0!important;
+    background:transparent!important;box-shadow:none!important;
+    color:transparent!important;font-size:0!important;
+    opacity:0!important;pointer-events:auto!important;cursor:pointer!important;
+    touch-action:manipulation!important;
+  }
+  html body .viewport[data-reading-mode="paged"]>.sheet.is-active>.fm-fidelity-hit:focus-visible{
+    opacity:1!important;outline:2px solid #b92372!important;outline-offset:1px!important;
+    background:rgba(225,55,133,.08)!important;
+  }
+ }
+ @media print{ html body .viewport>.sheet>.fm-fidelity-hit{display:none!important} }
 </style>
 </head><body>
 <div class="toolbar"><div class="toolbar-inner">
@@ -4596,7 +4616,7 @@ html body .viewport>.sheet>.fm-page-fidelity{
 </div>
 </div></div>
 <footer class="sheet-footer"><div><span class="footer-kicker">FAH MAI HOLDINGS × MOST WANTED</span><span>Website development proposal · Confidential draft</span></div><div class="footer-right"><span class="footer-page"></span><span class="footer-rule"></span><span>2026</span></div><div class="chapter-footer-label" aria-hidden="true"><strong>Overview</strong><span>Section 1 of 6</span><span class="chapter-footer-page">1/1</span></div></footer>
-<img class="fm-page-fidelity" src="./assets/page-fidelity-01.webp" alt="Overview — full A4 proposal page" width="1588" height="2246" decoding="async" loading="eager" draggable="false" aria-hidden="true"/></article><div class="chapter-divider" data-chapter-divider="current" role="separator" aria-label="Start of section 2, Current"><span class="chapter-divider-index">02</span><strong>Current</strong><span class="chapter-divider-line" aria-hidden="true"></span></div>
+<img class="fm-page-fidelity" src="./assets/page-fidelity-01.webp" alt="Overview — full A4 proposal page" width="1588" height="2246" decoding="async" loading="eager" draggable="false" aria-hidden="true"/><a class="fm-fidelity-hit" href="https://fahmaiholdings.com/" aria-label="https://fahmaiholdings.com/" style="left:18.7731%;top:2.6280%;width:6.4257%;height:5.4342%;" target="_blank" rel="noopener noreferrer"></a><a class="fm-fidelity-hit" href="https://www.whiskybull.com/" aria-label="https://www.whiskybull.com/" style="left:26.5848%;top:2.6280%;width:6.5517%;height:5.4342%;" target="_blank" rel="noopener noreferrer"></a><a class="fm-fidelity-hit" href="https://www.platinumcask.com/" aria-label="https://www.platinumcask.com/" style="left:34.5224%;top:2.6280%;width:15.8753%;height:5.4342%;" target="_blank" rel="noopener noreferrer"></a><a class="fm-fidelity-hit" href="mailto:mr@kailanspall.com" aria-label="mr@kailanspall.com" style="left:23.5609%;top:88.2031%;width:12.1210%;height:1.3363%;"></a><a class="fm-fidelity-hit" href="tel:+573016349877" aria-label="+57 301 634 9877" style="left:37.8120%;top:88.2031%;width:10.3827%;height:1.3363%;"></a></article><div class="chapter-divider" data-chapter-divider="current" role="separator" aria-label="Start of section 2, Current"><span class="chapter-divider-index">02</span><strong>Current</strong><span class="chapter-divider-line" aria-hidden="true"></span></div>
 <article class="sheet" id="current" role="tabpanel" aria-labelledby="tab-current" data-chapter="current" data-chapter-start="true" data-chapter-page="1">
   <div class="sheet-cap"></div>
 <div class="identity presentation-header">
@@ -4676,7 +4696,7 @@ html body .viewport>.sheet>.fm-page-fidelity{
   <p class="audit-v5-source">Source: Google PageSpeed Insights, single mobile lab tests, 11 Nov 2026. LCP is the time until the largest visible element appears, not total page-load time. Whisky Bull's test returned an error; no score is implied.</p>
 </div>
 <footer class="sheet-footer"><div><span class="footer-kicker">FAH MAI HOLDINGS × MOST WANTED</span><span>Website development proposal · Confidential draft</span></div><div class="footer-right"><span class="footer-page"></span><span class="footer-rule"></span><span>2026</span></div><div class="chapter-footer-label" aria-hidden="true"><strong>Current</strong><span>Section 2 of 6</span><span class="chapter-footer-page">1/3</span></div></footer>
- <img class="fm-page-fidelity" src="./assets/page-fidelity-02.webp" alt="Current — full A4 proposal page" width="1588" height="2246" decoding="async" loading="lazy" draggable="false" aria-hidden="true"/></article></article>
+ <img class="fm-page-fidelity" src="./assets/page-fidelity-02.webp" alt="Current — full A4 proposal page" width="1588" height="2246" decoding="async" loading="lazy" draggable="false" aria-hidden="true"/><a class="fm-fidelity-hit" href="https://fahmaiholdings.com/" aria-label="https://fahmaiholdings.com/" style="left:18.7731%;top:2.6280%;width:6.4257%;height:5.4342%;" target="_blank" rel="noopener noreferrer"></a><a class="fm-fidelity-hit" href="https://www.whiskybull.com/" aria-label="https://www.whiskybull.com/" style="left:26.5848%;top:2.6280%;width:6.5517%;height:5.4342%;" target="_blank" rel="noopener noreferrer"></a><a class="fm-fidelity-hit" href="https://www.platinumcask.com/" aria-label="https://www.platinumcask.com/" style="left:34.5224%;top:2.6280%;width:15.8753%;height:5.4342%;" target="_blank" rel="noopener noreferrer"></a><button type="button" class="fm-fidelity-hit" data-fm-action="pagespeed:0" aria-label="Fah Mai Holdings, mobile report" style="left:5.0398%;top:22.8950%;width:8.5676%;height:6.0578%;"></button><button type="button" class="fm-fidelity-hit" data-fm-action="pagespeed:1" aria-label="Fah Mai Holdings, desktop report" style="left:5.0398%;top:29.9328%;width:8.5676%;height:6.0578%;"></button><button type="button" class="fm-fidelity-hit" data-fm-action="pagespeed:2" aria-label="Whisky Bull, desktop report" style="left:5.0398%;top:36.9705%;width:8.5676%;height:6.0578%;"></button><button type="button" class="fm-fidelity-hit" data-fm-action="pagespeed:3" aria-label="Platinum Cask, mobile report" style="left:5.0398%;top:44.0083%;width:8.5676%;height:6.0578%;"></button><button type="button" class="fm-fidelity-hit" data-fm-action="pagespeed:4" aria-label="Platinum Cask, desktop report" style="left:5.0398%;top:51.0461%;width:8.5676%;height:6.0578%;"></button><button type="button" class="fm-fidelity-hit" data-fm-action="pagespeed-full" aria-label="View selected PageSpeed report in full screen" style="left:58.3353%;top:23.8749%;width:11.4655%;height:2.9398%;"></button></article></article>
 <article class="sheet current-detail" data-proposal-section="current" id="current-journeys" role="region" aria-label="Current audit: brand opportunities" data-chapter="current" data-chapter-start="false" data-chapter-page="2">
   <div class="sheet-cap"></div>
 <div class="identity presentation-header">
@@ -4742,7 +4762,7 @@ html body .viewport>.sheet>.fm-page-fidelity{
   <p class="audit-v5-source">Observations concern publicly visible pages, not internal processes. Detailed scope follows consultation with each team.</p>
 </div>
 <footer class="sheet-footer"><div><span class="footer-kicker">FAH MAI HOLDINGS × MOST WANTED</span><span>Website development proposal · Confidential draft</span></div><div class="footer-right"><span class="footer-page"></span><span class="footer-rule"></span><span>2026</span></div><div class="chapter-footer-label" aria-hidden="true"><strong>Current</strong><span>Section 2 of 6</span><span class="chapter-footer-page">2/3</span></div></footer>
- <img class="fm-page-fidelity" src="./assets/page-fidelity-03.webp" alt="Current Journeys — full A4 proposal page" width="1588" height="2246" decoding="async" loading="lazy" draggable="false" aria-hidden="true"/></article></article>
+ <img class="fm-page-fidelity" src="./assets/page-fidelity-03.webp" alt="Current Journeys — full A4 proposal page" width="1588" height="2246" decoding="async" loading="lazy" draggable="false" aria-hidden="true"/><a class="fm-fidelity-hit" href="https://fahmaiholdings.com/" aria-label="https://fahmaiholdings.com/" style="left:18.7731%;top:2.6280%;width:6.4257%;height:5.4342%;" target="_blank" rel="noopener noreferrer"></a><a class="fm-fidelity-hit" href="https://www.whiskybull.com/" aria-label="https://www.whiskybull.com/" style="left:26.5848%;top:2.6280%;width:6.5517%;height:5.4342%;" target="_blank" rel="noopener noreferrer"></a><a class="fm-fidelity-hit" href="https://www.platinumcask.com/" aria-label="https://www.platinumcask.com/" style="left:34.5224%;top:2.6280%;width:15.8753%;height:5.4342%;" target="_blank" rel="noopener noreferrer"></a></article></article>
 <article class="sheet current-detail" data-proposal-section="current" id="current-growth" role="region" aria-label="Current audit: commercial growth opportunities" data-chapter="current" data-chapter-start="false" data-chapter-page="3">
   <div class="sheet-cap"></div>
 <div class="identity presentation-header">
@@ -4787,7 +4807,7 @@ html body .viewport>.sheet>.fm-page-fidelity{
   <p class="audit-v5-source">These are execution objectives, not rankings or revenue guarantees. Establish baselines first, then measure, iterate and report. SEO specialist support is subject to the agreed ongoing scope.</p>
 </div>
 <footer class="sheet-footer"><div><span class="footer-kicker">FAH MAI HOLDINGS × MOST WANTED</span><span>Website development proposal · Confidential draft</span></div><div class="footer-right"><span class="footer-page"></span><span class="footer-rule"></span><span>2026</span></div><div class="chapter-footer-label" aria-hidden="true"><strong>Current</strong><span>Section 2 of 6</span><span class="chapter-footer-page">3/3</span></div></footer>
- <img class="fm-page-fidelity" src="./assets/page-fidelity-04.webp" alt="Current Growth — full A4 proposal page" width="1588" height="2246" decoding="async" loading="lazy" draggable="false" aria-hidden="true"/></article></article><div class="chapter-divider" data-chapter-divider="spec" role="separator" aria-label="Start of section 3, Spec"><span class="chapter-divider-index">03</span><strong>Spec</strong><span class="chapter-divider-line" aria-hidden="true"></span></div>
+ <img class="fm-page-fidelity" src="./assets/page-fidelity-04.webp" alt="Current Growth — full A4 proposal page" width="1588" height="2246" decoding="async" loading="lazy" draggable="false" aria-hidden="true"/><a class="fm-fidelity-hit" href="https://fahmaiholdings.com/" aria-label="https://fahmaiholdings.com/" style="left:18.7731%;top:2.6280%;width:6.4257%;height:5.4342%;" target="_blank" rel="noopener noreferrer"></a><a class="fm-fidelity-hit" href="https://www.whiskybull.com/" aria-label="https://www.whiskybull.com/" style="left:26.5848%;top:2.6280%;width:6.5517%;height:5.4342%;" target="_blank" rel="noopener noreferrer"></a><a class="fm-fidelity-hit" href="https://www.platinumcask.com/" aria-label="https://www.platinumcask.com/" style="left:34.5224%;top:2.6280%;width:15.8753%;height:5.4342%;" target="_blank" rel="noopener noreferrer"></a></article></article><div class="chapter-divider" data-chapter-divider="spec" role="separator" aria-label="Start of section 3, Spec"><span class="chapter-divider-index">03</span><strong>Spec</strong><span class="chapter-divider-line" aria-hidden="true"></span></div>
 <article class="sheet" id="spec" role="tabpanel" aria-labelledby="tab-spec" data-chapter="spec" data-chapter-start="true" data-chapter-page="1">
   <div class="sheet-cap"></div>
 <div class="identity presentation-header">
@@ -4857,7 +4877,7 @@ html body .viewport>.sheet>.fm-page-fidelity{
   <div class="specv6-scope-note"><strong>Built around real operations.</strong> Existing systems, data quality, permissions and integration requirements are confirmed in discovery, not assumed from the public websites.</div>
 </div>
 <footer class="sheet-footer"><div><span class="footer-kicker">FAH MAI HOLDINGS × MOST WANTED</span><span>Website development proposal · Confidential draft</span></div><div class="footer-right"><span class="footer-page"></span><span class="footer-rule"></span><span>2026</span></div><div class="chapter-footer-label" aria-hidden="true"><strong>Spec</strong><span>Section 3 of 6</span><span class="chapter-footer-page">1/2</span></div></footer>
- <img class="fm-page-fidelity" src="./assets/page-fidelity-05.webp" alt="Spec — full A4 proposal page" width="1588" height="2246" decoding="async" loading="lazy" draggable="false" aria-hidden="true"/></article>
+ <img class="fm-page-fidelity" src="./assets/page-fidelity-05.webp" alt="Spec — full A4 proposal page" width="1588" height="2246" decoding="async" loading="lazy" draggable="false" aria-hidden="true"/><a class="fm-fidelity-hit" href="https://fahmaiholdings.com/" aria-label="https://fahmaiholdings.com/" style="left:18.7731%;top:2.6280%;width:6.4257%;height:5.4342%;" target="_blank" rel="noopener noreferrer"></a><a class="fm-fidelity-hit" href="https://www.whiskybull.com/" aria-label="https://www.whiskybull.com/" style="left:26.5848%;top:2.6280%;width:6.5517%;height:5.4342%;" target="_blank" rel="noopener noreferrer"></a><a class="fm-fidelity-hit" href="https://www.platinumcask.com/" aria-label="https://www.platinumcask.com/" style="left:34.5224%;top:2.6280%;width:15.8753%;height:5.4342%;" target="_blank" rel="noopener noreferrer"></a><a class="fm-fidelity-hit" href="https://fahmaiholdings.com/" aria-label="fahmaiholdings.com" style="left:5.0398%;top:37.9700%;width:10.3571%;height:1.0147%;" target="_blank" rel="noopener noreferrer"></a><a class="fm-fidelity-hit" href="https://www.whiskybull.com/" aria-label="whiskybull.com" style="left:5.0398%;top:53.7186%;width:8.0144%;height:1.0147%;" target="_blank" rel="noopener noreferrer"></a><a class="fm-fidelity-hit" href="https://www.platinumcask.com/" aria-label="platinumcask.com" style="left:5.0398%;top:67.0300%;width:9.3748%;height:1.0147%;" target="_blank" rel="noopener noreferrer"></a></article>
 <article class="sheet specv6-detail" data-proposal-section="spec" id="spec-delivery" role="region" aria-label="Spec: technical delivery" data-chapter="spec" data-chapter-start="false" data-chapter-page="2">
   <div class="sheet-cap"></div>
 <div class="identity presentation-header">
@@ -4921,7 +4941,7 @@ html body .viewport>.sheet>.fm-page-fidelity{
   </div>
 </div>
 <footer class="sheet-footer"><div><span class="footer-kicker">FAH MAI HOLDINGS × MOST WANTED</span><span>Website development proposal · Confidential draft</span></div><div class="footer-right"><span class="footer-page"></span><span class="footer-rule"></span><span>2026</span></div><div class="chapter-footer-label" aria-hidden="true"><strong>Spec</strong><span>Section 3 of 6</span><span class="chapter-footer-page">2/2</span></div></footer>
- <img class="fm-page-fidelity" src="./assets/page-fidelity-06.webp" alt="Spec Delivery — full A4 proposal page" width="1588" height="2246" decoding="async" loading="lazy" draggable="false" aria-hidden="true"/></article>
+ <img class="fm-page-fidelity" src="./assets/page-fidelity-06.webp" alt="Spec Delivery — full A4 proposal page" width="1588" height="2246" decoding="async" loading="lazy" draggable="false" aria-hidden="true"/><a class="fm-fidelity-hit" href="https://fahmaiholdings.com/" aria-label="https://fahmaiholdings.com/" style="left:18.7731%;top:2.6280%;width:6.4257%;height:5.4342%;" target="_blank" rel="noopener noreferrer"></a><a class="fm-fidelity-hit" href="https://www.whiskybull.com/" aria-label="https://www.whiskybull.com/" style="left:26.5848%;top:2.6280%;width:6.5517%;height:5.4342%;" target="_blank" rel="noopener noreferrer"></a><a class="fm-fidelity-hit" href="https://www.platinumcask.com/" aria-label="https://www.platinumcask.com/" style="left:34.5224%;top:2.6280%;width:15.8753%;height:5.4342%;" target="_blank" rel="noopener noreferrer"></a></article>
 <div class="chapter-divider" data-chapter-divider="budget" role="separator" aria-label="Start of section 4, Budget"><span class="chapter-divider-index">04</span><strong>Budget</strong><span class="chapter-divider-line" aria-hidden="true"></span></div>
 <article class="sheet" id="budget" role="tabpanel" aria-labelledby="tab-budget" data-chapter="budget" data-chapter-start="true" data-chapter-page="1">
   <div class="sheet-cap"></div>
@@ -5015,7 +5035,7 @@ html body .viewport>.sheet>.fm-page-fidelity{
 </div>
 </div>
 <footer class="sheet-footer"><div><span class="footer-kicker">FAH MAI HOLDINGS × MOST WANTED</span><span>Website development proposal · Confidential draft</span></div><div class="footer-right"><span class="footer-page"></span><span class="footer-rule"></span><span>2026</span></div><div class="chapter-footer-label" aria-hidden="true"><strong>Budget</strong><span>Section 4 of 6</span><span class="chapter-footer-page">1/1</span></div></footer>
- <img class="fm-page-fidelity" src="./assets/page-fidelity-07.webp" alt="Budget — full A4 proposal page" width="1588" height="2246" decoding="async" loading="lazy" draggable="false" aria-hidden="true"/></article><div class="chapter-divider" data-chapter-divider="implementation" role="separator" aria-label="Start of section 5, Implementation"><span class="chapter-divider-index">05</span><strong>Implementation</strong><span class="chapter-divider-line" aria-hidden="true"></span></div>
+ <img class="fm-page-fidelity" src="./assets/page-fidelity-07.webp" alt="Budget — full A4 proposal page" width="1588" height="2246" decoding="async" loading="lazy" draggable="false" aria-hidden="true"/><a class="fm-fidelity-hit" href="https://fahmaiholdings.com/" aria-label="https://fahmaiholdings.com/" style="left:18.7731%;top:2.6280%;width:6.4257%;height:5.4342%;" target="_blank" rel="noopener noreferrer"></a><a class="fm-fidelity-hit" href="https://www.whiskybull.com/" aria-label="https://www.whiskybull.com/" style="left:26.5848%;top:2.6280%;width:6.5517%;height:5.4342%;" target="_blank" rel="noopener noreferrer"></a><a class="fm-fidelity-hit" href="https://www.platinumcask.com/" aria-label="https://www.platinumcask.com/" style="left:34.5224%;top:2.6280%;width:15.8753%;height:5.4342%;" target="_blank" rel="noopener noreferrer"></a></article><div class="chapter-divider" data-chapter-divider="implementation" role="separator" aria-label="Start of section 5, Implementation"><span class="chapter-divider-index">05</span><strong>Implementation</strong><span class="chapter-divider-line" aria-hidden="true"></span></div>
 <article class="sheet" id="implementation" role="tabpanel" aria-labelledby="tab-implementation" data-chapter="implementation" data-chapter-start="true" data-chapter-page="1">
   <div class="sheet-cap"></div>
 <div class="identity presentation-header">
@@ -5065,7 +5085,7 @@ html body .viewport>.sheet>.fm-page-fidelity{
   <div class="launch-signoff">Project timing, acceptance criteria and scope dependencies will be documented in the final statement of work. Optional external subscriptions and changes outside the agreed scope are separately approved.</div>
 </div>
 <footer class="sheet-footer"><div><span class="footer-kicker">FAH MAI HOLDINGS × MOST WANTED</span><span>Website development proposal · Confidential draft</span></div><div class="footer-right"><span class="footer-page"></span><span class="footer-rule"></span><span>2026</span></div><div class="chapter-footer-label" aria-hidden="true"><strong>Implementation</strong><span>Section 5 of 6</span><span class="chapter-footer-page">1/2</span></div></footer>
- <img class="fm-page-fidelity" src="./assets/page-fidelity-08.webp" alt="Implementation — full A4 proposal page" width="1588" height="2246" decoding="async" loading="lazy" draggable="false" aria-hidden="true"/></article>
+ <img class="fm-page-fidelity" src="./assets/page-fidelity-08.webp" alt="Implementation — full A4 proposal page" width="1588" height="2246" decoding="async" loading="lazy" draggable="false" aria-hidden="true"/><a class="fm-fidelity-hit" href="https://fahmaiholdings.com/" aria-label="https://fahmaiholdings.com/" style="left:18.7731%;top:2.6280%;width:6.4257%;height:5.4342%;" target="_blank" rel="noopener noreferrer"></a><a class="fm-fidelity-hit" href="https://www.whiskybull.com/" aria-label="https://www.whiskybull.com/" style="left:26.5848%;top:2.6280%;width:6.5517%;height:5.4342%;" target="_blank" rel="noopener noreferrer"></a><a class="fm-fidelity-hit" href="https://www.platinumcask.com/" aria-label="https://www.platinumcask.com/" style="left:34.5224%;top:2.6280%;width:15.8753%;height:5.4342%;" target="_blank" rel="noopener noreferrer"></a></article>
 <article class="sheet implementation-detail" data-proposal-section="implementation" id="implementation-evidence" role="region" aria-label="Implementation funding and AI development evidence" data-chapter="implementation" data-chapter-start="false" data-chapter-page="2">
   <div class="sheet-cap"></div>
 <div class="identity presentation-header">
@@ -5109,7 +5129,7 @@ html body .viewport>.sheet>.fm-page-fidelity{
   <div class="launch-proof-terms">Third-party processing charges, optional external subscriptions, taxes and additional work outside the agreed statement of work are not included unless expressly agreed. All changes requiring extra spend will be approved first.</div>
 </div>
 <footer class="sheet-footer"><div><span class="footer-kicker">FAH MAI HOLDINGS × MOST WANTED</span><span>Website development proposal · Confidential draft</span></div><div class="footer-right"><span class="footer-page"></span><span class="footer-rule"></span><span>2026</span></div><div class="chapter-footer-label" aria-hidden="true"><strong>Implementation</strong><span>Section 5 of 6</span><span class="chapter-footer-page">2/2</span></div></footer>
- <img class="fm-page-fidelity" src="./assets/page-fidelity-09.webp" alt="Implementation Evidence — full A4 proposal page" width="1588" height="2246" decoding="async" loading="lazy" draggable="false" aria-hidden="true"/></article><div class="chapter-divider" data-chapter-divider="examples" role="separator" aria-label="Start of section 6, Examples"><span class="chapter-divider-index">06</span><strong>Examples</strong><span class="chapter-divider-line" aria-hidden="true"></span></div>
+ <img class="fm-page-fidelity" src="./assets/page-fidelity-09.webp" alt="Implementation Evidence — full A4 proposal page" width="1588" height="2246" decoding="async" loading="lazy" draggable="false" aria-hidden="true"/><a class="fm-fidelity-hit" href="https://fahmaiholdings.com/" aria-label="https://fahmaiholdings.com/" style="left:18.7731%;top:2.6280%;width:6.4257%;height:5.4342%;" target="_blank" rel="noopener noreferrer"></a><a class="fm-fidelity-hit" href="https://www.whiskybull.com/" aria-label="https://www.whiskybull.com/" style="left:26.5848%;top:2.6280%;width:6.5517%;height:5.4342%;" target="_blank" rel="noopener noreferrer"></a><a class="fm-fidelity-hit" href="https://www.platinumcask.com/" aria-label="https://www.platinumcask.com/" style="left:34.5224%;top:2.6280%;width:15.8753%;height:5.4342%;" target="_blank" rel="noopener noreferrer"></a></article><div class="chapter-divider" data-chapter-divider="examples" role="separator" aria-label="Start of section 6, Examples"><span class="chapter-divider-index">06</span><strong>Examples</strong><span class="chapter-divider-line" aria-hidden="true"></span></div>
 <article class="sheet" id="examples" role="tabpanel" aria-labelledby="tab-examples" data-chapter="examples" data-chapter-start="true" data-chapter-page="1">
  <div class="sheet-cap"></div><div class="identity presentation-header">
  <section class="presented-group presented-to" aria-label="Presented to Louis on behalf of">
@@ -5156,7 +5176,23 @@ html body .viewport>.sheet>.fm-page-fidelity{
   </div>
  </div>
  <footer class="sheet-footer"><div class="chapter-footer-label" aria-hidden="true"><strong>Examples</strong><span>Section 6 of 6</span><span class="chapter-footer-page">1/2</span></div></footer>
-<img class="fm-page-fidelity" src="./assets/page-fidelity-10.webp" alt="Examples — full A4 proposal page" width="1588" height="2246" decoding="async" loading="lazy" draggable="false" aria-hidden="true"/></article>
+<img class="fm-page-fidelity" src="./assets/page-fidelity-10.webp" alt="Examples — full A4 proposal page" width="1588" height="2246" decoding="async" loading="lazy" draggable="false" aria-hidden="true"/><a class="fm-fidelity-hit" href="https://fahmaiholdings.com/" aria-label="https://fahmaiholdings.com/" style="left:18.7731%;top:2.6280%;width:6.4257%;height:5.4342%;" target="_blank" rel="noopener noreferrer"></a><a class="fm-fidelity-hit" href="https://www.whiskybull.com/" aria-label="https://www.whiskybull.com/" style="left:26.5848%;top:2.6280%;width:6.5517%;height:5.4342%;" target="_blank" rel="noopener noreferrer"></a><a class="fm-fidelity-hit" href="https://www.platinumcask.com/" aria-label="https://www.platinumcask.com/" style="left:34.5224%;top:2.6280%;width:15.8753%;height:5.4342%;" target="_blank" rel="noopener noreferrer"></a><a class="fm-fidelity-hit" href="https://usemostwanted.com/" aria-label="Most Wanted
+
+My web design &amp; AI full-spectrum agency (on pause).
+
+View site" style="left:5.7957%;top:33.0786%;width:43.3853%;height:25.9239%;" target="_blank" rel="noopener noreferrer"></a><a class="fm-fidelity-hit" href="https://spanish.workwithkailan.com/" aria-label="Spanish Lessons
+
+My Spanish teaching website, previously used for lessons; not currently active.
+
+View site" style="left:50.8190%;top:33.0786%;width:43.3853%;height:25.9239%;" target="_blank" rel="noopener noreferrer"></a><a class="fm-fidelity-hit" href="https://closer.workwithkailan.com/" aria-label="My Closer Portfolio
+
+The portfolio I use to secure roles in sales.
+
+View site" style="left:5.7957%;top:60.1606%;width:43.3853%;height:25.9239%;" target="_blank" rel="noopener noreferrer"></a><a class="fm-fidelity-hit" href="https://workwithkailan.com/" aria-label="My Coaching Practice
+
+My life-coaching practice, currently on pause for the foreseeable future.
+
+View site" style="left:50.8190%;top:60.1606%;width:43.3853%;height:25.9239%;" target="_blank" rel="noopener noreferrer"></a><button type="button" class="fm-fidelity-hit" data-fm-action="examples-continue" aria-label="Continue to client projects" style="left:79.7149%;top:90.1560%;width:15.3713%;height:3.2071%;"></button></article>
 <article class="sheet examples-detail" id="examples-client" data-proposal-section="examples" role="region" aria-label="Selected client website projects" data-chapter="examples" data-chapter-start="false" data-chapter-page="2">
  <div class="sheet-cap"></div><div class="identity presentation-header">
  <section class="presented-group presented-to" aria-label="Presented to Louis on behalf of">
@@ -5207,7 +5243,38 @@ html body .viewport>.sheet>.fm-page-fidelity{
    </div>
  </div>
  <footer class="sheet-footer"><div class="chapter-footer-label" aria-hidden="true"><strong>Examples</strong><span>Section 6 of 6</span><span class="chapter-footer-page">2/2</span></div></footer>
-<img class="fm-page-fidelity" src="./assets/page-fidelity-11.webp" alt="Examples Client — full A4 proposal page" width="1588" height="2246" decoding="async" loading="lazy" draggable="false" aria-hidden="true"/></article></main><script>
+<img class="fm-page-fidelity" src="./assets/page-fidelity-11.webp" alt="Examples Client — full A4 proposal page" width="1588" height="2246" decoding="async" loading="lazy" draggable="false" aria-hidden="true"/><a class="fm-fidelity-hit" href="https://fahmaiholdings.com/" aria-label="https://fahmaiholdings.com/" style="left:18.7731%;top:2.6280%;width:6.4257%;height:5.4342%;" target="_blank" rel="noopener noreferrer"></a><a class="fm-fidelity-hit" href="https://www.whiskybull.com/" aria-label="https://www.whiskybull.com/" style="left:26.5848%;top:2.6280%;width:6.5517%;height:5.4342%;" target="_blank" rel="noopener noreferrer"></a><a class="fm-fidelity-hit" href="https://www.platinumcask.com/" aria-label="https://www.platinumcask.com/" style="left:34.5224%;top:2.6280%;width:15.8753%;height:5.4342%;" target="_blank" rel="noopener noreferrer"></a><a class="fm-fidelity-hit" href="https://www.addyaoutdoors.com/" aria-label="05 / 08
+Addya Outdoors
+OUTDOORS &amp; E-COMMERCE
+Addya Outdoors
+
+The first site I sold, with a backend e-commerce system.
+
+Designed by me · www.addyaoutdoors.com
+View site" style="left:5.7957%;top:33.0786%;width:43.3853%;height:25.9239%;" target="_blank" rel="noopener noreferrer"></a><a class="fm-fidelity-hit" href="https://ndeproperties.com/" aria-label="06 / 08
+New Dominion Real Estate
+PROPERTY &amp; CUSTOMER ACCOUNTS
+New Dominion Real Estate
+
+A real estate website I sold with an extensive customer-account backend.
+
+Designed by me · n" style="left:50.8190%;top:33.0786%;width:43.3853%;height:25.9239%;" target="_blank" rel="noopener noreferrer"></a><a class="fm-fidelity-hit" href="https://nwilautoglass.com/" aria-label="07 / 08
+N W IL Autoglass
+AUTO GLASS SERVICES
+N W IL Autoglass
+
+A US glass repair website.
+
+Co-designed by Kailan · nwilautoglass.com
+View site" style="left:5.7957%;top:60.1606%;width:43.3853%;height:25.9239%;" target="_blank" rel="noopener noreferrer"></a><a class="fm-fidelity-hit" href="https://kandicollisioncolor.com/" aria-label="08 / 08
+Kandi Collision &amp; Color
+COLLISION REPAIR &amp; CRM
+Kandi Collision &amp; Color
+
+A US collision-repair brand with a backend CRM.
+
+Co-designed by Kailan · kandicollisioncolor.com
+Vie" style="left:50.8190%;top:60.1606%;width:43.3853%;height:25.9239%;" target="_blank" rel="noopener noreferrer"></a></article></main><script>
 (()=>{
  const tabs=[...document.querySelectorAll('.proposal-sections [role="tab"]')];
  const sheets=[...document.querySelectorAll('.sheet')];
@@ -5962,5 +6029,23 @@ html body .viewport>.sheet>.fm-page-fidelity{
    if(!document.hidden)queue();
  });
  queue();
+})();</script>
+
+<script id="fm-fidelity-hit-handlers-v30">(function(){
+"use strict";
+document.addEventListener("click",function(event){
+ const hit=event.target.closest(".fm-fidelity-hit[data-fm-action]");
+ if(!hit)return;
+ const action=hit.dataset.fmAction||"";
+ if(action.startsWith("pagespeed:")){
+   const n=action.split(":")[1];
+   document.querySelector('#current .ps-v17-thumb[data-ps-slide="'+n+'"]')?.click();
+   document.querySelector('#current .ps-v22-expand')?.click();
+ }else if(action==="pagespeed-full"){
+   document.querySelector('#current .ps-v22-expand')?.click();
+ }else if(action==="examples-continue"){
+   document.querySelector('#examples [data-continue-examples]')?.click();
+ }
+});
 })();</script>
 </body></html>
