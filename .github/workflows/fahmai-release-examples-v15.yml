@@ -123,6 +123,7 @@ jobs:
               assert data['mode']=='spread'
               await page.locator('#examples [data-continue-examples]').click()
               await page.wait_for_timeout(200)
+              await page.locator('#nav-proposal').click()
               await page.locator('#tab-spec').click()
               d=await metrics(page)
               assert d['spec']['notes']['bottom']<=d['spec']['footer']['top']-3,'Spec content overlaps footer after text increase'
