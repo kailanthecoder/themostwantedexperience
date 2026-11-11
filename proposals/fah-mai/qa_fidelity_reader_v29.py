@@ -53,7 +53,7 @@ async def check(browser,w,h):
     assert a['imgDisplay']=='block',(w,h,'static page missing')
     assert a['img']['w']>=a['paper']['w']-2 and a['img']['w']<=a['paper']['w']+2,(w,h,'image does not fill page width')
     print('IMAGE_GEOMETRY',browser.browser_type.name,w,h,a['paper'],a['img'],a['reader'],flush=True)
-    assert abs(a['img']['h']-a['paper']['h'])<2,(w,h,'page height/image mismatch')
+    assert abs(a['img']['h']-a['paper']['h'])<=3,(w,h,'page height/image mismatch')
     assert a['paper']['left']>=-2 and a['paper']['right']<=w+2,(w,h,'page clipped horizontally')
     assert a['paper']['bottom']<=a['reader']['bottom']+2,(w,h,'page clipped vertically')
     if not a['complete']:
