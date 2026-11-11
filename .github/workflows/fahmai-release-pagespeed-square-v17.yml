@@ -1,0 +1,122 @@
+name: Publish square PageSpeed screenshots and Kailan-first copy
+on:
+  push:
+    paths: ['.github/workflows/fahmai-release-pagespeed-square-v17.yml']
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build square report gallery and revise first-person plural wording
+        run: |
+          python -m pip install beautifulsoup4 pillow -q
+          python proposals/fah-mai/install_square_pagespeed_and_copy_v17.py
+      - name: Verify visual hierarchy, image readability, interaction and PDF
+        run: |
+          python -m pip install playwright pypdf -q
+          python -m playwright install chromium >/dev/null 2>&1
+          python - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          from pypdf import PdfReader
+          import asyncio,io,base64
+          from playwright.async_api import async_playwright
+          root=Path('proposals/fah-mai')
+          html=(root/'index.html').read_text(encoding='utf-8')
+          for name in ('pagespeed-fmh-mobile-v17.png','pagespeed-fmh-desktop-v17.png','pagespeed-whiskybull-desktop-v17.png','pagespeed-platinum-mobile-v17.png','pagespeed-platinum-desktop-v17.png'):
+            p=root/name
+            assert p.is_file() and Image.open(p).size==(460,320),name
+          uri=(root/'index.html').resolve().as_uri()
+          async def measure(page):
+            return await page.evaluate("""()=>{
+              const rect=e=>{if(!e)return null;const b=e.getBoundingClientRect();return {x:b.x,y:b.y,right:b.right,bottom:b.bottom,width:b.width,height:b.height}};
+              const current=document.getElementById('current');
+              const squares=[...current.querySelectorAll('.ps-v17-thumb')];
+              const main=current.querySelector('.ps-v17-square');
+              const img=current.querySelector('.ps-v17-main-image');
+              return {
+                main:rect(main),
+                gallery:rect(current.querySelector('.ps-v17-evidence')),
+                thumbs:squares.map(x=>({rect:rect(x),pressed:x.getAttribute('aria-pressed'),label:x.getAttribute('aria-label')})),
+                image:{loaded:img.complete,width:img.naturalWidth,height:img.naturalHeight,src:img.getAttribute('src'),alt:img.alt,rect:rect(img)},
+                title:current.querySelector('.ps-v17-title').textContent.trim(),
+                result:current.querySelector('.ps-v17-result').textContent.trim(),
+                counter:current.querySelector('.ps-v17-index').textContent.trim(),
+                sourceBottom:rect(current.querySelector('.audit-v5-source')).bottom,
+                footerTop:rect(current.querySelector('.sheet-footer')).y,
+                screenshotToggle:current.querySelectorAll('.ps-source-toggle,.audit-v5-carousel').length,
+                count:document.querySelectorAll('.viewport>.sheet').length,
+                overflow:document.documentElement.scrollWidth>innerWidth+2
+              };
+            }""")
+          async def test(browser,width):
+            page=await browser.new_page(viewport={'width':width,'height':950},device_scale_factor=1)
+            errors=[]
+            page.on('pageerror',lambda e:errors.append(str(e)))
+            await page.goto(uri,wait_until='domcontentloaded',timeout=75000)
+            if width>800:await page.locator('#tab-current').click()
+            else:await page.locator('#current .ps-v17-thumbnails').scroll_into_view_if_needed()
+            await page.wait_for_timeout(160)
+            m=await measure(page)
+            print('SQUARE_GALLERY',width,m)
+            assert m['count']==12 and m['screenshotToggle']==0 and not m['overflow']
+            assert len(m['thumbs'])==5
+            assert m['image']['loaded'] and m['image']['width']==460 and m['image']['height']==320
+            assert abs(m['main']['width']-m['main']['height'])<2.0,f'{width}: main display is not square'
+            assert m['thumbs'][-1]['rect']['right']<=m['main']['x']-5,f'{width}: thumbnails not left of main preview'
+            for item in m['thumbs']:
+              assert abs(item['rect']['width']-item['rect']['height'])<1.5,f'{width}: thumbnail not square'
+            assert m['sourceBottom']<=m['footerTop']-5,f'{width}: evidence overlaps Current footer by {m["sourceBottom"]-m["footerTop"]}'
+            assert m['counter']=='01 / 05'
+            assert m['result'].startswith('Mobile')
+            for i in (2,4,3,1,0):
+              await page.locator(f'#current .ps-v17-thumb[data-ps-slide="{i}"]').click()
+              await page.wait_for_timeout(75)
+              c=await measure(page)
+              assert c['counter']==f'{i+1:02d} / 05',f'{width}: thumbnail selection failed: {i}'
+              assert sum(x['pressed']=='true' for x in c['thumbs'])==1
+              assert c['image']['loaded'] and c['image']['width']==460
+              if i==2:
+                assert 'Whisky Bull' in c['title'] and 'error' in c['result'],f'{width}: error report represented incorrectly'
+            # Keyboard navigation between thumbnails.
+            await page.locator('#current .ps-v17-thumb[data-ps-slide="0"]').focus()
+            await page.keyboard.press('ArrowDown')
+            assert (await page.locator('#current .ps-v17-index').text_content()).strip()=='02 / 05'
+            assert not errors, f'{width}: browser errors {errors}'
+            if width==1440:
+              # One image for visual review, not sent to repository.
+              await page.locator('#current .ps-v17-thumb[data-ps-slide="0"]').click()
+              shot=await page.locator('#current .ps-v17-evidence').screenshot()
+              im=Image.open(io.BytesIO(shot)).convert('RGB')
+              im.thumbnail((740,500))
+              buf=io.BytesIO();im.save(buf,'JPEG',quality=85,optimize=True)
+              print('SQUARE_V17_PREVIEW_BASE64',base64.b64encode(buf.getvalue()).decode('ascii'))
+              await page.evaluate("window.dispatchEvent(new Event('beforeprint'))")
+              await page.emulate_media(media='print')
+              printed=await page.evaluate("""()=>{
+                return {main:getComputedStyle(document.querySelector('#current .ps-v17-layout')).display,
+                  evidence:getComputedStyle(document.querySelector('#current .ps-print-evidence')).display,
+                  pages:document.querySelectorAll('.viewport>.sheet').length};
+              }""")
+              print('PRINT_ELEMENTS',printed)
+              assert printed['main']=='none' and printed['evidence']=='grid'
+              await page.pdf(path='/tmp/fahmai-gallery-v17.pdf',prefer_css_page_size=True,print_background=True)
+              n=len(PdfReader('/tmp/fahmai-gallery-v17.pdf').pages)
+              print('PDF_PAGES',n)
+              assert n==12,f'PDF page count changed: {n}'
+            await page.close()
+          async def main():
+            async with async_playwright() as p:
+              browser=await p.chromium.launch()
+              for width in (1440,900,390,320):await test(browser,width)
+              await browser.close()
+          asyncio.run(main())
+          PY
+      - name: Publish square gallery to the existing public proposal URL
+        run: |
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add proposals/fah-mai/index.html proposals/fah-mai/pagespeed-*-v17.png
+          git diff --cached --quiet || (git commit -m "Replace stretched PageSpeed strip with square viewer and left thumbnail rail; attribute work to Kailan" && git push)
