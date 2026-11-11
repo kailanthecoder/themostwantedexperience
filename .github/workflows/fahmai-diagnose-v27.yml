@@ -1,0 +1,20 @@
+name: Diagnose Fah Mai Overview clipping and navigation
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/fahmai-diagnose-v27.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install browser engines
+        run: |
+          python -m pip install -q playwright
+          python -m playwright install --with-deps chromium webkit >/dev/null
+      - name: Capture layout geometry, overflow and feature-icon intersections
+        run: python proposals/fah-mai/diagnose_overview_v27.py
