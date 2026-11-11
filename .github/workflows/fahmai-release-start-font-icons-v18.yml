@@ -48,7 +48,7 @@ jobs:
                 currentChapter:document.body.dataset.currentChapter,
                 documentWidth:document.documentElement.scrollWidth,windowWidth:innerWidth,
                 iconCount:spec.querySelectorAll('.specv6-num.specv18-glyph svg').length,
-                icons:[...spec.querySelectorAll('.specv6-num.specv18-glyph')].map(e=>({text:e.textContent.trim(),svg:e.querySelector('svg')?.getAttribute('aria-label'),width:rect(e.querySelector('svg')).width,height:rect(e.querySelector('svg')).height})),
+                icons:[...spec.querySelectorAll('.specv6-num.specv18-glyph')].map(e=>({text:e.textContent.trim(),svg:e.querySelector('svg')?.getAttribute('aria-label'),width:parseFloat(getComputedStyle(e.querySelector('svg')).width),height:parseFloat(getComputedStyle(e.querySelector('svg')).height)})),
                 fonts:{
                   heading:font(spec.querySelector('.specv6-heading h1')),
                   heading2:font(spec.querySelector('.specv6-capability h2')),
