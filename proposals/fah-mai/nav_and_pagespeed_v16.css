@@ -1,0 +1,54 @@
+/* Navigation v16: the scrollable chapter tabs never reach into the
+   persistent Export PDF control. Original layout and colours are retained. */
+html body .toolbar .toolbar-inner {
+  min-width:0!important;
+  max-width:100%!important;
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+}
+html body .toolbar nav.tabs.proposal-sections {
+  box-sizing:border-box!important;
+  min-width:0!important;
+  max-width:100%!important;
+  flex-shrink:1!important;
+  position:relative!important;
+  isolation:isolate!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  overscroll-behavior-x:contain!important;
+  scroll-padding-inline:14px!important;
+  padding-left:4px!important;
+  padding-right:23px!important;
+  margin-right:13px!important;
+  scrollbar-width:none!important;
+  -ms-overflow-style:none!important;
+  /* Fade a truncated tab rather than letting its lettering visibly run into Export PDF. */
+  -webkit-mask-image:linear-gradient(90deg,#000 0%,#000 calc(100% - 25px),transparent 100%)!important;
+  mask-image:linear-gradient(90deg,#000 0%,#000 calc(100% - 25px),transparent 100%)!important;
+}
+html body .toolbar nav.tabs.proposal-sections::-webkit-scrollbar{
+  display:none!important;
+}
+html body .toolbar .nav-toprow,
+html body .toolbar .tool-actions,
+html body .toolbar button.pdf-btn{
+  position:relative!important;
+  isolation:isolate!important;
+  z-index:3!important;
+}
+html body .toolbar .tool-actions {
+  flex-shrink:0!important;
+}
+html body .toolbar button.pdf-btn{
+  white-space:nowrap!important;
+}
+/* Current is now strictly a PageSpeed evidence page. */
+#current .ps-evidence {
+  margin-top:8px!important;
+}
+@media print{
+  html body .toolbar nav.tabs.proposal-sections{
+    -webkit-mask-image:none!important;mask-image:none!important;
+  }
+  #current .ps-evidence{margin-top:8px!important;}
+}
