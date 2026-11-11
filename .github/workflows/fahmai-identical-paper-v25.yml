@@ -2,7 +2,7 @@ name: Release identical A4 proposal on mobile and desktop
 on:
   push:
     branches: [main]
-    paths: ['.github/workflows/fahmai-identical-paper-v25.yml']
+    paths: ['.github/workflows/fahmai-identical-paper-v25.yml', 'proposals/fah-mai/qa_exact_paper_v25.py']
   workflow_dispatch:
 
 permissions:
