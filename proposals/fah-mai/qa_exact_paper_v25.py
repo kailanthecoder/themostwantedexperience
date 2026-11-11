@@ -25,7 +25,7 @@ SELECTORS=[
 ]
 PROPS=['fontFamily','fontSize','fontWeight','lineHeight','letterSpacing',
        'paddingTop','paddingRight','paddingBottom','paddingLeft',
-       'marginTop','marginBottom','borderTopWidth','borderBottomWidth',
+       'marginTop','marginBottom',
        'backgroundColor','color','borderRadius']
 async def state(page):
     return await page.evaluate("""([pages,selectors,props])=>{
