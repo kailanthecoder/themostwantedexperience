@@ -2,7 +2,7 @@ name: Fah Mai v29 — immutable A4 rendering for mobile
 on:
   push:
     branches: [main]
-    paths: ['.github/workflows/fahmai-fidelity-v29.yml']
+    paths: ['.github/workflows/fahmai-fidelity-v29.yml', 'proposals/fah-mai/render_fidelity_pages_v29.py', 'proposals/fah-mai/qa_fidelity_reader_v29.py']
   workflow_dispatch:
 
 permissions:
