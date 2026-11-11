@@ -1,0 +1,309 @@
+name: Repair Fah Mai responsive mobile reader v19
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/fahmai-mobile-repair-v19.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Repair reader and reduce initial HTML payload
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import base64, hashlib, re
+          root=Path('proposals/fah-mai')
+          file=root/'index.html'
+          source=file.read_text(encoding='utf-8')
+          s=source
+          if 'id="fahmai-mobile-reader-v19"' in s:
+              raise RuntimeError('v19 is already applied: abort to avoid duplicate patches')
+
+          def must(old,new,count=1):
+              global s
+              found=s.count(old)
+              if found!=count: raise RuntimeError(f'Expected {count} occurrences, got {found}: {old[:120]}')
+              s=s.replace(old,new,count)
+
+          # Repair the actual reader controller, instead of stacking a competing controller.
+          must('const mode = () => mobile() ? "vertical" : zoomFactor > spreadThreshold + 0.001 ? "vertical" : "spread";',
+               'const mode = () => mobile() ? "paged" : zoomFactor > spreadThreshold + 0.001 ? "vertical" : "spread";')
+          must('const show = !isSpread || groupAt(pageIndex).includes(i);',
+               'const show = readingMode === "paged" ? i === pageIndex : (!isSpread || groupAt(pageIndex).includes(i));')
+          must('const storedZoom = isMobile => {\n    const fallback = isMobile ? 1 : spreadThreshold;',
+               'const storedZoom = isMobile => {\n    if (isMobile) return 1; // Never re-open on a previously enlarged/clipped phone page.\n    const fallback = spreadThreshold;')
+          must('if (mobile()) tab.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" });','')
+          must('if (mode() === "vertical") requestAnimationFrame(() => jumpTo(i, smooth));\n    else window.scrollTo({ top: 0, behavior: smooth ? "smooth" : "auto" });',
+               'if (mode() === "vertical") requestAnimationFrame(() => jumpTo(i, smooth));\n    else {\n      sheets[i].scrollTop = 0;\n      window.scrollTo({ top: 0, left: 0, behavior: "instant" });\n    }')
+          must('const readingMode = mode();\n    const previousReadingMode = previousMode;',
+               'const readingMode = mode();\n    const previousReadingMode = previousMode;')
+          # Stop the earlier tab controller from vertically moving the full browser
+          # while the later page controller is choosing a new A4 page.
+          old=''' document.querySelectorAll('nav.tabs button.tab').forEach(function(tab){
+  tab.addEventListener('click',function(){
+   if(window.innerWidth<1190){tab.scrollIntoView({block:'nearest',inline:'center',behavior:'smooth'})}
+  });
+ });'''
+          must(old,' // Chapter tab reveal is handled horizontally by the tab-strip controller.')
+          # The Examples continuation button should advance to the next A4 page
+          # instead of trying to scroll a hidden second page into view.
+          must("if(reader.dataset.readingMode==='vertical'){",
+               "if(reader.dataset.readingMode==='paged'){\n      document.querySelector('.fm-story-next')?.click();\n      return;\n    }\n    if(reader.dataset.readingMode==='vertical'){")
+          # Ensure print does not preserve phone zoom or native scroll clipping.
+          css = """
+          <style id="fahmai-mobile-reader-v19">
+          /* v19: one paginated A4 sheet, no endless mobile scroll or randomly restored chapter. */
+          @media screen and (max-width:800px) {
+            html,body {max-width:100%!important;overflow-x:hidden!important;overscroll-behavior-x:none!important}
+            html body .toolbar {
+              position:sticky!important;top:0!important;z-index:1200!important;
+              width:100%!important;max-width:100vw!important;
+              background:rgba(255,249,252,.97)!important;
+              -webkit-backdrop-filter:blur(12px)!important;backdrop-filter:blur(12px)!important;
+            }
+            html body .toolbar .toolbar-inner {
+              box-sizing:border-box!important;display:grid!important;
+              grid-template-columns:minmax(0,1fr) auto!important;
+              grid-template-rows:auto auto!important;
+              width:100%!important;max-width:100%!important;
+              height:auto!important;min-height:0!important;
+              padding:7px 9px 6px!important;margin:0 auto!important;
+              gap:6px 8px!important;align-items:center!important;
+              justify-content:stretch!important;overflow:hidden!important;
+            }
+            html body .toolbar .nav-toprow {display:contents!important}
+            html body .toolbar .tool-brand {display:none!important}
+            html body .toolbar .view-switcher {
+              order:0!important;grid-row:1!important;grid-column:1!important;
+              justify-self:start!important;min-width:0!important;max-width:100%!important;
+              margin:0!important;padding:2px!important;
+            }
+            html body .toolbar .view-switch {
+              min-height:32px!important;height:32px!important;
+              padding:0 clamp(7px,2.8vw,13px)!important;
+              font:750 clamp(10px,2.9vw,12px)/1 "Source Sans 3",sans-serif!important;
+            }
+            html body .toolbar .tool-actions {
+              order:0!important;grid-row:1!important;grid-column:2!important;
+              min-width:0!important;justify-self:end!important;
+              width:auto!important;margin:0!important;padding:0!important;
+            }
+            html body .toolbar .pdf-btn {
+              min-height:32px!important;height:32px!important;
+              padding:0 clamp(8px,2.5vw,13px)!important;
+              font:750 clamp(9px,2.7vw,11px)/1 "Source Sans 3",sans-serif!important;
+              white-space:nowrap!important;
+            }
+            html body .toolbar nav.tabs.proposal-sections {
+              order:0!important;grid-row:2!important;grid-column:1/-1!important;
+              box-sizing:border-box!important;display:flex!important;
+              flex-wrap:nowrap!important;justify-content:flex-start!important;
+              width:100%!important;min-width:0!important;max-width:100%!important;
+              height:41px!important;min-height:41px!important;
+              margin:0!important;padding:2px 4px 3px!important;gap:5px!important;
+              overflow-x:auto!important;overflow-y:hidden!important;
+              overscroll-behavior-x:contain!important;scrollbar-width:none!important;
+              -webkit-overflow-scrolling:touch!important;
+              -webkit-mask-image:none!important;mask-image:none!important;
+            }
+            html body .toolbar nav.tabs.proposal-sections::-webkit-scrollbar {display:none!important}
+            html body .toolbar nav.tabs.proposal-sections button.tab,
+            html body .toolbar nav.tabs.proposal-sections button#tab-proposed {
+              flex:0 0 auto!important;box-sizing:border-box!important;
+              height:35px!important;min-height:35px!important;
+              padding:0 11px!important;margin-top:0!important;
+              margin-bottom:0!important;
+              font:750 12px/1 "Source Sans 3",sans-serif!important;
+              white-space:nowrap!important;
+            }
+            html body .toolbar nav.tabs.proposal-sections #tab-proposed {margin-left:10px!important}
+            html body .viewport[data-reading-mode="paged"] {
+              box-sizing:border-box!important;display:block!important;
+              width:100%!important;max-width:100vw!important;min-width:0!important;
+              min-height:calc(100dvh - 160px)!important;
+              margin:0 auto!important;padding:12px 4px calc(108px + env(safe-area-inset-bottom,0px))!important;
+              overflow-x:auto!important;overflow-y:visible!important;
+              -webkit-overflow-scrolling:touch!important;
+              overscroll-behavior-x:contain!important;
+              scroll-snap-type:none!important;
+            }
+            html body .viewport[data-reading-mode="paged"] > .chapter-divider {display:none!important}
+            html body .viewport[data-reading-mode="paged"] > .sheet {
+              display:none!important;
+              position:relative!important;flex-direction:column!important;
+              width:210mm!important;min-width:210mm!important;
+              height:297mm!important;min-height:297mm!important;
+              max-width:none!important;max-height:none!important;
+              box-sizing:border-box!important;margin:0 auto!important;
+              overflow-x:hidden!important;overflow-y:auto!important;
+              overscroll-behavior-y:contain!important;
+              -webkit-overflow-scrolling:touch!important;
+              scroll-snap-align:none!important;
+            }
+            html body .viewport[data-reading-mode="paged"] > .sheet.is-active {
+              display:flex!important;
+            }
+            html body .viewport[data-reading-mode="paged"] > .sheet .sheet-body {
+              flex:1 0 auto!important;min-height:min-content!important;
+            }
+            html body .fm-zoom {
+              position:fixed!important;
+              bottom:calc(14px + env(safe-area-inset-bottom,0px))!important;
+              left:50%!important;right:auto!important;top:auto!important;
+              transform:translateX(-50%)!important;
+              z-index:1300!important;
+              max-width:calc(100vw - 16px)!important;
+              margin:0!important;
+              box-sizing:border-box!important;
+            }
+            html body .ps-v22-dialog {width:100vw!important;height:100dvh!important;max-height:100dvh!important}
+          }
+          @media screen and (max-width:350px){
+            html body .toolbar .toolbar-inner {padding-left:5px!important;padding-right:5px!important;gap:4px!important}
+            html body .toolbar .view-switch {padding:0 7px!important;font-size:10px!important}
+            html body .toolbar .pdf-btn {padding:0 7px!important;font-size:9px!important}
+            html body .toolbar nav.tabs.proposal-sections button.tab {font-size:11px!important;padding:0 9px!important}
+          }
+          @media print {
+            html body .viewport[data-reading-mode="paged"] {overflow:visible!important;padding:0!important;min-height:0!important}
+            html body .viewport[data-reading-mode="paged"] > .sheet,
+            html body .viewport[data-reading-mode="paged"] > .sheet:not(.is-active) {
+              display:flex!important;zoom:1!important;
+              overflow:hidden!important;width:210mm!important;height:297mm!important;
+              break-after:page!important;
+            }
+            html body .viewport[data-reading-mode="paged"] > .sheet .sheet-body {
+              flex:1 1 auto!important;min-height:0!important;
+            }
+          }
+          </style>
+          """
+          must('</head>',css+'</head>')
+          # The deploy had nearly 3MB of HTML. Move large, losslessly decoded
+          # inline pictures to normal cacheable static files; fonts, CSS and JS
+          # stay in-place. Relative URLs work on both GitHubRaw and GitHub Pages.
+          pattern=re.compile(r'data:(image/(?:png|jpeg|gif|webp|svg\+xml|avif));base64,([A-Za-z0-9+/=]+)',re.I)
+          found=list(pattern.finditer(s))
+          print('INLINE_IMAGE_COUNT',len(found),'ENCODED_BYTES',sum(len(m.group(0)) for m in found))
+          types={'png':'png','jpeg':'jpg','gif':'gif','webp':'webp','svg+xml':'svg','avif':'avif'}
+          assets=root/'assets'
+          moved={}
+          def external(m):
+              if len(m.group(0))<24000: return m.group(0)
+              try: data=base64.b64decode(m.group(2),validate=True)
+              except Exception: return m.group(0)
+              mim=m.group(1).split('/',1)[1].lower()
+              ext=types.get(mim)
+              if not ext: return m.group(0)
+              sha=hashlib.sha256(data).hexdigest()[:18]
+              name=f'inline-{sha}.{ext}'
+              assets.mkdir(parents=True,exist_ok=True)
+              (assets/name).write_bytes(data)
+              moved[name]=len(data)
+              return './assets/'+name
+          s=pattern.sub(external,s)
+          print('EXTERNALIZED_IMAGE_COUNT',len(moved),'ASSET_BYTES',sum(moved.values()))
+          print('HTML_ORIGINAL_BYTES',len(source.encode()),'HTML_PATCHED_BYTES',len(s.encode()))
+          if len(s)<100000 or s.count('<article')<12: raise RuntimeError('Unexpected HTML structure, no write')
+          file.write_text(s,encoding='utf-8')
+          print('PATCHED_MOBILE_READER_V19',file)
+          PY
+      - name: Browser QA across mobile, tablet, desktop and A4 PDF
+        run: |
+          python -m pip install --disable-pip-version-check -q playwright pypdf
+          python -m playwright install chromium >/dev/null 2>&1
+          python - <<'PY'
+          import asyncio
+          from pathlib import Path
+          from pypdf import PdfReader
+          from playwright.async_api import async_playwright
+          target=Path('proposals/fah-mai/index.html').resolve().as_uri()
+          async def main():
+            async with async_playwright() as p:
+              browser=await p.chromium.launch()
+              for width,height in [(320,700),(360,760),(375,812),(390,844),(430,932),(590,900),(768,1024),(800,900),(820,1180),(1024,768),(1440,900)]:
+                page=await browser.new_page(viewport={'width':width,'height':height},device_scale_factor=1)
+                errors=[]
+                page.on('pageerror',lambda e:errors.append(str(e)))
+                await page.goto(target+'#budget',wait_until='domcontentloaded')
+                await page.wait_for_timeout(350)
+                async def stats():
+                  return await page.evaluate("""() => {
+                    const sheets=[...document.querySelectorAll('.viewport>.sheet')];
+                    const active=sheets.filter(e=>getComputedStyle(e).display!=='none').map(e=>e.id);
+                    const paper=sheets.find(e=>getComputedStyle(e).display!=='none');
+                    const menu=document.querySelector('.toolbar nav.tabs.proposal-sections');
+                    return {
+                      hash:location.hash,scroll:scrollY,overflow:document.documentElement.scrollWidth-innerWidth,
+                      mode:document.querySelector('.viewport').dataset.readingMode,
+                      active, counter:document.querySelector('.fm-story-counter')?.textContent.trim(),
+                      tab:document.querySelector('.proposal-sections [aria-selected="true"]')?.dataset.target,
+                      toolbarTop:document.querySelector('.toolbar').getBoundingClientRect().top,
+                      menuDisplay:getComputedStyle(menu).display, menuVisible:menu.getBoundingClientRect().height>10,
+                      pageWidth:paper?.getBoundingClientRect().width,
+                      pageHeight:paper?.getBoundingClientRect().height,
+                      pageScrollable:paper?getComputedStyle(paper).overflowY:null,
+                      pageScrollHeight:paper?.scrollHeight, pageClientHeight:paper?.clientHeight
+                    };
+                  }""")
+                s=await stats()
+                print('VIEWPORT_START',width,height,s)
+                assert s['hash']=='' and s['tab']=='overview' and s['counter'].startswith('1 / '),f'{width} startup {s}'
+                assert s['scroll']<8 and s['overflow']<=2,f'{width} jumped or horizontal body overflow {s}'
+                assert s['menuVisible'] and abs(s['toolbarTop'])<=3,f'{width} toolbar missing {s}'
+                if width<=800:
+                  assert s['mode']=='paged' and s['active']==['overview'],f'{width} mobile not single page {s}'
+                  assert s['pageWidth']<=width-5,f'{width} paper extends past viewport {s}'
+                  assert s['pageScrollable']=='auto',f'{width} sheet clips content {s}'
+                  await page.locator('.fm-story-next').click()
+                  await page.wait_for_timeout(75)
+                  p2=await stats()
+                  assert p2['active']==['current'] and p2['counter'].startswith('2 / '),f'{width} next page {p2}'
+                  await page.locator('.fm-story-prev').click()
+                  p1=await stats()
+                  assert p1['active']==['overview'],f'{width} back did not return to Overview {p1}'
+                  await page.locator('#tab-budget').click()
+                  await page.wait_for_timeout(125)
+                  pb=await stats()
+                  assert pb['active']==['budget'] and pb['tab']=='budget',f'{width} budget navigation {pb}'
+                  await page.reload(wait_until='domcontentloaded')
+                  await page.wait_for_timeout(350)
+                  sr=await stats()
+                  assert sr['active']==['overview'] and sr['tab']=='overview' and sr['scroll']<8,f'{width} reload restoration {sr}'
+                else:
+                  assert s['mode'] in ('spread','vertical'),f'{width} desktop mode {s}'
+                assert not errors,f'{width} JS errors: {errors}'
+                await page.close()
+              # Preserve the 12-page print document rather than making mobile pages printable only.
+              page=await browser.new_page(viewport={'width':390,'height':844})
+              await page.goto(target,wait_until='domcontentloaded')
+              await page.emulate_media(media='print')
+              pdf=await page.pdf(format='A4',prefer_css_page_size=True,print_background=True)
+              count=len(PdfReader(__import__('io').BytesIO(pdf)).pages)
+              print('A4_PRINT_PAGE_COUNT',count)
+              assert count==12,f'Expected 12 A4 pages, got {count}'
+              await browser.close()
+          asyncio.run(main())
+          PY
+      - name: Commit verified mobile build
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add proposals/fah-mai/index.html proposals/fah-mai/assets
+          if git diff --cached --quiet; then
+            echo "NO_CHANGES"; exit 0
+          fi
+          git commit -m "Fix Fah Mai mobile single-page reader, fixed navigation, clipping and load weight"
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git rebase origin/main
+            if git push origin HEAD:main; then echo MOBILE_V19_PUBLISHED; exit 0; fi
+            sleep 3
+          done
+          echo "Unable to publish after retries"; exit 1
