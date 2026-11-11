@@ -16,6 +16,7 @@ jobs:
           from PIL import Image,ImageOps,ImageDraw
           from pathlib import Path
           from bs4 import BeautifulSoup
+          from playwright.async_api import async_playwright
           d=BeautifulSoup(Path('proposals/fah-mai/index.html').read_text(),'html.parser')
           img=d.select_one('#examples-client a[href*="nwilautoglass"] img.example-screenshot')
           print('NWIL_IMAGE_SRC_PREFIX',img.get('src','')[:110])
