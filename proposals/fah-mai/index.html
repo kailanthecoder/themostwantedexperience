@@ -4007,6 +4007,206 @@ body,.viewport{overflow-anchor:none!important}
   }
 }
 </style>
+<style id="fahmai-mobile-polish-v20">
+/* Premium mobile document reader. Screen-only: printed A4 sheets remain unchanged. */
+@media screen and (max-width:800px) {
+  html,body{background:#faf7fa!important;overscroll-behavior-x:none!important}
+  html body .toolbar{
+    z-index:1500!important;
+    background:#fff!important;
+    border-bottom:1px solid #eee4eb!important;
+    box-shadow:0 2px 12px rgba(66,28,53,.045)!important;
+    -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+  }
+  html body .toolbar .toolbar-inner{
+    padding:9px 12px 9px!important;
+    gap:8px 10px!important;
+    background:#fff!important;
+  }
+  html body .toolbar .view-switcher{
+    background:#f9f4f7!important;
+    border:1px solid #f0e5ec!important;
+    box-shadow:none!important;
+    gap:2px!important;
+    padding:3px!important;
+    border-radius:999px!important;
+  }
+  html body .toolbar .view-switch{
+    font-family:"Source Sans 3",sans-serif!important;
+    font-size:12px!important;font-weight:750!important;
+    letter-spacing:.01em!important;
+    border-radius:999px!important;
+    border:0!important;box-shadow:none!important;
+    height:33px!important;min-height:33px!important;
+    color:#675864!important;background:transparent!important;
+  }
+  html body .toolbar .view-switch.is-current,
+  html body .toolbar .view-switch[aria-pressed="true"]{
+    background:#ca2c78!important;color:#fff!important;
+    border:0!important;box-shadow:none!important;
+  }
+  html body .toolbar .pdf-btn{
+    font-family:"Source Sans 3",sans-serif!important;
+    font-size:11px!important;font-weight:750!important;
+    color:#a91c65!important;
+    background:#fff!important;
+    border:1px solid #e8bcd3!important;
+    border-radius:11px!important;
+    box-shadow:none!important;
+    padding:0 13px!important;height:37px!important;min-height:37px!important;
+  }
+  html body .toolbar .pdf-btn:focus-visible,
+  html body .toolbar nav.tabs.proposal-sections .tab:focus-visible,
+  html body .fm-zoom button:focus-visible{
+    outline:2px solid #c62b77!important;outline-offset:2px!important;
+  }
+  html body .toolbar nav.tabs.proposal-sections{
+    height:41px!important;min-height:41px!important;
+    padding:1px 0 2px!important;gap:6px!important;
+    scroll-snap-type:none!important;
+    -webkit-mask-image:none!important;mask-image:none!important;
+  }
+  html body .toolbar nav.tabs.proposal-sections button.tab,
+  html body .toolbar nav.tabs.proposal-sections button#tab-proposed{
+    font-family:"Source Sans 3",sans-serif!important;
+    font-weight:750!important;font-size:12px!important;
+    height:36px!important;min-height:36px!important;
+    padding:0 13px!important;border-radius:10px!important;
+    color:#756776!important;-webkit-text-fill-color:currentColor!important;
+    background:transparent!important;
+    border:1px solid transparent!important;box-shadow:none!important;
+    text-shadow:none!important;filter:none!important;
+  }
+  html body .toolbar nav.tabs.proposal-sections button.tab[aria-selected="true"],
+  html body .toolbar nav.tabs.proposal-sections button#tab-proposed[aria-selected="true"]{
+    color:#aa1f67!important;-webkit-text-fill-color:currentColor!important;
+    background:#fcebf4!important;border-color:#efc9dd!important;
+    box-shadow:none!important;
+  }
+  html body .toolbar nav.tabs.proposal-sections button#tab-proposed{
+    margin-left:10px!important;
+  }
+  html body .viewport[data-reading-mode="paged"]{
+    display:flex!important;flex-direction:column!important;
+    justify-content:flex-start!important;align-items:center!important;
+    min-height:calc(100dvh - 104px)!important;
+    box-sizing:border-box!important;
+    padding:16px 5px calc(95px + env(safe-area-inset-bottom,0px))!important;
+    background:#faf7fa!important;
+    overflow-x:auto!important;overflow-y:visible!important;
+  }
+  html body .viewport[data-reading-mode="paged"]>.sheet.is-active{
+    margin-top:auto!important;margin-bottom:auto!important;
+    margin-left:auto!important;margin-right:auto!important;
+    flex-shrink:0!important;
+    border:1px solid #f0e8ec!important;
+    border-radius:3px!important;
+    background:#fff!important;
+    box-shadow:0 7px 26px rgba(60,35,53,.12),0 1px 2px rgba(60,35,53,.06)!important;
+    overscroll-behavior-y:contain!important;
+    overflow-y:auto!important;overflow-x:hidden!important;
+  }
+  html body .fm-zoom{
+    position:fixed!important;
+    left:50%!important;right:auto!important;
+    bottom:calc(16px + env(safe-area-inset-bottom,0px))!important;
+    transform:translateX(-50%)!important;
+    display:flex!important;
+    align-items:center!important;justify-content:center!important;
+    width:min(364px,calc(100vw - 22px))!important;
+    min-width:0!important;max-width:calc(100vw - 22px)!important;
+    height:58px!important;min-height:58px!important;
+    padding:7px 10px!important;gap:7px!important;
+    box-sizing:border-box!important;
+    background:rgba(255,255,255,.98)!important;
+    color:#352c35!important;
+    border:1px solid #e9dbe4!important;border-radius:18px!important;
+    box-shadow:0 12px 36px rgba(50,23,43,.14),0 2px 6px rgba(50,23,43,.06)!important;
+    -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+    z-index:1600!important;
+  }
+  html body .fm-zoom .fm-zoom-range{display:none!important}
+  html body .fm-zoom .fm-story-separator{
+    display:block!important;flex:0 0 1px!important;
+    width:1px!important;height:25px!important;
+    margin:0 3px!important;background:#e8dfe5!important;
+    border:0!important;
+  }
+  html body .fm-zoom button{
+    cursor:pointer!important;display:flex!important;
+    justify-content:center!important;align-items:center!important;
+    border-radius:11px!important;border:1px solid transparent!important;
+    box-shadow:none!important;line-height:1!important;
+    font-family:"Source Sans 3",sans-serif!important;
+    flex-shrink:0!important;
+    transition:background-color .15s ease,color .15s ease!important;
+  }
+  html body .fm-zoom .fm-story-prev,
+  html body .fm-zoom .fm-story-next{
+    flex:0 0 37px!important;width:37px!important;min-width:37px!important;
+    height:39px!important;min-height:39px!important;
+    font-size:28px!important;font-weight:500!important;
+    padding:0 0 3px!important;
+  }
+  html body .fm-zoom .fm-story-prev{
+    background:#f6f1f5!important;color:#6b5363!important;
+  }
+  html body .fm-zoom .fm-story-next{
+    background:#c92a79!important;color:white!important;
+  }
+  html body .fm-zoom .fm-story-prev:disabled,
+  html body .fm-zoom .fm-story-next:disabled{
+    background:#f7f4f6!important;color:#c9bfc6!important;
+    opacity:1!important;cursor:default!important;
+  }
+  html body .fm-zoom .fm-story-counter{
+    display:flex!important;justify-content:center!important;align-items:center!important;
+    flex:1 1 auto!important;width:auto!important;min-width:62px!important;
+    height:36px!important;min-height:36px!important;
+    padding:0 2px!important;margin:0!important;
+    background:transparent!important;
+    color:#392b37!important;
+    font-family:"Sora",sans-serif!important;font-size:12px!important;font-weight:700!important;
+    letter-spacing:.025em!important;white-space:nowrap!important;
+  }
+  html body .fm-zoom .fm-zoom-minus,
+  html body .fm-zoom .fm-zoom-plus{
+    flex:0 0 30px!important;width:30px!important;min-width:30px!important;
+    height:34px!important;min-height:34px!important;
+    background:#f8f3f6!important;color:#6f5d69!important;
+    font-size:20px!important;font-weight:650!important;
+    padding:0!important;
+  }
+  html body .fm-zoom .fm-zoom-fit{
+    display:flex!important;
+    flex:0 0 36px!important;min-width:36px!important;width:36px!important;
+    height:32px!important;min-height:32px!important;
+    background:#fff!important;color:#a22a69!important;
+    font-family:"Source Sans 3",sans-serif!important;
+    font-size:11px!important;font-weight:750!important;
+    border:1px solid #eed7e3!important;border-radius:8px!important;
+    padding:0!important;
+  }
+  html body .fm-zoom .fm-zoom-readout:not(.fm-zoom-fit){font-size:11px!important}
+  html body .fm-zoom button:active{transform:scale(.97)!important}
+  html body .ps-v22-dialog{height:100dvh!important;max-height:100dvh!important}
+}
+@media screen and (max-width:350px) {
+  html body .toolbar .toolbar-inner{padding:7px 7px!important;gap:5px!important}
+  html body .toolbar nav.tabs.proposal-sections{gap:3px!important}
+  html body .toolbar nav.tabs.proposal-sections button.tab{padding:0 10px!important;font-size:11px!important}
+  html body .fm-zoom{gap:4px!important;padding:6px 7px!important}
+  html body .fm-zoom .fm-story-prev,html body .fm-zoom .fm-story-next{
+    flex-basis:34px!important;width:34px!important;min-width:34px!important
+  }
+  html body .fm-zoom .fm-zoom-minus,html body .fm-zoom .fm-zoom-plus{
+    flex-basis:27px!important;width:27px!important;min-width:27px!important
+  }
+}
+@media screen and (prefers-reduced-motion:reduce){
+  html body .fm-zoom button{transition:none!important}
+}
+</style>
 </head><body>
 <div class="toolbar"><div class="toolbar-inner">
  <div class="nav-toprow">
@@ -4758,7 +4958,7 @@ body,.viewport{overflow-anchor:none!important}
   <button type="button" class="fm-zoom-minus" aria-label="Zoom out">−</button>
   <input class="fm-zoom-range" type="range" min="0.75" max="2.5" value="1" step="0.05" aria-label="Adjust document zoom">
   <button type="button" class="fm-zoom-plus" aria-label="Zoom in">+</button>
-  <output class="fm-zoom-readout" aria-live="off">1×</output>
+  <button class="fm-zoom-readout fm-zoom-fit" type="button" aria-label="Fit page to screen" title="Fit page to screen">1×</button>
 </div>
 <script id="fahmai-document-zoom-script">(function () {
   "use strict";
@@ -5389,4 +5589,17 @@ body,.viewport{overflow-anchor:none!important}
  },{passive:true});
  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>reset(false)).catch(()=>{});
 })();</script>
+<script id="fahmai-mobile-reader-controls-v20">
+(function(){
+  "use strict";
+  const fit=document.querySelector(".fm-zoom-fit");
+  const range=document.querySelector(".fm-zoom-range");
+  if(fit&&range){
+    fit.addEventListener("click",function(){
+      range.value="1";
+      range.dispatchEvent(new Event("input",{bubbles:true}));
+    });
+  }
+})();
+</script>
 </body></html>
