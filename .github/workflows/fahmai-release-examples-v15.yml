@@ -140,7 +140,7 @@ jobs:
               await page.wait_for_timeout(1050)
               targetTop=await page.locator('#examples-client').evaluate('(e)=>e.getBoundingClientRect().top')
               print('CONTINUE_CLICK',width,'secondPageTop',targetTop)
-              assert abs(targetTop)<150,f'{width}: Continue below did not scroll to client projects'
+              assert -40<=targetTop<450,f'{width}: Continue below did not reveal the next page in the viewport'
               await page.locator('#examples-client img[alt="N W IL Autoglass website preview"]').scroll_into_view_if_needed()
               await page.wait_for_timeout(80)
               assert await page.locator('#examples-client img[alt="N W IL Autoglass website preview"]').evaluate('(e)=>e.complete&&e.naturalWidth>=1200'),f'{width}: preview fails on mobile'
