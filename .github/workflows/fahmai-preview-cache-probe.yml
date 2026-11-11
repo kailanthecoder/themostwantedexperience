@@ -29,7 +29,7 @@ jobs:
             "https://cdn.jsdelivr.net/gh/kailanthecoder/themostwantedexperience@$SHA/proposals/fah-mai/index.html"
           )
           n=0
-          for URL in "\${URLS[@]}"; do
+          for URL in "${URLS[@]}"; do
             n=$((n+1))
             echo "START_PROBE_$n"
             echo "URL=$URL"
