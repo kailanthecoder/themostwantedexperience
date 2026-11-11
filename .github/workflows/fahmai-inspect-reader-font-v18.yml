@@ -32,7 +32,7 @@ jobs:
           print('GOOGLE_CSS_SAMPLE',r.text[:3200])
           for family in ['Sora','Outfit','Source Sans 3']:
             ms=list(re.finditer(r'/\* latin \*/\s*@font-face\s*\{([^}]*)\}',r.text))
-            matches=[x.group(1) for x in ms if 'font-family: \\''+family+'\\'' in x.group(1)]
+            matches=[x.group(1) for x in ms if family in x.group(1)]
             print('LATIN_FONT',family,'number',len(matches))
             for hit in matches[:2]:print('LATIN_FONT_RULE',family,hit[:600])
           PY
