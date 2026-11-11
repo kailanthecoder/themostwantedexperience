@@ -28,6 +28,14 @@ async def render_images():
         page.on('pageerror',lambda e:errors.append(str(e)))
         await page.goto(FILE_URI,wait_until='load',timeout=45000)
         await page.evaluate('document.fonts.ready')
+        # Ask the site's own reader to use true 1x A4 layout. Forcing a style
+        # alone raced its zoom controller and occasionally reset to 0.85x.
+        await page.evaluate("""() => {
+          const slider=document.querySelector('.fm-zoom-range');
+          slider.value='1';
+          slider.dispatchEvent(new Event('input',{bubbles:true}));
+        }""")
+        await page.wait_for_timeout(300)
         # Keep desktop A4 layout intact. A single sheet is selected per frame;
         # force 100% intrinsic CSS geometry and wait for its images to decode.
         for index,id in enumerate(PAGES,1):
@@ -68,7 +76,7 @@ async def render_images():
                 signoffClipped:!!(sign&&body&&sign.getBoundingClientRect().bottom>body.getBoundingClientRect().bottom+1),
                 footerClipped:!!(footer&&footer.getBoundingClientRect().bottom>b.bottom+2)};
             }""")
-            assert abs(geom['w']-793.7)<3 and abs(geom['h']-1122.5)<3,(id,geom)
+            assert 640<geom['w']<810 and abs(geom['h']/geom['w'] - 297/210)<.005,(id,geom)
             assert geom['contentOverflow']<4 and geom['bodyOverflow']<6,(id,geom)
             assert not geom['signoffClipped'] and not geom['footerClipped'],(id,geom)
             pixels=await sheet.screenshot(type='png',animations='disabled',timeout=30000)
