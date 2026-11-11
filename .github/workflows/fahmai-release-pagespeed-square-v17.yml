@@ -120,3 +120,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git add proposals/fah-mai/index.html proposals/fah-mai/pagespeed-*-v17.png
           git diff --cached --quiet || (git commit -m "Replace stretched PageSpeed strip with square viewer and left thumbnail rail; attribute work to Kailan" && git push)
+
+# QA rerun: preserve uppercase US geographical adjective in language scan
