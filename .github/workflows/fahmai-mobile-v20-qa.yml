@@ -1,4 +1,4 @@
-name: Verify Fah Mai mobile reader design v20
+name: Verify Fah Mai complete mobile toolbar v21
 on:
   push:
     branches: [main]
@@ -49,7 +49,11 @@ jobs:
                         dockLeft:r?.left,dockRight:r?.right,
                         pageWidth:pageRect?.width,pageHeight:pageRect?.height,
                         sheetOverflow:getComputedStyle(s).overflowY,
-                        toolbarHeight:bar?.height,toolbarTop:bar?.top,
+                        toolbarHeight:bar?.height,toolbarTop:bar?.top,toolbarBottom:bar?.bottom,
+                        headerInnerScroll:document.querySelector('.toolbar-inner')?.scrollHeight,
+                        headerInnerHeight:document.querySelector('.toolbar-inner')?.clientHeight,
+                        headerInnerTop:document.querySelector('.toolbar-inner')?.scrollTop,
+                        navBottom:document.querySelector('nav.tabs.proposal-sections')?.getBoundingClientRect().bottom,
                         fitButton:!!document.querySelector('.fm-zoom-fit'),
                         zoomText:document.querySelector('.fm-zoom-fit')?.textContent.trim()
                       };
@@ -62,7 +66,8 @@ jobs:
                     assert st['mode']=='paged' and st['active']==['overview'],f'{engine.name} {w} not one page: {st}'
                     assert st['pageWidth']<=w-5 and st['sheetOverflow']=='auto',f'{engine.name} {w} clipped paper: {st}'
                     assert 48<=st['dockHeight']<=64 and st['dockLeft']>=0 and st['dockRight']<=w,f'{engine.name} {w} dock overflow: {st}'
-                    assert st['toolbarTop']<=2 and st['toolbarHeight']>48,f'{engine.name} {w} toolbar missing: {st}'
+                    assert st['toolbarTop']<=2 and 94<=st['toolbarHeight']<=135,f'{engine.name} {w} toolbar rows missing: {st}'
+                    assert st['headerInnerScroll']<=st['headerInnerHeight']+2 and st['headerInnerTop']==0 and st['navBottom']<=st['toolbarBottom']+2,f'{engine.name} {w} toolbar still clipped: {st}'
                     await page.locator('.fm-story-next').click()
                     p2=await state()
                     assert p2['active']==['current'] and p2['counter'].startswith('2 / '),f'{engine.name} {w} next page failure {p2}'
@@ -79,6 +84,7 @@ jobs:
                     await page.wait_for_timeout(100)
                     bz=await state()
                     assert bz['active']==['budget'] and bz['tab']=='budget',f'{engine.name} {w} budget navigation failed: {bz}'
+                    assert bz['headerInnerTop']==0 and bz['navBottom']<=bz['toolbarBottom']+2,f'{engine.name} {w} tab click scrolled toolbar: {bz}'
                     await page.reload(wait_until='domcontentloaded')
                     await page.wait_for_timeout(250)
                     rst=await state()
