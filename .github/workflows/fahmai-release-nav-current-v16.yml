@@ -55,7 +55,10 @@ jobs:
             assert m['nav']['right']<=m['export']['left']-5,f'{width}: nav bleeds into PDF button: {m}'
             assert m['navOverflow']=='auto',f'{width}: chapter tabs are no longer horizontally scrollable'
             assert len(m['tabs'])==6
-            assert m['navMask']!='none',f'{width}: no edge fade for clipped text'
+            if m['navScrollWidth']>m['navClientWidth']+3:
+              assert m['navMask']!='none',f'{width}: no edge fade for clipped text'
+            else:
+              assert m['navMask']=='none',f'{width}: non-scrolling tabs unnecessarily faded'
             if width<=600:
               # Bring Budget into the tab-strip viewport. It must never slip
               # beneath the fixed PDF action, including during its active state.
