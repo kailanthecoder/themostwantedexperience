@@ -52,21 +52,32 @@ script=r'''(function(){
  "use strict";
  const nav=document.querySelector('.toolbar nav.tabs.proposal-sections');
  if(!nav)return;
+ function checkOverflow(){
+   nav.classList.toggle("has-overflow",nav.scrollWidth>nav.clientWidth+3);
+ }
  function reveal(tab){
    if(!tab||!nav.contains(tab))return;
    const outer=nav.getBoundingClientRect(),rect=tab.getBoundingClientRect();
    const left=nav.scrollLeft+(rect.left-outer.left)-(outer.width-rect.width)/2;
-   nav.scrollTo({left:Math.max(0,left),behavior:"smooth"});
+   nav.scrollLeft=Math.max(0,left);
+   checkOverflow();
  }
  nav.addEventListener("click",e=>{
    const tab=e.target.closest('button.tab');
-   if(tab)requestAnimationFrame(()=>reveal(tab));
+   if(!tab)return;
+   requestAnimationFrame(()=>reveal(tab));
+   // Keep the selected tab fully inside its scroll strip after mobile
+   // page navigation and the existing chapter tracker have settled.
+   setTimeout(()=>reveal(tab),130);
+   setTimeout(()=>reveal(tab),350);
  });
  nav.addEventListener("keydown",e=>{
    if(e.key==="ArrowLeft"||e.key==="ArrowRight"){
      requestAnimationFrame(()=>reveal(document.activeElement));
    }
  });
+ window.addEventListener("resize",checkOverflow,{passive:true});
+ checkOverflow();
 })();'''
 assert source.count('</body>')==1
 source=source.replace('</body>','<script id="fahmai-nav-scroll-control-v16">'+script+'</script>\n</body>',1)
