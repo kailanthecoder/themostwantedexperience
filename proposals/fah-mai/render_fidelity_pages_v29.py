@@ -132,7 +132,7 @@ html body .viewport>.sheet>.fm-page-fidelity{
    position:relative!important;isolation:isolate!important;
    overflow:hidden!important;
  }
- html body .viewport[data-reading-mode="paged"]>.sheet.is-active>:not(.fm-page-fidelity){
+ html body .viewport[data-reading-mode="paged"]>.sheet.is-active:is(#overview,#current,#current-journeys,#current-growth,#spec,#spec-delivery,#budget,#implementation,#implementation-evidence,#examples,#examples-client)>:not(.fm-page-fidelity){
    display:none!important;
  }
  html body .viewport[data-reading-mode="paged"]>.sheet>.fm-page-fidelity,
