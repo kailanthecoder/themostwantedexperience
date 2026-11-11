@@ -3647,6 +3647,60 @@ html body .toolbar button.pdf-btn{
 #budget .budgetv8-final>div:first-child strong{color:#f7e6ef!important}
 #budget .budgetv8-rate-tables th:last-child{width:73px!important}
 @media print{#budget .budgetv8-quotation,#budget .budgetv8-discount-seal,#budget .budgetv8-final{print-color-adjust:exact!important;-webkit-print-color-adjust:exact!important}}
+</style><style id="fahmai-font-icons-boot-v20">
+/* Only the three requested locally hosted fonts may render. */
+:root body :not(#__fmfont1):not(#__fmfont2):not(#__fmfont3):not(#__fmfont4),
+:root body :not(#__fmfont1):not(#__fmfont2):not(#__fmfont3):not(#__fmfont4)::before,
+:root body :not(#__fmfont1):not(#__fmfont2):not(#__fmfont3):not(#__fmfont4)::after{font-family:"Source Sans 3"!important}
+:root body :not(#__fmfont1):not(#__fmfont2):not(#__fmfont3):not(#__fmfont4):is(
+ h1,h2,.page-heading h1,.chapter-banner-name,.ps-v17-title,.hero-title,.hero-heading,
+ .display-heading,.section-title,.vision-card-title,.page-title,.site-title,
+ .audit-v5-observation-title,.budgetv8-quote-heading strong){font-family:"Sora"!important}
+:root body :not(#__fmfont1):not(#__fmfont2):not(#__fmfont3):not(#__fmfont4):is(
+ h3,h4,h5,h6,.sub,.subtitle,.subheading,.section-subtitle,.section-lede,
+ .page-heading .sub,.specv6-stack-title,.hero-subtitle,.hero-subheading,
+ .chapter-divider strong,.chapter-banner-count,.presentation-kicker,
+ .budgetv8-quote-heading,.budgetv8-section-heading>span){font-family:"Outfit"!important}
+:root body #spec-delivery#spec-delivery .specv6-heading p,
+:root body #spec#spec .specv6-heading p,
+:root body #budget#budget .budgetv8-intro p,
+:root body #examples#examples .page-heading .sub,
+:root body #examples-client#examples-client .page-heading .sub,
+:root body #implementation#implementation .page-heading .sub,
+:root body #implementation-evidence#implementation-evidence .page-heading .sub{font-family:"Outfit"!important}
+/* Seven clear pink icon badges directly below the coding-language logos. */
+#spec-delivery .specv6-capabilities .specv6-capability{
+ grid-template-columns:38px minmax(0,1fr)!important;gap:10px!important}
+#spec-delivery .specv6-capability .specv6-num.specv18-glyph{
+ box-sizing:border-box!important;display:flex!important;position:relative!important;
+ align-items:center!important;justify-content:center!important;
+ width:34px!important;height:34px!important;min-height:34px!important;
+ border-radius:10px!important;border:1px solid #e9a1c5!important;
+ background:linear-gradient(145deg,#fff5fa 0%,#f5c6dd 100%)!important;
+ box-shadow:0 2px 6px rgba(165,38,102,.13)!important;
+ margin:0 0 4px 0!important;padding:0!important}
+#spec-delivery .specv6-capability:nth-child(even) .specv6-num.specv18-glyph{
+ background:linear-gradient(145deg,#fff9fc 0%,#f1b7d4 100%)!important}
+#spec-delivery .specv6-capability .specv18-glyph svg{
+ display:block!important;width:23px!important;height:23px!important;
+ min-width:23px!important;max-height:23px!important;
+ fill:none!important;stroke:#a91e64!important;stroke-width:1.95!important;
+ stroke-linejoin:round!important;stroke-linecap:round!important}
+#spec-delivery .specv6-capability .specv18-glyph .specv18-icon-number{
+ position:absolute!important;bottom:-8px!important;right:-6px!important;
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ width:19px!important;height:15px!important;min-height:15px!important;
+ border:1px solid #d78aac!important;border-radius:7px!important;
+ margin:0!important;padding:0!important;background:#fff!important;
+ color:#95205e!important;font-family:"Source Sans 3"!important;
+ font-size:8px!important;line-height:1!important;font-weight:850!important}
+html{scroll-behavior:auto!important;overflow-anchor:none!important}
+body,.viewport{overflow-anchor:none!important}
+@media print{
+ #spec-delivery .specv6-capability .specv6-num.specv18-glyph,
+ #spec-delivery .specv6-capability .specv18-glyph svg{
+ -webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+}
 </style></head><body>
 <div class="toolbar"><div class="toolbar-inner">
  <div class="nav-toprow">
@@ -4342,6 +4396,7 @@ html body .toolbar button.pdf-btn{
   if(updateUrl)history.replaceState({},'',location.pathname+location.search+'#'+name);
   window.scrollTo({top:0,behavior:'instant'});
  };
+ window.__fahmaiActivateSection=activate;
  tabs.forEach((t,i)=>{
   t.addEventListener('click',()=>activate(t.dataset.target));
   t.addEventListener('keydown',e=>{
@@ -4388,7 +4443,7 @@ html body .toolbar button.pdf-btn{
 </script>
 
 <div class="fm-zoom" role="group" aria-label="Proposal page zoom"><button type="button" class="fm-story-prev" aria-label="Previous page" title="Previous page">‹</button>
-  <output class="fm-story-counter" aria-live="polite" aria-label="Current pages">1–2 / 11</output>
+  <output class="fm-story-counter" aria-live="polite" aria-label="Current pages">1 / 11</output>
   <button type="button" class="fm-story-next" aria-label="Next page" title="Next page">›</button>
   <span class="fm-story-separator" aria-hidden="true"></span>
   <button type="button" class="fm-zoom-minus" aria-label="Zoom out">−</button>
@@ -4649,9 +4704,14 @@ html body .toolbar button.pdf-btn{
   window.addEventListener("beforeprint", () => sheets.forEach(sheet => sheet.style.removeProperty("zoom")));
   window.addEventListener("afterprint", () => layout());
 
-  // Cover always starts at index zero, regardless of previous section or hash.
-  pageIndex = 0;
-  layout();
+  // Single reset entry point for fresh loads and restored tabs.
+  window.__fahmaiResetReaderToOverview = () => {
+    pageIndex = 0;
+    previousMode = mode();
+    layout();
+    updateCounter();
+  };
+  window.__fahmaiResetReaderToOverview();
   requestAnimationFrame(() => window.scrollTo({top:0, behavior:"instant"}));
 })();</script>
 
@@ -4784,7 +4844,7 @@ html body .toolbar button.pdf-btn{
   const sectionNav=document.querySelector(".toolbar nav.proposal-sections");
   const examplesSwitch=document.getElementById("tab-examples");
   const toolbar=document.querySelector(".toolbar");
-  if(!viewport||sheets.length!==12||!sectionTabs.length)return;
+  if(!viewport||!sheets.length||!sectionTabs.length)return;
 
   let scheduled=false;
   let previousSection="";
@@ -4928,21 +4988,43 @@ html body .toolbar button.pdf-btn{
  window.addEventListener("resize",checkOverflow,{passive:true});
  checkOverflow();
 })();</script>
-<script id="fahmai-overview-pageshow-v18">(function(){
-  function resetInitialView(){
-    try{history.scrollRestoration="manual"}catch(e){}
-    try{sessionStorage.setItem("fahmai_last_proposal_section","overview")}catch(e){}
-    try{if(location.hash)history.replaceState(history.state,"",location.pathname+location.search)}catch(e){}
-    const selected=document.querySelector(".proposal-sections [aria-selected='true']")?.dataset.target;
-    if(selected!=="overview"){
-      document.getElementById("nav-proposal")?.click();
-      document.getElementById("tab-overview")?.click();
-    }
-    window.scrollTo({top:0,behavior:"instant"});
-    requestAnimationFrame(()=>window.scrollTo({top:0,behavior:"instant"}));
-    const tabStrip=document.querySelector(".proposal-sections");
-    if(tabStrip)tabStrip.scrollLeft=0;
-  }
-  window.addEventListener("pageshow",resetInitialView,{passive:true});
+<script id="fahmai-overview-boot-v20">(function(){
+ "use strict";
+ try{history.scrollRestoration="manual"}catch(_){}
+ let userMoved=false;
+ const stop=()=>{userMoved=true};
+ document.addEventListener("pointerdown",stop,true);
+ document.addEventListener("touchstart",stop,{capture:true,passive:true});
+ document.addEventListener("wheel",stop,{capture:true,passive:true});
+ document.addEventListener("keydown",stop,true);
+ function reset(force){
+  if(userMoved&&!force)return;
+  try{sessionStorage.setItem("fahmai_last_proposal_section","overview")}catch(_){}
+  try{if(location.hash)history.replaceState(history.state,"",location.pathname+location.search)}catch(_){}
+  try{window.__fahmaiActivateSection?.("overview",false)}catch(_){}
+  try{window.__fahmaiResetReaderToOverview?.()}catch(_){}
+  if(document.activeElement && document.activeElement!==document.body &&
+     typeof document.activeElement.blur==="function")document.activeElement.blur();
+  const root=document.scrollingElement||document.documentElement;
+  root.scrollTop=0;
+  document.body.scrollTop=0;
+  window.scrollTo({top:0,left:0,behavior:"instant"});
+  const reader=document.querySelector(".viewport");
+  if(reader)reader.scrollTop=0;
+  const tabs=document.querySelector(".proposal-sections");
+  if(tabs)tabs.scrollLeft=0;
+ }
+ function settle(force){
+  reset(force);
+  requestAnimationFrame(()=>{reset(false);requestAnimationFrame(()=>reset(false))});
+  [70,240,650,1200].forEach(ms=>setTimeout(()=>reset(false),ms));
+ }
+ settle(true);
+ if(document.readyState!=="complete")window.addEventListener("load",()=>settle(false),{once:true});
+ window.addEventListener("pageshow",event=>{
+  if(event.persisted)userMoved=false;
+  settle(event.persisted);
+ },{passive:true});
+ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>reset(false)).catch(()=>{});
 })();</script>
 </body></html>
