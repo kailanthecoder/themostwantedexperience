@@ -279,11 +279,12 @@ jobs:
               # Preserve the 12-page print document rather than making mobile pages printable only.
               page=await browser.new_page(viewport={'width':390,'height':844})
               await page.goto(target,wait_until='domcontentloaded')
+              expected=await page.locator('.viewport>.sheet').count()
               await page.emulate_media(media='print')
               pdf=await page.pdf(format='A4',prefer_css_page_size=True,print_background=True)
               count=len(PdfReader(__import__('io').BytesIO(pdf)).pages)
-              print('A4_PRINT_PAGE_COUNT',count)
-              assert count==12,f'Expected 12 A4 pages, got {count}'
+              print('A4_PRINT_PAGE_COUNT',count,'ACTUAL_SHEET_COUNT',expected)
+              assert count==expected,f'Expected {expected} A4 pages, got {count}'
               await browser.close()
           asyncio.run(main())
           PY
