@@ -162,3 +162,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git add proposals/fah-mai/index.html proposals/fah-mai/fonts/sora-latin-v18.woff2 proposals/fah-mai/fonts/outfit-latin-v18.woff2 proposals/fah-mai/fonts/source-sans-3-latin-v18.woff2
           git diff --cached --quiet || (git commit -m "Start Fah Mai proposal on Overview and use seven icons plus Sora/Outfit/Source Sans 3 only" && git push)
+
+# Rerun v18: icon verification uses local CSS dimensions, not scaled A4 pixels
