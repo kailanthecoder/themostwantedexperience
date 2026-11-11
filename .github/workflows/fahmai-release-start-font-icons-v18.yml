@@ -1,0 +1,162 @@
+name: Publish Overview-first reader, seven icons and exclusive fonts
+on:
+  push:
+    paths: ['.github/workflows/fahmai-release-start-font-icons-v18.yml']
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Bundle licensed Google fonts and update existing proposal in-place
+        run: |
+          python -m pip install requests beautifulsoup4 -q
+          python proposals/fah-mai/install_overview_fonts_icons_v18.py
+      - name: Browser QA including hash, reload, mobile restore, fonts, icons and A4 PDF
+        run: |
+          python -m pip install playwright pypdf -q
+          python -m playwright install chromium >/dev/null 2>&1
+          python - <<'PY'
+          import asyncio,re
+          from pathlib import Path
+          from pypdf import PdfReader
+          from playwright.async_api import async_playwright
+
+          root=Path('proposals/fah-mai')
+          path=root/'index.html'
+          html=path.read_text(encoding='utf-8')
+          assert len(re.findall(r'<article\b[^>]*\bclass="[^"]*\bsheet\b[^"]*"[^>]*>',html))==12
+          assert html.count('specv18-glyph')>=7
+          assert 'id="fahmai-start-overview-v18"' in html
+          assert 'id="fahmai-exclusive-fonts-icons-v18"' in html
+          for font in ('sora-latin-v18.woff2','outfit-latin-v18.woff2','source-sans-3-latin-v18.woff2'):
+            data=(root/'fonts'/font).read_bytes()
+            assert data[:4]==b'wOF2' and len(data)>10000
+          uri=path.resolve().as_uri()
+          async def stats(page):
+            return await page.evaluate("""()=>{
+              const bar=document.querySelector('.toolbar'),cover=document.getElementById('overview'),spec=document.getElementById('spec-delivery');
+              const rect=e=>{const r=e.getBoundingClientRect();return {top:r.top,bottom:r.bottom,height:r.height,width:r.width}};
+              const font=e=>e?getComputedStyle(e).fontFamily:'MISSING';
+              return {
+                hash:location.hash,scrollY:window.scrollY,tab:document.querySelector('.proposal-sections [aria-selected="true"]')?.dataset.target,
+                active:[...document.querySelectorAll('.viewport>.sheet.is-active')].map(e=>e.id),
+                counter:document.querySelector('.fm-story-counter')?.textContent.trim(),
+                storyMode:document.querySelector('.viewport').dataset.readingMode,
+                pages:document.querySelectorAll('.viewport>.sheet').length,
+                currentChapter:document.body.dataset.currentChapter,
+                documentWidth:document.documentElement.scrollWidth,windowWidth:innerWidth,
+                iconCount:spec.querySelectorAll('.specv6-num.specv18-glyph svg').length,
+                icons:[...spec.querySelectorAll('.specv6-num.specv18-glyph')].map(e=>({text:e.textContent.trim(),svg:e.querySelector('svg')?.getAttribute('aria-label'),width:rect(e.querySelector('svg')).width,height:rect(e.querySelector('svg')).height})),
+                fonts:{
+                  heading:font(spec.querySelector('.specv6-heading h1')),
+                  heading2:font(spec.querySelector('.specv6-capability h2')),
+                  offerHeading:font(document.querySelector('#budget h1')),
+                  subheading:font(spec.querySelector('.specv6-heading p')),
+                  budgetSubheading:font(document.querySelector('#budget .budgetv8-intro p')),
+                  body:font(spec.querySelector('.specv6-capability p')),
+                  nav:font(document.getElementById('tab-overview')),
+                  number:font(spec.querySelector('.specv18-icon-number')),
+                  exampleSubheading:font(document.querySelector('#examples .page-heading .sub'))
+                },
+                specFooter:rect(spec.querySelector('.sheet-footer')),
+                specLast:rect(spec.querySelector('.specv6-engagement')),
+                budgetFooter:rect(document.querySelector('#budget .sheet-footer')),
+                budgetLast:rect(document.querySelector('#budget .budgetv8-footer-notes')),
+                sourceFontSet:[...new Set([...document.querySelectorAll('.toolbar button,.sheet h1,.sheet h2,.sheet h3,.sheet h4,.sheet p,.sheet li,.sheet a,.sheet span,.sheet small,.sheet strong')].map(el=>getComputedStyle(el).fontFamily))]
+              };
+            }""")
+          async def assert_start(page,width,label):
+            await page.wait_for_timeout(500)
+            s=await stats(page)
+            print('STARTUP_CHECK',width,label,{'hash':s['hash'],'scrollY':s['scrollY'],'tab':s['tab'],'mode':s['storyMode'],'counter':s['counter'],'active':s['active'][:4],'chapter':s['currentChapter']})
+            assert s['hash']=='',f'{width} {label}: startup did not clear old hash'
+            assert s['scrollY']<8,f'{width} {label}: starts scrolled to page seven (Y={s["scrollY"]})'
+            assert s['tab']=='overview',f'{width} {label}: opened in {s["tab"]}'
+            assert s['counter'].startswith('1 / '),f'{width} {label}: wrong page counter {s["counter"]}'
+            assert 'overview' in s['active']
+            assert s['currentChapter']=='overview',f'{width}: incorrect chapter tracker'
+            return s
+          async def check(browser,width):
+            page=await browser.new_page(viewport={'width':width,'height':940},device_scale_factor=1)
+            errors=[]
+            page.on('pageerror',lambda e:errors.append(str(e)))
+            await page.goto(uri+'#budget',wait_until='domcontentloaded',timeout=90000)
+            await page.evaluate("""async()=>{
+              await Promise.all(['Sora','Outfit','Source Sans 3'].map(name=>document.fonts.load('600 14px "'+name+'"')));
+              await document.fonts.ready;
+            }""")
+            s=await assert_start(page,width,'hash-budget')
+            assert s['pages']==12 and s['documentWidth']<=width+2
+            assert s['iconCount']==7
+            assert [o['text'] for o in s['icons']]==[f'{i:02d}' for i in range(1,8)]
+            assert [o['svg'] for o in s['icons']]==['code','payments','search','inventory','performance','localisation','booking']
+            assert all(o['width']>=20 and o['height']>=20 for o in s['icons'])
+            print('FONTS',width,s['fonts'])
+            for key in ('heading','heading2','offerHeading'):
+              assert s['fonts'][key].startswith('Sora'),f'{width}: heading {key} uses {s["fonts"][key]}'
+            for key in ('subheading','budgetSubheading','exampleSubheading'):
+              assert s['fonts'][key].startswith('Outfit'),f'{width}: subheading {key} uses {s["fonts"][key]}'
+            for key in ('body','nav','number'):
+              assert s['fonts'][key].startswith('"Source Sans 3"') or s['fonts'][key].startswith('Source Sans 3'),f'{width}: body {key} uses {s["fonts"][key]}'
+            bad=[x for x in s['sourceFontSet'] if not any(k in x for k in ('Sora','Outfit','Source Sans 3'))]
+            print('SITE_FONT_FAMILIES',width,s['sourceFontSet'],'unexpected',bad)
+            assert not bad,f'Unexpected fonts remain: {bad}'
+            if width>800:
+              assert s['storyMode']=='spread' and s['active']==['overview']
+              await page.locator('#tab-spec').click()
+              await page.wait_for_timeout(120)
+              t=await stats(page)
+              assert t['specLast']['bottom']<=t['specFooter']['top']-3,f'{width}: Spec continuation is clipped'
+              await page.locator('#tab-budget').click()
+              await page.wait_for_timeout(100)
+              t=await stats(page)
+              assert t['budgetLast']['bottom']<=t['budgetFooter']['top']-3,f'{width}: Budget clipped due to new fonts'
+            else:
+              assert s['storyMode']=='vertical' and len(s['active'])==12
+            # Explicit manual section navigation must still work, and must
+            # not be reset while a reader is browsing inside the same visit.
+            await page.locator('#tab-budget').click()
+            await page.wait_for_timeout(850)
+            t=await stats(page)
+            print('MANUAL_NAV',width,{'tab':t['tab'],'chapter':t['currentChapter'],'scrollY':t['scrollY'],'counter':t['counter']})
+            assert t['tab']=='budget'
+            assert t['currentChapter']=='budget',f'{width}: chapter tracker ignores manual navigation'
+            await page.reload(wait_until='domcontentloaded')
+            await assert_start(page,width,'reload-after-budget')
+            # Restored scroll must also be ignored on a fresh view.
+            if width<=800:
+              await page.evaluate("""()=>{
+                const e=document.querySelector('#examples');
+                window.scrollTo({top:e.getBoundingClientRect().top+window.scrollY,behavior:'instant'});
+              }""")
+              await page.wait_for_timeout(350)
+              before=await stats(page)
+              print('PRIOR_SCROLL',width,before['scrollY'],before['currentChapter'])
+              assert before['scrollY']>500
+              await page.reload(wait_until='domcontentloaded')
+              await assert_start(page,width,'reload-after-mobile-scroll')
+            assert not errors,f'{width}: JavaScript errors: {errors}'
+            if width==1440:
+              await page.evaluate("window.dispatchEvent(new Event('beforeprint'))")
+              await page.emulate_media(media='print')
+              await page.pdf(path='/tmp/fahmai-v18-a4.pdf',prefer_css_page_size=True,print_background=True)
+              n=len(PdfReader('/tmp/fahmai-v18-a4.pdf').pages)
+              print('PDF_PAGE_COUNT',n)
+              assert n==12,f'Wrong printed page count: {n}'
+            await page.close()
+          async def main():
+            async with async_playwright() as p:
+              browser=await p.chromium.launch()
+              for width in (1440,900,390,320):
+                await check(browser,width)
+              await browser.close()
+          asyncio.run(main())
+          PY
+      - name: Publish tested proposal and only the three licensed font assets
+        run: |
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add proposals/fah-mai/index.html proposals/fah-mai/fonts/sora-latin-v18.woff2 proposals/fah-mai/fonts/outfit-latin-v18.woff2 proposals/fah-mai/fonts/source-sans-3-latin-v18.woff2
+          git diff --cached --quiet || (git commit -m "Start Fah Mai proposal on Overview and use seven icons plus Sora/Outfit/Source Sans 3 only" && git push)
