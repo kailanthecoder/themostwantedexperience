@@ -71,6 +71,20 @@ async def check(browser,w,h):
             cur=await inspect(page)
             if cur["paperOverflow"]>3 or cur["bodyOverflow"]>5:
                 overflows.append({"index":index+1,"id":cur["paperId"],"paperOverflow":cur["paperOverflow"],"bodyOverflow":cur["bodyOverflow"]})
+            if cur["paperOverflow"]>3 or cur["bodyOverflow"]>5:
+                dbg=await page.evaluate("""() => {
+                  const p=document.querySelector('.viewport>.sheet.is-active');
+                  if(!p)return {};
+                  const pr=p.getBoundingClientRect();
+                  const selectors=['.sheet-cap','.presentation-header','.presentation-hairline','.waveblock','.chapter-banner','.sheet-body','.page-heading','.sheet-section','.example-grid','.example-card','.example-media','.example-copy','.examples-continue','.sheet-footer'];
+                  const info=selectors.map(sel=>{
+                    const el=p.querySelector(sel);if(!el)return null;
+                    const r=el.getBoundingClientRect(),c=getComputedStyle(el);
+                    return {selector:sel,top:Math.round((r.top-pr.top)/parseFloat(p.style.zoom)),bottom:Math.round((r.bottom-pr.top)/parseFloat(p.style.zoom)),height:Math.round(r.height/parseFloat(p.style.zoom)),scrollHeight:el.scrollHeight,clientHeight:el.clientHeight,flex:c.flex,minHeight:c.minHeight,marginTop:c.marginTop,marginBottom:c.marginBottom,paddingTop:c.paddingTop};
+                  }).filter(Boolean);
+                  return {id:p.id,paperHeight:p.clientHeight,paperScrollHeight:p.scrollHeight,items:info};
+                }""")
+                print("CLIPPED_DETAIL",browser.browser_type.name,w,h,json.dumps(dbg),flush=True)
             assert cur["paperOverflow"]<=3 and cur["bodyOverflow"]<=5,f"{w}x{h}: actual content clipped on {cur['paperId']}, paper={cur['paperOverflow']} body={cur['bodyOverflow']}"
             assert len(cur["active"])==1,f"{w}x{h}: {index} visible sheet count {cur['active']}"
             assert cur["counter"].startswith(f"{index+1} / "),f"{w}x{h}: incorrect counter {cur['counter']}"
