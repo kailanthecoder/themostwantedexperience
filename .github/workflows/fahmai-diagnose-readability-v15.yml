@@ -1,0 +1,72 @@
+name: Diagnose example previews and readability
+on:
+  push:
+    paths: ['.github/workflows/fahmai-diagnose-readability-v15.yml']
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check current screenshots, actual NWIL source and design size
+        run: |
+          python -m pip install beautifulsoup4 playwright pillow requests -q
+          python -m playwright install chromium >/dev/null 2>&1
+          python - <<'PY'
+          import io,base64,asyncio,re,requests
+          from PIL import Image,ImageOps,ImageDraw
+          from pathlib import Path
+          from bs4 import BeautifulSoup
+          d=BeautifulSoup(Path('proposals/fah-mai/index.html').read_text(),'html.parser')
+          img=d.select_one('#examples-client a[href*="nwilautoglass"] img.example-screenshot')
+          print('NWIL_IMAGE_SRC_PREFIX',img.get('src','')[:110])
+          imgdata=img.get('src','')
+          if imgdata.startswith('data:image/'):
+            raw=base64.b64decode(imgdata.split(',',1)[1])
+            i=Image.open(io.BytesIO(raw)).convert('RGB')
+            print('NWIL_EMBEDDED',i.size,'bytes',len(raw))
+            i.thumbnail((520,350))
+            buf=io.BytesIO();i.save(buf,'JPEG',quality=75)
+            print('NWIL_EMBEDDED_PREVIEW',base64.b64encode(buf.getvalue()).decode())
+          async def go():
+            async with async_playwright() as p:
+              browser=await p.chromium.launch()
+              for width in [1440,390]:
+                page=await browser.new_page(viewport={'width':width,'height':950})
+                await page.goto(Path('proposals/fah-mai/index.html').resolve().as_uri(),wait_until='domcontentloaded')
+                if width>800: await page.locator('#tab-examples').click()
+                await page.wait_for_timeout(550)
+                data=await page.evaluate("""()=>{
+                  const cardSel='#examples .example-card,#examples-client .example-card';
+                  const cs=[...document.querySelectorAll(cardSel)].map(e=>{
+                    const r=e.getBoundingClientRect(),h=e.querySelector('h3'),txt=e.querySelector('p'),credit=e.querySelector('.example-credit'),action=e.querySelector('.example-action'),media=e.querySelector('.example-media'),image=e.querySelector('img');
+                    const font=e=>e?{font:getComputedStyle(e).fontSize,line:getComputedStyle(e).lineHeight}:null;
+                    const rect=e=>{if(!e)return null;const r=e.getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height,bottom:r.bottom};};
+                    return {name:h.textContent,card:rect(e),h:font(h),para:font(txt),credit:font(credit),action:font(action),imageLoaded:image.complete&&image.naturalWidth>0,imagePixels:[image.naturalWidth,image.naturalHeight],media:rect(media),copy:rect(e.querySelector('.example-copy'))};
+                  });
+                  return {cards:cs,exampleFooter:(()=>{const el=document.querySelector('#examples .sheet-footer').getBoundingClientRect();return {top:el.top}})(),
+                  pageRect:(()=>{const el=document.getElementById('examples').getBoundingClientRect();return {top:el.top,height:el.height}})()};
+                }""")
+                print('LAYOUT',width,data)
+                if width==1440:
+                  pages=[await page.locator('#examples').screenshot(),await page.locator('#examples-client').screenshot()]
+                  imgs=[Image.open(io.BytesIO(b)).convert('RGB') for b in pages]
+                  for im in imgs:im.thumbnail((460,680),Image.Resampling.LANCZOS)
+                  contact=Image.new('RGB',(sum(i.width for i in imgs),max(i.height for i in imgs)),(250,246,249))
+                  left=0
+                  for im in imgs:contact.paste(im,(left,0));left+=im.width
+                  buf=io.BytesIO();contact.save(buf,'JPEG',quality=77)
+                  print('EXAMPLES_CONTACT',base64.b64encode(buf.getvalue()).decode())
+                await page.close()
+              nwp=await browser.new_page(viewport={'width':1365,'height':900})
+              try:
+                response=await nwp.goto('https://nwilautoglass.com/',wait_until='domcontentloaded',timeout=32000)
+                print('NWIL_LIVE',response.status if response else None,'url',nwp.url,'title',await nwp.title())
+                await nwp.wait_for_timeout(2000)
+                b=await nwp.screenshot(full_page=False)
+                im=Image.open(io.BytesIO(b));im.thumbnail((700,460));buf=io.BytesIO();im.save(buf,'JPEG',quality=76)
+                print('NWIL_LIVE_PREVIEW',base64.b64encode(buf.getvalue()).decode())
+              except Exception as e:
+                print('NWIL_LIVE_ERR',repr(e)[:700])
+              await browser.close()
+          asyncio.run(go())
+          PY
