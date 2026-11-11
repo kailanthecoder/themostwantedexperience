@@ -1,0 +1,20 @@
+name: Verify the ACTUAL public GitHubraw Fah Mai preview on phones
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/fahmai-pinned-public-qa.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  live-browser-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install real browser engines
+        run: |
+          python -m pip install -q playwright
+          python -m playwright install --with-deps chromium webkit >/dev/null
+      - name: Inspect deployed page, actual brand images, fonts, mobile layout and Safari
+        run: python proposals/fah-mai/qa_pinned_public_v28.py
