@@ -177,3 +177,5 @@ jobs:
           fi
 
 # Rerun v18: icon verification uses local CSS dimensions, not scaled A4 pixels
+
+# Stable publish rerun: guarded legacy view-menu access on browser reload
