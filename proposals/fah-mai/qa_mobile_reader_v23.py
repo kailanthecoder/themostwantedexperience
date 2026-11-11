@@ -71,6 +71,7 @@ async def check(browser,w,h):
             cur=await inspect(page)
             if cur["paperOverflow"]>3 or cur["bodyOverflow"]>5:
                 overflows.append({"index":index+1,"id":cur["paperId"],"paperOverflow":cur["paperOverflow"],"bodyOverflow":cur["bodyOverflow"]})
+            assert cur["paperOverflow"]<=3 and cur["bodyOverflow"]<=5,f"{w}x{h}: actual content clipped on {cur['paperId']}, paper={cur['paperOverflow']} body={cur['bodyOverflow']}"
             assert len(cur["active"])==1,f"{w}x{h}: {index} visible sheet count {cur['active']}"
             assert cur["counter"].startswith(f"{index+1} / "),f"{w}x{h}: incorrect counter {cur['counter']}"
             assert cur["paper"]["left"]>=-2 and cur["paper"]["right"]<=w+2,f"{w}x{h}: clipped width on {cur['paperId']}"
