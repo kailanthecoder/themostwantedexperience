@@ -39,6 +39,11 @@ for family,filename in fonts:
     (fontpath/filename).write_bytes(data)
     print("FONT_BUNDLED",family,len(data),filename)
 
+# Keep legacy view switching safe if an old tab controller runs during a
+# browser restore/reload while the nav DOM is being reconstructed.
+assert s.count('  sectionMenu.hidden=showingExamples;')==1
+s=s.replace('  sectionMenu.hidden=showingExamples;','  if(sectionMenu)sectionMenu.hidden=showingExamples;',1)
+
 # Patch the actual startup paths. These currently restore #budget / #examples
 # on load, which is the primary cause of starting on page seven.
 old_first=""" const hash=location.hash.replace('#','');
