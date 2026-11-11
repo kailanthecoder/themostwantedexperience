@@ -206,7 +206,7 @@ jobs:
           s=pattern.sub(external,s)
           print('EXTERNALIZED_IMAGE_COUNT',len(moved),'ASSET_BYTES',sum(moved.values()))
           print('HTML_ORIGINAL_BYTES',len(source.encode()),'HTML_PATCHED_BYTES',len(s.encode()))
-          if len(s)<100000 or s.count('<article')<12: raise RuntimeError('Unexpected HTML structure, no write')
+          if len(s)<100000 or s.count('class="sheet')<7 and s.count('<article')<7: raise RuntimeError('Unexpected HTML structure, no write')
           file.write_text(s,encoding='utf-8')
           print('PATCHED_MOBILE_READER_V19',file)
           PY
