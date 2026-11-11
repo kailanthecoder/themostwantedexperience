@@ -175,3 +175,5 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add proposals/fah-mai/index.html proposals/fah-mai/nwil-autoglass-preview-v15.webp
           git diff --cached --quiet || (git commit -m "Improve examples legibility, recapture NWIL site cleanly and add continuation animation" && git push)
+
+# QA rerun: direct window scrolling to following Examples page
