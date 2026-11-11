@@ -53,9 +53,7 @@ original = '''    const fit = Math.min(1, Math.max(0.16, available / (documentWi
 replacement = '''    // Fit the whole A4 page in the available mobile document window. Width
     // alone cropped short iPhones and let the controls cover the paper.
     const availableHeight = mobile()
-      ? Math.max(160, window.innerHeight -
-          (toolbar?.getBoundingClientRect().height || 94) -
-          (rail?.getBoundingClientRect().height || 64) - 28)
+      ? Math.max(130, viewport.clientHeight - 30)
       : Infinity;
     const heightFit = availableHeight / 1123;
     const fit = Math.min(1, Math.max(0.13,
