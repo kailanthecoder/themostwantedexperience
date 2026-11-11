@@ -73,7 +73,7 @@ pronouns=re.compile(r"\b(?:we|we're|we've|we'll|we'd|our|ours|us|ourselves)\b",r
 for section in parsed.select('.viewport>.sheet'):
     body=section.select_one('.sheet-body')
     if body:
-        remaining=pronouns.findall(body.get_text(' ',strip=True))
+        remaining=[word for word in pronouns.findall(body.get_text(' ',strip=True)) if word != 'US']
         assert not remaining, f'First-person plural copy remains on {section.get("id")}: {remaining}'
 assert len(parsed.select('.viewport>.sheet'))==12
 assert not parsed.select('#current .ps-source-toggle')
