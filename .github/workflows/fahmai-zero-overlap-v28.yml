@@ -2,7 +2,7 @@ name: Fah Mai v28 — enforce zero overlapping text or cropped pages
 on:
   push:
     branches: [main]
-    paths: ['.github/workflows/fahmai-zero-overlap-v28.yml']
+    paths: ['.github/workflows/fahmai-zero-overlap-v28.yml', 'proposals/fah-mai/qa_no_clipping_v28.py']
   workflow_dispatch:
 
 permissions:
