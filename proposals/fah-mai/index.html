@@ -4207,6 +4207,45 @@ body,.viewport{overflow-anchor:none!important}
   html body .fm-zoom button{transition:none!important}
 }
 </style>
+<style id="fahmai-toolbar-fix-v21">
+/* Correct the legacy 56px max-height that clipped the second toolbar row.
+   Keep both rows fully visible without scrolling the toolbar internally. */
+@media screen and (max-width:800px){
+ html,html body{
+   overflow-x:clip!important;
+   overflow-y:visible!important;
+ }
+ html body .toolbar{
+   position:sticky!important;top:0!important;
+   overflow:visible!important;
+   isolation:isolate!important;
+   background:#fff!important;
+ }
+ html body .toolbar .toolbar-inner{
+   display:grid!important;
+   height:auto!important;
+   min-height:0!important;
+   max-height:none!important;
+   grid-template-columns:minmax(0,1fr) auto!important;
+   grid-template-rows:41px 41px!important;
+   align-content:center!important;
+   overflow:visible!important;
+ }
+ html body .toolbar .nav-toprow{display:contents!important}
+ html body .toolbar .view-switcher{grid-row:1!important;grid-column:1!important}
+ html body .toolbar .tool-actions{grid-row:1!important;grid-column:2!important}
+ html body .toolbar nav.tabs.proposal-sections{
+   grid-row:2!important;grid-column:1/-1!important;
+   height:41px!important;min-height:41px!important;max-height:41px!important;
+   overflow-x:auto!important;overflow-y:hidden!important;
+ }
+ html body .toolbar nav.tabs.proposal-sections button#tab-budget[aria-selected="true"]{
+   color:#aa1f67!important;-webkit-text-fill-color:#aa1f67!important;
+   background:#fcebf4!important;border-color:#efc9dd!important;
+   box-shadow:none!important;
+ }
+}
+</style>
 </head><body>
 <div class="toolbar"><div class="toolbar-inner">
  <div class="nav-toprow">
