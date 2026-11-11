@@ -1,0 +1,51 @@
+name: Fah Mai v26 — one-row menu and clear pricing
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/fahmai-v26-pricing-nav.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fahmai-v26-pricing-nav
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Make only the three requested changes
+        run: python proposals/fah-mai/fix_pricing_toolbar_v26.py
+      - name: Install Chromium and Safari WebKit
+        run: |
+          python -m pip install -q playwright
+          python -m playwright install --with-deps chromium webkit >/dev/null
+      - name: Confirm one-line toolbar, left/right pricing and hover contrast
+        run: python proposals/fah-mai/qa_price_nav_v26.py
+      - name: Confirm mobile page fit, Overview startup and A4 clipping
+        run: python proposals/fah-mai/qa_mobile_reader_v23.py
+      - name: Confirm internal A4 page geometry identical across devices
+        run: python proposals/fah-mai/qa_exact_paper_v25.py
+      - name: Publish tested HTML change to main
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- proposals/fah-mai/index.html
+          if git diff --cached --quiet; then echo "NO_CHANGE"; exit 0; fi
+          git commit -m "Clarify one-time vs monthly GBP pricing; restore one-line menu and arrow contrast"
+          for attempt in 1 2 3 4; do
+            git fetch origin main
+            git rebase origin/main
+            if git push origin HEAD:main; then
+              echo "FAHMAI_V26_PUBLISHED"
+              exit 0
+            fi
+            sleep 3
+          done
+          exit 1
