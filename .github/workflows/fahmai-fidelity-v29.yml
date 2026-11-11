@@ -1,0 +1,59 @@
+name: Fah Mai v29 — immutable A4 rendering for mobile
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/fahmai-fidelity-v29.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fahmai-fidelity-v29
+  cancel-in-progress: false
+
+jobs:
+  build-render-and-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install browser and image dependencies
+        run: |
+          python -m pip install -q playwright Pillow
+          python -m playwright install --with-deps chromium webkit >/dev/null
+      - name: Capture all 11 A4 pages at 2x and make mobile image mode
+        run: python proposals/fah-mai/render_fidelity_pages_v29.py
+      - name: Check Safari and Chromium across phone, tablet and landscape sizes
+        run: python proposals/fah-mai/qa_fidelity_reader_v29.py
+      - name: Confirm existing pricing, toolbar and navigation remain correct
+        run: python proposals/fah-mai/qa_price_nav_v26.py
+      - name: Confirm the A4 print document remains identical
+        run: python proposals/fah-mai/qa_exact_paper_v25.py
+      - name: Publish 11 rendered pages and mobile-specific layout
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- proposals/fah-mai/index.html proposals/fah-mai/assets/page-fidelity-*.webp
+          git commit -m "Guarantee pixel-identical A4 layouts on mobile via pre-rendered proposal pages"
+          for i in 1 2 3 4; do
+            git fetch origin main
+            git rebase origin/main
+            if git push origin HEAD:main; then
+              echo "A4_FIDELITY_PUBLISHED_SHA=$(git rev-parse HEAD)"
+              exit 0
+            fi
+            sleep 3
+          done
+          echo "Publishing failed"
+          exit 1
+      - name: Validate actual public commit-pinned URL on iPhone browser engines
+        shell: bash
+        env:
+          FAHMAI_PREVIEW_URL: ""
+        run: |
+          export FAHMAI_PREVIEW_URL="https://githubraw.com/kailanthecoder/themostwantedexperience/$(git rev-parse HEAD)/proposals/fah-mai/"
+          echo "PUBLIC_URL=$FAHMAI_PREVIEW_URL"
+          python proposals/fah-mai/qa_fidelity_reader_v29.py
+          echo "LIVE_GITHUBRAW_MOBILE_FIDELITY_PASSED"
