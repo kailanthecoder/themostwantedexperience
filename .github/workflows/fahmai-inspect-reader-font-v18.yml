@@ -1,0 +1,38 @@
+name: Inspect reader startup and font downloads
+on:
+  push:
+    paths: ['.github/workflows/fahmai-inspect-reader-font-v18.yml']
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect initial tab selection and variable font assets
+        run: |
+          python -m pip install beautifulsoup4 requests -q
+          python - <<'PY'
+          from pathlib import Path
+          from bs4 import BeautifulSoup
+          import requests,re
+          s=Path('proposals/fah-mai/index.html').read_text()
+          d=BeautifulSoup(s,'html.parser')
+          for i in [0,1,2]:
+            script=d.select('script')[i].get_text()
+            print('SCRIPT',i,'len',len(script))
+            if i==0: print('ALL_SCRIPT0',script[:3600])
+            if i==1: print('ALL_SCRIPT1',script[:3000])
+            if i==2:
+              print('STORY_INITIAL',script[:5900])
+              print('STORY_FINAL',script[-4800:])
+          for item in d.select('#spec-delivery .specv6-capability'):
+            print('CAPABILITY',item.get_text(' ',strip=True)[:340])
+          u='https://fonts.googleapis.com/css2?family=Outfit:wght@300..900&family=Sora:wght@300..800&family=Source+Sans+3:wght@300..900&display=swap'
+          r=requests.get(u,headers={'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'},timeout=25)
+          print('GOOGLE_FONTS_STATUS',r.status_code,'bytes',len(r.content))
+          print('GOOGLE_CSS_SAMPLE',r.text[:3200])
+          for family in ['Sora','Outfit','Source Sans 3']:
+            ms=list(re.finditer(r'/\* latin \*/\s*@font-face\s*\{([^}]*)\}',r.text))
+            matches=[x.group(1) for x in ms if 'font-family: \\''+family+'\\'' in x.group(1)]
+            print('LATIN_FONT',family,'number',len(matches))
+            for hit in matches[:2]:print('LATIN_FONT_RULE',family,hit[:600])
+          PY
