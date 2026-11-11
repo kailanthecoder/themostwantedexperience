@@ -1,0 +1,39 @@
+name: Inspect overview startup, spec icons and font rules
+on:
+  push:
+    paths: ['.github/workflows/fahmai-inspect-start-font-icons-v18.yml']
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect article, navigation scripts, type and tech capabilities
+        run: |
+          python -m pip install beautifulsoup4 -q
+          python - <<'PY'
+          from pathlib import Path
+          from bs4 import BeautifulSoup
+          import re
+          p=Path('proposals/fah-mai/index.html')
+          s=p.read_text()
+          d=BeautifulSoup(s,'html.parser')
+          print('INDEX_LENGTH',len(s),'A4_PAGES',len(d.select('.viewport>.sheet')),'SCRIPTS',len(d.select('script')),'STYLES',len(d.select('style')))
+          spec=d.find(id='spec-delivery')
+          print('SPEC_BODY',str(spec.select_one('.sheet-body')).replace('\n',' ')[:13000])
+          print('SPEC_CAPABILITY_COUNT',len(spec.select('.specv6-capability')))
+          print('NAV',str(d.select_one('.toolbar'))[:3500].replace('\n',' '))
+          print('HEAD_TAGS',str(d.select_one('head'))[:5000].replace('\n',' '))
+          for k,script in enumerate(d.select('script')):
+            code=script.get_text()
+            print('SCRIPT',k,script.get('id'),'length',len(code),'last-lines',code[-700:].replace('\n',' '))
+            for pat in ('scrollRestoration','pageshow','beforeunload','scrollTo(','restore','localStorage','sessionStorage','setActive','navigateTo','setSpread','goTo','spreadGroups','initial','DOMContentLoaded','data-reading-mode','hashchange','scrollIntoView','history.state','pagehide'):
+              ms=list(re.finditer(re.escape(pat),code,re.I))
+              if ms:
+                print('SCRIPT_PATTERN',k,pat,len(ms))
+                for m in ms[:5]:print('SCRIPT_CONTEXT',k,pat,repr(code[max(0,m.start()-230):m.start()+370]))
+          for pat in ('font-family:','font-family =','--font','@font-face','fonts.googleapis.com','fonts.gstatic','Sora','Outfit','Source Sans 3'):
+            print('FONT_TOKEN',pat,len(re.findall(re.escape(pat),s,re.I)))
+          print('ARTICLE_HEADER',re.search(r'<article[^>]*id="overview"[^>]*>',s).group(0))
+          for rule in ('body{','body {','.sheet{','.sheet {','@media print','@media screen and (max-width:800px)'):
+            print('STYLE_QUERY',rule,len(re.findall(re.escape(rule),s)))
+          PY
