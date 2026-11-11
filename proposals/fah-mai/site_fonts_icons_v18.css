@@ -1,0 +1,89 @@
+/* Exclusive font system for the website, its controls, and A4/PDF output.
+   Fonts are served locally as variable WOFF2 assets. */
+@font-face{font-family:"Sora";src:url("./fonts/sora-latin-v18.woff2") format("woff2");font-style:normal;font-weight:300 800;font-display:swap;}
+@font-face{font-family:"Outfit";src:url("./fonts/outfit-latin-v18.woff2") format("woff2");font-style:normal;font-weight:300 900;font-display:swap;}
+@font-face{font-family:"Source Sans 3";src:url("./fonts/source-sans-3-latin-v18.woff2") format("woff2");font-style:normal;font-weight:300 900;font-display:swap;}
+
+/* Three explicit roles. The absent sentinel IDs raise specificity above all
+   historic theme and section overrides without changing any page markup. */
+:root body :not(#__font_guard_a):not(#__font_guard_b):not(#__font_guard_c){
+  font-family:"Source Sans 3"!important;
+}
+:root body :not(#__font_guard_a):not(#__font_guard_b):not(#__font_guard_c):is(
+  h1,h2,h3,h4,h5,h6,
+  .chapter-banner-name,.ps-v17-title,.budgetv8-quote-heading strong,
+  .hero-title,.hero-heading,.display-heading,.section-title,
+  .vision-card-title,.page-title,.site-title,.audit-v5-observation-title
+){
+  font-family:"Sora"!important;
+}
+:root body :not(#__font_guard_a):not(#__font_guard_b):not(#__font_guard_c):is(
+  .sub,.subtitle,.subheading,.section-subtitle,.section-lede,
+  .page-heading .sub,.specv6-heading > p,
+  .budgetv8-intro > p,.hero-subtitle,.hero-subheading,
+  .specv6-stack-title,.chapter-divider strong,.chapter-banner-count
+){
+  font-family:"Outfit"!important;
+}
+/* Subheadings expressed as nested paragraphs rather than classed text. */
+:root body #spec-delivery#spec-delivery .specv6-heading p,
+:root body #spec#spec .specv6-heading p,
+:root body #budget#budget .budgetv8-intro p,
+:root body #examples#examples .page-heading .sub,
+:root body #examples-client#examples-client .page-heading .sub,
+:root body #implementation#implementation .page-heading .sub,
+:root body #implementation-evidence#implementation-evidence .page-heading .sub{
+  font-family:"Outfit"!important;
+}
+
+/* Seven carefully differentiated line icons within the EXISTING number rail.
+   The space, columns and typography of the technical scope stay unchanged. */
+#spec-delivery .specv6-capability .specv6-num.specv18-glyph{
+  box-sizing:border-box!important;
+  width:27px!important;
+  height:32px!important;
+  min-height:32px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  position:relative!important;
+  padding:0!important;
+  margin:0!important;
+  line-height:1!important;
+  border:0!important;
+  background:transparent!important;
+  white-space:nowrap!important;
+}
+#spec-delivery .specv6-capability .specv18-glyph svg{
+  display:block!important;
+  width:22px!important;
+  height:22px!important;
+  min-width:22px!important;
+  max-height:22px!important;
+  fill:none!important;
+  stroke:#b52b72!important;
+  stroke-width:1.75!important;
+  stroke-linecap:round!important;
+  stroke-linejoin:round!important;
+  flex:none!important;
+}
+#spec-delivery .specv6-capability .specv18-glyph .specv18-icon-number{
+  display:block!important;
+  box-sizing:border-box!important;
+  margin:1px 0 0!important;
+  padding:0!important;
+  color:#b4668d!important;
+  font-family:"Source Sans 3"!important;
+  font-size:8px!important;
+  font-weight:800!important;
+  line-height:1!important;
+  letter-spacing:.5px!important;
+  text-align:center!important;
+}
+@media print{
+  #spec-delivery .specv6-capability .specv18-glyph svg{
+    -webkit-print-color-adjust:exact!important;
+    print-color-adjust:exact!important;
+  }
+}
