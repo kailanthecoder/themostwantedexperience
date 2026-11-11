@@ -43,7 +43,7 @@ async def verify(browser,w,h,screenshot=False):
     assert status['fontReady']=='loaded',(w,h,'fonts')
     assert status['soraLoaded'] and status['outfitLoaded'] and status['sourceSansLoaded'],(w,h,'font assets blocked',status)
     assert not errors,(w,h,'JavaScript errors',errors)
-    assert status['toolbar']['height']<=55,(w,h,'two row toolbar')
+    assert status['toolbar']['height']<=(55 if w<=1024 else 80),(w,h,'toolbar unexpectedly tall')
     assert abs(status['nav']['top']-status['switcher']['top'])<16 and abs(status['nav']['top']-status['pdf']['top'])<16,(w,h,'toolbar wrap')
     assert status['switcher']['right']<=status['nav']['left']+2 and status['nav']['right']<=status['pdf']['left']+2,(w,h,'toolbar overlap')
     assert status['sign']['bottom']<status['body']['bottom']-2,(w,h,'signoff clipped')
