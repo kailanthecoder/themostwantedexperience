@@ -1,0 +1,38 @@
+name: Inspect Fah Mai mobile reader architecture
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/fahmai-mobile-inspect.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Report styles and scripts without modifying site
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path('proposals/fah-mai/index.html').read_text()
+          print('HTML_LENGTH',len(s),'LINES',s.count('\\n'))
+          print('HEAD',s[:1800])
+          scripts=list(re.finditer(r'<script\\b[^>]*>(.*?)</script\\s*>',s,re.I|re.S))
+          styles=list(re.finditer(r'<style\\b[^>]*>(.*?)</style\\s*>',s,re.I|re.S))
+          print('SCRIPTS',[(i,len(m.group(1)),m.start()) for i,m in enumerate(scripts)])
+          print('STYLES',[(i,len(m.group(1)),m.start()) for i,m in enumerate(styles)])
+          for i,m in enumerate(scripts):
+              code=m.group(1)
+              print('SCRIPT_CONTENT_START',i)
+              print(code[:150000])
+              print('SCRIPT_CONTENT_END',i)
+          for i,m in enumerate(styles):
+              css=m.group(1)
+              matches=list(re.finditer(r'@media|\\.viewport|\\.sheet|\\.toolbar|\\.tabs|\\.fm-story|\\.pdf-btn|safe-area|100vh|100dvh|scroll-snap|mobile|overflow|position:\\s*fixed',css,re.I))
+              print('STYLE',i,'CSS_LEN',len(css),'MATCHES',len(matches))
+              for a in matches[-100:]:
+                  print('CSS_NEAR',i,a.start(),repr(css[max(0,a.start()-160):a.start()+360]))
+          PY
