@@ -2,7 +2,7 @@ name: Verify the ACTUAL public GitHubraw Fah Mai preview on phones
 on:
   push:
     branches: [main]
-    paths: ['.github/workflows/fahmai-pinned-public-qa.yml']
+    paths: ['.github/workflows/fahmai-pinned-public-qa.yml', 'proposals/fah-mai/qa_pinned_public_v28.py']
   workflow_dispatch:
 permissions:
   contents: read
