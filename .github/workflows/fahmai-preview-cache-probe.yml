@@ -1,0 +1,42 @@
+name: Probe the published Fah Mai website for stale CDN caching
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/fahmai-preview-cache-probe.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compare live public preview endpoints to latest verified file
+        shell: bash
+        run: |
+          SHA="$(git rev-parse HEAD)"
+          ROOT="https://githubraw.com/kailanthecoder/themostwantedexperience"
+          echo "LOCAL_SHA=$SHA"
+          git show HEAD:proposals/fah-mai/index.html | sha256sum | sed 's/^/LOCAL_SHA256: /'
+          URLS=(
+            "$ROOT/main/proposals/fah-mai/index.html"
+            "$ROOT/main/proposals/fah-mai/index.html?rev=$SHA"
+            "$ROOT/main/proposals/fah-mai/?rev=$SHA"
+            "$ROOT/$SHA/proposals/fah-mai/index.html"
+            "$ROOT/$SHA/proposals/fah-mai/"
+            "https://raw.githack.com/kailanthecoder/themostwantedexperience/$SHA/proposals/fah-mai/index.html"
+            "https://cdn.jsdelivr.net/gh/kailanthecoder/themostwantedexperience@$SHA/proposals/fah-mai/index.html"
+          )
+          n=0
+          for URL in "\${URLS[@]}"; do
+            n=$((n+1))
+            echo "START_PROBE_$n"
+            echo "URL=$URL"
+            curl -L -sS -m 15 -o "/tmp/probe-$n" -D "/tmp/headers-$n" -w 'STATUS=%{http_code} BYTES=%{size_download} TYPE=%{content_type}\n' "$URL" || true
+            sha256sum "/tmp/probe-$n" | sed 's/^/BODY_SHA256=/'
+            if grep -q 'fahmai-zero-overlap-v28' "/tmp/probe-$n"; then echo 'HAS_V28=YES'; else echo 'HAS_V28=NO'; fi
+            if grep -q 'fahmai-one-row-nav-and-pricing-v26' "/tmp/probe-$n"; then echo 'HAS_V26=YES'; else echo 'HAS_V26=NO'; fi
+            grep -i -E '^(cache-control|age|cf-cache-status|content-type|location|etag):' "/tmp/headers-$n" | head -10 || true
+            echo "END_PROBE_$n"
+          done
