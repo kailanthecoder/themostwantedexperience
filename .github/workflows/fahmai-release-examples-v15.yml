@@ -1,0 +1,175 @@
+name: Publish readable Examples and clean Autoglass preview
+on:
+  push:
+    paths: ['.github/workflows/fahmai-release-examples-v15.yml']
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Capture the real Autoglass site with the cookie banner dismissed
+        run: |
+          python -m pip install playwright pillow pypdf -q
+          python -m playwright install chromium >/dev/null 2>&1
+          python - <<'PY'
+          from pathlib import Path
+          import asyncio,io,re,base64
+          from PIL import Image
+          from playwright.async_api import async_playwright
+          async def main():
+            async with async_playwright() as p:
+              browser=await p.chromium.launch()
+              page=await browser.new_page(viewport={'width':1440,'height':900},device_scale_factor=1)
+              response=await page.goto('https://nwilautoglass.com/',wait_until='domcontentloaded',timeout=50000)
+              print('NWIL_SITE',response.status if response else None,await page.title(),page.url)
+              assert response and response.status==200,'Real NWIL website not available'
+              await page.wait_for_timeout(1700)
+              for name in ('Reject optional','Reject all','Only necessary','Decline optional'):
+                try:
+                  node=page.get_by_role('button',name=re.compile(name,re.I)).first
+                  if await node.count() and await node.is_visible():
+                    await node.click(timeout=4500)
+                    print('COOKIE_DISMISSED',name)
+                    break
+                except Exception as err:print('COOKIE_CLICK_RETRY',name,str(err)[:80])
+              await page.wait_for_timeout(1100)
+              popup=await page.get_by_text('Your privacy choices',exact=False).first.is_visible() if await page.get_by_text('Your privacy choices',exact=False).count() else False
+              if popup:
+                print('COOKIE_FALLBACK','Hide consent UI only for local image capture')
+                await page.add_style_tag(content='[class*="cookie"],[id*="cookie"],[class*="consent"],[id*="consent"]{display:none!important}')
+                await page.wait_for_timeout(250)
+              popup=await page.get_by_text('Your privacy choices',exact=False).first.is_visible() if await page.get_by_text('Your privacy choices',exact=False).count() else False
+              assert not popup,'Screenshot still obstructed by cookie banner'
+              await page.evaluate('window.scrollTo(0,0)')
+              screenshot=await page.screenshot(full_page=False,animations='disabled')
+              image=Image.open(io.BytesIO(screenshot)).convert('RGB')
+              # The hero text and service quote are visible in this crop.
+              image=image.crop((0,0,1440,780)).resize((1200,650),Image.Resampling.LANCZOS)
+              location=Path('proposals/fah-mai/nwil-autoglass-preview-v15.webp')
+              image.save(location,'WEBP',quality=88,method=6)
+              assert location.stat().st_size>15000,'Autoglass capture unexpectedly blank'
+              print('NWIL_CAPTURE',image.size,location.stat().st_size,'site',page.url)
+              preview=image.copy();preview.thumbnail((640,350))
+              buf=io.BytesIO();preview.save(buf,'JPEG',quality=78)
+              print('NWIL_CAPTURE_PREVIEW_BASE64',base64.b64encode(buf.getvalue()).decode())
+              await browser.close()
+          asyncio.run(main())
+          PY
+      - name: Enlarge text on two Examples pages, update preview and insert continuation cue
+        run: python proposals/fah-mai/install_examples_readability_v15.py
+      - name: Verify all cards and A4 boundaries on desktop and mobile
+        run: |
+          python - <<'PY'
+          import asyncio,io,base64
+          from pathlib import Path
+          from PIL import Image
+          from pypdf import PdfReader
+          from playwright.async_api import async_playwright
+          uri=Path('proposals/fah-mai/index.html').resolve().as_uri()
+          async def metrics(page):
+            return await page.evaluate("""()=>{
+              const rect=e=>{const r=e.getBoundingClientRect();return {top:r.top,bottom:r.bottom,left:r.left,right:r.right,w:r.width,h:r.height}};
+              const pages=[...document.querySelectorAll('.viewport>.sheet')];
+              return {
+                pages:pages.map(e=>e.id),
+                mode:document.querySelector('.viewport').dataset.readingMode,
+                cards:[...document.querySelectorAll('#examples .example-card,#examples-client .example-card')].map(e=>{
+                  const copy=e.querySelector('.example-copy'),h=e.querySelector('h3'),p=e.querySelector('p'),cr=e.querySelector('.example-credit'),action=e.querySelector('.example-action');
+                  return {title:h.textContent.trim(),card:rect(e),copy:rect(copy),heading:parseFloat(getComputedStyle(h).fontSize),description:parseFloat(getComputedStyle(p).fontSize),credit:cr?parseFloat(getComputedStyle(cr).fontSize):null,
+                   action:parseFloat(getComputedStyle(action).fontSize),actionRect:rect(action),
+                   nameRect:rect(h),pRect:rect(p),creditRect:cr?rect(cr):null,
+                   image:e.querySelector('img')?.getAttribute('src'),loaded:e.querySelector('img')?.complete&&e.querySelector('img')?.naturalWidth>0}},
+                ),
+                footer:rect(document.querySelector('#examples .sheet-footer')),
+                examplesContinue:rect(document.querySelector('#examples .examples-continue')),
+                cueVisible:getComputedStyle(document.querySelector('#examples .examples-continue')).display!=='none',
+                cueAnimation:getComputedStyle(document.querySelector('#examples .examples-continue-chevron')).animationName,
+                sectionBody:rect(document.querySelector('#examples .sheet-body')),
+                budget:{notes:rect(document.querySelector('#budget .budgetv8-footer-notes')),footer:rect(document.querySelector('#budget .sheet-footer'))},
+                spec:{notes:rect(document.querySelector('#spec .specv6-scope-note')),footer:rect(document.querySelector('#spec .sheet-footer'))},
+                specDelivery:{notes:rect(document.querySelector('#spec-delivery .specv6-engagement')),footer:rect(document.querySelector('#spec-delivery .sheet-footer'))},
+                overflow:document.documentElement.scrollWidth>innerWidth+2
+              };
+            }""")
+          async def check(browser,width):
+            page=await browser.new_page(viewport={'width':width,'height':950},device_scale_factor=1)
+            errors=[]
+            page.on('pageerror',lambda e:errors.append(str(e)))
+            await page.goto(uri,wait_until='domcontentloaded',timeout=75000)
+            if width>800:await page.locator('#tab-examples').click()
+            await page.wait_for_timeout(250)
+            data=await metrics(page)
+            print('QA',width,{'mode':data['mode'],'pages':len(data['pages']),'cue':data['examplesContinue'],'footer':data['footer'],'overflow':data['overflow'],
+              'cards':[{'name':c['title'],'h':c['heading'],'p':c['description'],'credit':c['credit'],'button':c['action'],'bottom':c['card']['bottom']} for c in data['cards']]})
+            assert len(data['pages'])==12 and len(data['cards'])==8 and not data['overflow']
+            assert 'examples' in data['pages'] and 'examples-client' in data['pages']
+            assert data['cueVisible'] and data['cueAnimation']!='none'
+            assert data['examplesContinue']['bottom']<=data['footer']['top']-1,'Continuation cue overlaps footer'
+            for c in data['cards']:
+              assert c['heading']>=16 and c['description']>=12 and c['action']>=11,f'Small type remains: {c}'
+              if c['credit'] is not None:assert c['credit']>=10.5,f'Small credit: {c}'
+              assert c['pRect']['bottom']<=c['copy']['bottom']+1,f'Card copy clipped: {c["title"]}'
+              if c['creditRect']:assert c['creditRect']['bottom']<=c['copy']['bottom']+1,f'Card attribution clipped: {c["title"]}'
+            # Non-print pages retain clearance; test only visible pages in desktop spread.
+            last=data['cards'][3]['card']['bottom']
+            assert data['examplesContinue']['top']>=last+8, f'First Examples page cue overlaps cards: {data["examplesContinue"]["top"]} vs {last}'
+            assert data['cards'][7]['card']['bottom']<data['footer']['top']+25, 'Client Example card does not fit A4'
+            n=next(c for c in data['cards'] if c['title']=='N W IL Autoglass')
+            assert n['image']=='./nwil-autoglass-preview-v15.webp'
+            if width>800:
+              assert n['loaded'],'Desktop NWIL preview failed'
+              assert data['mode']=='spread'
+              await page.locator('#examples [data-continue-examples]').click()
+              await page.wait_for_timeout(200)
+              await page.locator('#tab-spec').click()
+              d=await metrics(page)
+              assert d['spec']['notes']['bottom']<=d['spec']['footer']['top']-3,'Spec content overlaps footer after text increase'
+              assert d['specDelivery']['notes']['bottom']<=d['specDelivery']['footer']['top']-3,'Spec technical content overlaps footer'
+              await page.locator('#tab-budget').click()
+              d=await metrics(page)
+              assert d['budget']['notes']['bottom']<=d['budget']['footer']['top']-3,'Budget text increased beyond A4'
+              await page.locator('#tab-examples').click()
+            else:
+              assert data['mode']=='vertical'
+              # Action should move reader to the next page, not just look animated.
+              await page.locator('#examples [data-continue-examples]').click()
+              await page.wait_for_timeout(1050)
+              targetTop=await page.locator('#examples-client').evaluate('(e)=>e.getBoundingClientRect().top')
+              print('CONTINUE_CLICK',width,'secondPageTop',targetTop)
+              assert abs(targetTop)<150,f'{width}: Continue below did not scroll to client projects'
+              await page.locator('#examples-client img[alt="N W IL Autoglass website preview"]').scroll_into_view_if_needed()
+              await page.wait_for_timeout(80)
+              assert await page.locator('#examples-client img[alt="N W IL Autoglass website preview"]').evaluate('(e)=>e.complete&&e.naturalWidth>=1200'),f'{width}: preview fails on mobile'
+            assert not errors,f'JS errors {width}: {errors}'
+            if width==1440:
+              await page.locator('#tab-examples').click()
+              screenshots=[await page.locator('#examples').screenshot(),await page.locator('#examples-client').screenshot()]
+              images=[Image.open(io.BytesIO(s)).convert('RGB') for s in screenshots]
+              for image in images:image.thumbnail((480,680),Image.Resampling.LANCZOS)
+              contact=Image.new('RGB',(sum(i.width for i in images),max(i.height for i in images)),(252,246,250))
+              left=0
+              for image in images:contact.paste(image,(left,0));left+=image.width
+              buffer=io.BytesIO();contact.save(buffer,'JPEG',quality=78,optimize=True)
+              print('EXAMPLES_V15_PREVIEW_BASE64',base64.b64encode(buffer.getvalue()).decode())
+              await page.evaluate("window.dispatchEvent(new Event('beforeprint'))")
+              await page.emulate_media(media='print')
+              await page.pdf(path='/tmp/fahmai-examples-v15.pdf',prefer_css_page_size=True,print_background=True)
+              n=len(PdfReader('/tmp/fahmai-examples-v15.pdf').pages)
+              print('PDF_PAGE_COUNT',n)
+              assert n==12,f'Extra PDF pages: {n}'
+            await page.close()
+          async def run():
+            async with async_playwright() as p:
+              browser=await p.chromium.launch()
+              for width in [1440,900,390,320]:await check(browser,width)
+              await browser.close()
+          asyncio.run(run())
+          PY
+      - name: Publish page and actual website screenshot to same public URL
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add proposals/fah-mai/index.html proposals/fah-mai/nwil-autoglass-preview-v15.webp
+          git diff --cached --quiet || (git commit -m "Improve examples legibility, recapture NWIL site cleanly and add continuation animation" && git push)
