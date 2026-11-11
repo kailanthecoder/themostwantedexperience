@@ -21,7 +21,7 @@ async def check(browser,w,h):
     errors=[]
     page.on('pageerror',lambda e:errors.append(str(e)))
     result=await page.goto(ORIGIN,wait_until='domcontentloaded',timeout=60000)
-    assert result and result.status==200,(browser.browser_type.name,w,h,'bad response',result.status if result else None)
+    assert result and result.status in ((0,200) if ORIGIN.startswith('file:') else (200,)),(browser.browser_type.name,w,h,'bad response',result.status if result else None)
     await page.wait_for_timeout(380)
     async def state():
         return await page.evaluate("""() => {
