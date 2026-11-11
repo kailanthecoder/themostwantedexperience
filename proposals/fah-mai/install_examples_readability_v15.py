@@ -56,11 +56,15 @@ script='''(function(){
   const reader=document.querySelector('.viewport');
   if(!trigger||!target||!reader)return;
   trigger.addEventListener('click',()=>{
-    target.scrollIntoView({
-      behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',
-      block:reader.dataset.readingMode==='vertical'?'start':'nearest',
-      inline:'nearest'
-    });
+    const motion=window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth';
+    if(reader.dataset.readingMode==='vertical'){
+      const targetY=target.getBoundingClientRect().top+window.scrollY;
+      const bar=document.querySelector('.toolbar')?.getBoundingClientRect();
+      const navBottom=bar&&bar.bottom>0?Math.min(bar.bottom,75):0;
+      window.scrollTo({top:Math.max(0,targetY-navBottom-12),behavior:motion});
+    }else{
+      target.scrollIntoView({behavior:motion,block:'nearest',inline:'nearest'});
+    }
   });
 })();'''
 assert "</head>" in html and "</body>" in html
