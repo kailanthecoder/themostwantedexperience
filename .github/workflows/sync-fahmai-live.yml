@@ -1,0 +1,116 @@
+name: Import deployed Fah Mai proposal snapshot
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/sync-fahmai-live.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-fahmai-live
+  cancel-in-progress: false
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Fetch and validate deployed site, then stage its static build
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from urllib.request import Request, urlopen
+          from urllib.parse import urljoin, urlsplit, unquote
+          from urllib.error import URLError, HTTPError
+          import hashlib, re, time
+
+          url = 'https://fah-mai-holdings.usemostwanted.com/'
+          root = Path('proposals/fah-mai')
+          root.mkdir(parents=True, exist_ok=True)
+
+          def get(address):
+              for attempt in range(3):
+                  try:
+                      with urlopen(Request(address, headers={'User-Agent': 'Mozilla/5.0 (compatible; SiteMirror/1.0)', 'Accept': '*/*'}), timeout=35) as r:
+                          if r.status != 200:
+                              raise RuntimeError(f'HTTP {r.status}: {address}')
+                          content = r.read(25_000_001)
+                          if len(content) > 25_000_000:
+                              raise RuntimeError(f'Oversized asset: {address}')
+                          return content, r.headers.get('Content-Type', '')
+                  except (URLError, TimeoutError, HTTPError) as exc:
+                      if attempt == 2: raise
+                      print(f'Retrying {address}: {exc}')
+                      time.sleep(3 * (attempt + 1))
+
+          html_bytes, content_type = get(url)
+          html = html_bytes.decode('utf-8-sig')
+          lower = html.lower()
+          checks = ('<html', 'fah mai', 'most wanted', 'overview', 'budget')
+          if len(html_bytes) < 50000 or not all(s in lower for s in checks):
+              raise RuntimeError(f'Remote site did not look like the Fah Mai proposal; NOT overwriting local file. Bytes={len(html_bytes)}, content-type={content_type}')
+          print(f'LIVE_HTML_BYTES={len(html_bytes)}')
+          print('LIVE_HTML_SHA256=' + hashlib.sha256(html_bytes).hexdigest())
+
+          # Capture same-origin static files linked by the deployed document.
+          # Preserve exact deployed HTML; existing repository assets remain intact.
+          urls = set()
+          for candidate in re.findall(r'\b(?:src|href|poster)\s*=\s*["\']([^"\']+)["\']', html, flags=re.I):
+              if candidate.startswith(('data:', '#', 'javascript:', 'mailto:', 'tel:')):
+                  continue
+              absolute = urljoin(url, candidate)
+              parsed = urlsplit(absolute)
+              if parsed.netloc.lower() != 'fah-mai-holdings.usemostwanted.com':
+                  continue
+              pathname = unquote(parsed.path).lstrip('/')
+              if not pathname or pathname.startswith(('../', '.git/')) or '/..' in pathname:
+                  continue
+              if not re.search(r'\.(?:css|js|mjs|png|jpe?g|webp|gif|svg|ico|woff2?|ttf|otf|pdf)$', pathname, re.I):
+                  continue
+              urls.add((absolute, pathname))
+
+          print(f'SAME_ORIGIN_ASSETS={len(urls)}')
+          if len(urls) > 300:
+              raise RuntimeError('Unexpected number of same-origin assets; aborting rather than mirroring broadly')
+          for absolute, pathname in sorted(urls):
+              target = root / pathname
+              if not target.resolve().is_relative_to(root.resolve()):
+                  raise RuntimeError('Unsafe linked asset path: ' + pathname)
+              blob, typ = get(absolute)
+              target.parent.mkdir(parents=True, exist_ok=True)
+              target.write_bytes(blob)
+              print(f'ASSET {pathname} {len(blob)} bytes')
+
+          (root / 'index.html').write_bytes(html_bytes)
+          print('Validated deployed HTML and staged in proposals/fah-mai/index.html')
+          PY
+      - name: Commit validated live snapshot to main
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- proposals/fah-mai
+          if git diff --cached --quiet; then
+            echo "NO_CHANGES: repository already matches the downloaded static content"
+            exit 0
+          fi
+          git commit -m "Sync Fah Mai proposal from current Cloudflare deployment"
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git rebase origin/main
+            if git push origin HEAD:main; then
+              echo "LIVE_BUILD_COMMITTED"
+              exit 0
+            fi
+            sleep 3
+          done
+          echo "Unable to push synchronized snapshot after retries"
+          exit 1
