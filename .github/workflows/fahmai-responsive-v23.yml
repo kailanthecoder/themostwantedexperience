@@ -2,7 +2,7 @@ name: Repair and verify Fah Mai responsive A4 reader
 on:
   push:
     branches: [main]
-    paths: ['.github/workflows/fahmai-responsive-v23.yml']
+    paths: ['.github/workflows/fahmai-responsive-v23.yml', 'proposals/fah-mai/mobile_reader_stability_v23.py', 'proposals/fah-mai/qa_mobile_reader_v23.py']
   workflow_dispatch:
 
 permissions:
