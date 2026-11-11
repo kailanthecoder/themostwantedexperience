@@ -1,0 +1,122 @@
+name: Release isolated nav and PageSpeed-only Current
+on:
+  push:
+    paths: ['.github/workflows/fahmai-release-nav-current-v16.yml']
+permissions:
+  contents: write
+jobs:
+  test-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply targeted edits to existing proposal
+        run: python proposals/fah-mai/install_nav_current_v16.py
+      - name: Verify PDF button clearance, all nav items, PageSpeed carousel and print
+        run: |
+          python -m pip install playwright pypdf -q
+          python -m playwright install chromium >/dev/null 2>&1
+          python - <<'PY'
+          from pathlib import Path
+          import asyncio,io,base64
+          from pypdf import PdfReader
+          from playwright.async_api import async_playwright
+          p=Path('proposals/fah-mai/index.html')
+          raw=p.read_text(encoding='utf-8')
+          assert 'class="ps-source-toggle"' not in raw
+          assert 'class="audit-v5-carousel"' not in raw
+          assert 'class="ps-evidence"' in raw
+          assert 'if(!screenshot||dots.length!==5)return;' in raw
+          uri=p.resolve().as_uri()
+          async def nav_geometry(page):
+            return await page.evaluate("""()=>{
+              const rect=e=>{let r=e.getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height}};
+              const nav=document.querySelector('.toolbar nav.proposal-sections');
+              const exportBtn=document.querySelector('.toolbar .pdf-btn');
+              const budget=document.querySelector('#tab-budget');
+              return {
+                pageWidth:innerWidth,nav:rect(nav),export:rect(exportBtn),budget:rect(budget),
+                tabs:[...nav.querySelectorAll('button.tab')].map(e=>({id:e.id,rect:rect(e)})),
+                navScrollLeft:nav.scrollLeft,navScrollWidth:nav.scrollWidth,navClientWidth:nav.clientWidth,
+                navOverflow:getComputedStyle(nav).overflowX,navMask:getComputedStyle(nav).maskImage,
+                exportVisible:getComputedStyle(exportBtn).visibility,
+                globalOverflow:document.documentElement.scrollWidth>innerWidth+2
+              };
+            }""")
+          async def check(browser,width):
+            page=await browser.new_page(viewport={'width':width,'height':900},device_scale_factor=1)
+            errors=[]
+            page.on('pageerror',lambda e:errors.append(str(e)))
+            await page.goto(uri,wait_until='domcontentloaded',timeout=75000)
+            await page.wait_for_timeout(140)
+            m=await nav_geometry(page)
+            print('NAV_GEOMETRY',width,m)
+            assert not m['globalOverflow'],f'{width}: document horizontally overflows'
+            assert m['exportVisible']=='visible'
+            assert m['nav']['right']<=m['export']['left']-5,f'{width}: nav bleeds into PDF button: {m}'
+            assert m['navOverflow']=='auto',f'{width}: chapter tabs are no longer horizontally scrollable'
+            assert len(m['tabs'])==6
+            assert m['navMask']!='none',f'{width}: no edge fade for clipped text'
+            if width<=600:
+              # Bring Budget into the tab-strip viewport. It must never slip
+              # beneath the fixed PDF action, including during its active state.
+              await page.locator('#tab-budget').click()
+              await page.wait_for_timeout(520)
+              m=await nav_geometry(page)
+              print('BUDGET_SELECTED',width,m)
+              assert m['budget']['left']>=m['nav']['left']-1,f'{width}: selected Budget clipped at left'
+              assert m['budget']['right']<=m['nav']['right']-5,f'{width}: selected Budget clipped at PDF edge'
+              assert m['budget']['right']<=m['export']['left']-8,f'{width}: Budget overlaps PDF button'
+              assert m['navScrollWidth']>m['navClientWidth'],f'{width}: horizontal nav not scrolling'
+              await page.locator('#tab-overview').click()
+            # Keep website screenshots fully absent, PageSpeed still interactive.
+            assert await page.locator('#current .ps-source-toggle').count()==0
+            assert await page.locator('#current .audit-v5-carousel').count()==0
+            assert await page.locator('#current .ps-report-image').count()==1
+            assert await page.locator('#current [data-ps-slide]').count()==5
+            assert await page.locator('#current .ps-carousel-detail').count()==1
+            if width>800:await page.locator('#tab-current').click()
+            else:await page.locator('#tab-current').click()
+            await page.wait_for_timeout(140)
+            prev=await page.locator('#current .ps-slide-count').text_content()
+            assert prev.strip()=='1 / 5',f'{width}: PageSpeed did not initialise'
+            await page.locator('#current .ps-next').click()
+            assert (await page.locator('#current .ps-slide-count').text_content()).strip()=='2 / 5'
+            await page.locator('#current [data-ps-slide="3"]').click()
+            assert (await page.locator('#current .ps-slide-count').text_content()).strip()=='4 / 5'
+            current=await page.evaluate("""()=>{
+              const a=document.querySelector('#current'),source=a.querySelector('.audit-v5-source'),foot=a.querySelector('.sheet-footer');
+              return {screenshotTitle:a.innerText.includes('Website screenshots'),
+                pageSpeedImage:getComputedStyle(a.querySelector('.ps-report-image')).backgroundImage,
+                sourceBottom:source.getBoundingClientRect().bottom,footerTop:foot.getBoundingClientRect().top,
+                pageCount:document.querySelectorAll('.viewport>.sheet').length,
+                active:[...document.querySelectorAll('.viewport>.sheet.is-active')].map(x=>x.id)
+              };
+            }""")
+            print('CURRENT',width,current)
+            assert not current['screenshotTitle']
+            assert 'pagespeed-evidence-v11.avif' in current['pageSpeedImage']
+            assert current['pageCount']==12
+            assert current['sourceBottom']<=current['footerTop']-3,f'{width}: Current content clips A4 footer'
+            assert not errors,f'{width}: JS errors {errors}'
+            if width==1440:
+              await page.evaluate("window.dispatchEvent(new Event('beforeprint'))")
+              await page.emulate_media(media='print')
+              await page.pdf(path='/tmp/fahmai-nav-v16.pdf',prefer_css_page_size=True,print_background=True)
+              n=len(PdfReader('/tmp/fahmai-nav-v16.pdf').pages)
+              print('PDF_PAGES',n)
+              assert n==12
+            await page.close()
+          async def main():
+            async with async_playwright() as p:
+              browser=await p.chromium.launch()
+              for width in (1440,1050,1000,900,760,600,390,320):
+                await check(browser,width)
+              await browser.close()
+          asyncio.run(main())
+          PY
+      - name: Publish at original public proposal URL
+        run: |
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add proposals/fah-mai/index.html
+          git diff --cached --quiet || (git commit -m "Isolate Budget tab from Export PDF and remove Current website screenshots" && git push)
