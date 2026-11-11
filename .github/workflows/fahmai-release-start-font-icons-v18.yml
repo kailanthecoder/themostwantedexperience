@@ -161,6 +161,19 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
           git add proposals/fah-mai/index.html proposals/fah-mai/fonts/sora-latin-v18.woff2 proposals/fah-mai/fonts/outfit-latin-v18.woff2 proposals/fah-mai/fonts/source-sans-3-latin-v18.woff2
-          git diff --cached --quiet || (git commit -m "Start Fah Mai proposal on Overview and use seven icons plus Sora/Outfit/Source Sans 3 only" && git push)
+          if ! git diff --cached --quiet; then
+            git commit -m "Start Fah Mai proposal on Overview and use seven icons plus Sora/Outfit/Source Sans 3 only"
+            for attempt in 1 2 3 4; do
+              git fetch origin main
+              git rebase origin/main
+              if git push origin HEAD:main; then
+                echo "PUBLISHED_ON_ATTEMPT=$attempt"
+                exit 0
+              fi
+              sleep 2
+            done
+            echo "Failed to publish after rebasing against latest main"
+            exit 1
+          fi
 
 # Rerun v18: icon verification uses local CSS dimensions, not scaled A4 pixels
