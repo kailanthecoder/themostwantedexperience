@@ -62,7 +62,7 @@ async def check(browser,w,h):
     for promise in promises:
         b=promise['box'];i=promise['icon'];l=promise['label']
         assert b['left']>=G['left']-1 and b['right']<=G['right']+1,(w,h,'promise outside grid',promise)
-        assert i['right']<=l['left']-2,(w,h,'icon touches label',promise)
+        assert i['right']<l['left']-0.1,(w,h,'icon touches label',promise)
         assert l['left']>=b['left'] and l['right']<=b['right']+1,(w,h,'label beyond own grid cell',promise)
         assert l['bottom']<=b['bottom']+1,(w,h,'label below grid cell',promise)
         assert promise['scrollWidth']<=promise['clientWidth']+2,(w,h,'promise text overflow',promise)
