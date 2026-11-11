@@ -1,0 +1,56 @@
+name: Fah Mai v30 — keep mobile examples and links clickable
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/fahmai-mobile-click-targets-v30.yml
+      - proposals/fah-mai/qa_mobile_links_v30.py
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fahmai-mobile-click-targets-v30
+  cancel-in-progress: false
+
+jobs:
+  build-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install required browser engines
+        run: |
+          python -m pip install -q playwright
+          python -m playwright install --with-deps chromium webkit >/dev/null
+      - name: Measure real anchor and control positions, preserve interactions
+        run: python proposals/fah-mai/restore_mobile_click_targets_v30.py
+      - name: Verify clickable mobile links, fullscreen reports and Examples pages
+        run: python proposals/fah-mai/qa_mobile_links_v30.py
+      - name: Verify no reflow/clipping, all 11 page images, and PDF fallback
+        run: python proposals/fah-mai/qa_fidelity_reader_v29.py
+      - name: Commit exact click targets without changing the page artwork
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add proposals/fah-mai/index.html
+          git commit -m "Keep mobile A4 pages pixel-identical while restoring logo, sample and report clicks"
+          for i in 1 2 3 4; do
+            git fetch origin main
+            git rebase origin/main
+            if git push origin HEAD:main; then
+              echo "MOBILE_CLICK_TARGETS_PUBLISHED_SHA=$(git rev-parse HEAD)"
+              exit 0
+            fi
+            sleep 3
+          done
+          exit 1
+      - name: Verify actual public GitHubraw mobile interactions
+        shell: bash
+        run: |
+          export FAHMAI_PREVIEW_URL="https://githubraw.com/kailanthecoder/themostwantedexperience/$(git rev-parse HEAD)/proposals/fah-mai/"
+          echo "FINAL_INTERACTIVE_PREVIEW_URL=$FAHMAI_PREVIEW_URL"
+          python proposals/fah-mai/qa_mobile_links_v30.py
+          echo "PUBLIC_MOBILE_LINKS_VERIFIED"
